@@ -13,6 +13,9 @@
 
 /*
  * $Log$
+ * Revision 1.5  2003/02/26 20:11:54  randolf
+ * fixed free()ing of visinfo
+ *
  * Revision 1.4  2003/02/23 08:58:57  randolf
  * moved XFree(visinfo) to widget destruction, eps-output may need that structure
  *
@@ -196,6 +199,15 @@
 #endif /* X11 */
 #endif
 #include <tcl.h>
+
+/* fix compilation error (initializer element is not constant)
+   with gcc on IRIX */
+#ifdef __sgi
+#ifdef __GNUC__
+#undef offsetof
+#endif
+#endif
+
 #include <tk.h>
 
 /* XXXX always include tkInt.h */
