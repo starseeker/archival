@@ -120,6 +120,12 @@ proc DragSite::_begin_drag { event source state X Y } {
             set _state "press"
         }
         motion {
+	    # XXXX Bugfix from CVS for Bug #4324 which hits us too
+	    if { ![info exists _state] } {
+		# This is just extra protection. There seem to be
+		# rare cases where the motion comes before the press.
+		return
+	    }
             if { ![string compare $_state "press"] } {
                 if { abs($_x0-$X) > 3 || abs($_y0-$Y) > 3 } {
                     set _state "done"
