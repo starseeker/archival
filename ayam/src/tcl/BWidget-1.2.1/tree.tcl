@@ -999,7 +999,8 @@ proc Tree::_update_nodes { path } {
                         -foreground [Widget::getoption $path -linesfill] \
                         -tags       "cross c:$node" -anchor c
                 } else {
-                    $path:cmd itemconfigure $idc -bitmap @$bmp
+		    #XXXX was -bitmap @$bmp
+                    $path:cmd itemconfigure $idc -bitmap $bmp
                 }
             } else {
                 $path:cmd delete $idc
