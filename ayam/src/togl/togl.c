@@ -7,9 +7,15 @@
  * See the LICENSE file for copyright details.
  */
 
+/*
+ * Randolf Schultz: fixed some memory leaks; changes marked XXXX
+ */
 
 /*
  * $Log$
+ * Revision 1.1.1.1  2001/10/10 16:15:37  randolf
+ * Initial revision based on Ayam1.0b4.
+ *
  * Revision 1.40  1997/12/13 02:27:46  brianp
  * only call Tcl_DeleteCommandFromToken() is using Tcl/Tk 8.0 or later
  *
@@ -1726,6 +1732,10 @@ static int Togl_MakeWindowExist(struct Togl *togl)
          }
       }
    }
+
+   /* XXXX free visual that has been allocated by glXChooseVisual() above */
+   XFree(visinfo);
+
 #endif /* X11 */
 
    /* for EPS Output */
@@ -1778,7 +1788,6 @@ static void ToglCmdDeletedProc( ClientData clientData )
     * is NULL) or because the command was deleted, and then this procedure
     * destroys the widget.
     */
-
    if (tkwin != NULL) {
       togl->TkWin = NULL;
       Tk_DestroyWindow(tkwin);
@@ -1820,7 +1829,8 @@ static void Togl_Destroy( ClientData clientData )
  */
 static void Togl_EventProc(ClientData clientData, XEvent *eventPtr)
 {
-   struct Togl *togl = (struct Togl *)clientData;
+  struct Togl *togl = (struct Togl *)clientData;
+  Display *dpy;
 
    switch (eventPtr->type) {
       case Expose:
@@ -1873,7 +1883,17 @@ static void Togl_EventProc(ClientData clientData, XEvent *eventPtr)
          break;
       case DestroyNotify:
 	 if (togl->TkWin != NULL) {
-	    togl->TkWin = NULL;
+
+	   /* XXXX free GLX context */
+#if defined(X11)
+	   dpy = Tk_Display(togl->TkWin);
+	   glXDestroyContext(dpy, togl->GlCtx);
+#endif /* X11 */
+
+	   /* XXXX was: togl->TkWin = NULL;
+	      But why is this set to NULL? Seems to work ok this way,
+	      as the ToglCmdDeletedProc() removes the window using
+	      Tk_DestroyWindow() */
 #if (TCL_MAJOR_VERSION * 100 + TCL_MINOR_VERSION) >= 800
             /* This function new in Tcl/Tk 8.0 */
             Tcl_DeleteCommandFromToken( togl->Interp, togl->widgetCmd );
