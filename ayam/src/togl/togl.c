@@ -13,6 +13,9 @@
 
 /*
  * $Log$
+ * Revision 1.2  2002/05/28 15:29:28  randolf
+ * fixed some memory leaks
+ *
  * Revision 1.1.1.1  2001/10/10 16:15:37  randolf
  * Initial revision based on Ayam1.0b4.
  *
@@ -1782,6 +1785,13 @@ static void ToglCmdDeletedProc( ClientData clientData )
    struct Togl *togl = (struct Togl *)clientData;
    Tk_Window tkwin = togl->TkWin;
 
+   if (togl && tkwin) {
+      Tk_DeleteEventHandler(tkwin,
+                         ExposureMask | StructureNotifyMask,
+                         Togl_EventProc,
+                         (ClientData)togl);
+   }
+
    /*
     * This procedure could be invoked either because the window was
     * destroyed and the command was then deleted (in which case tkwin
@@ -1792,6 +1802,7 @@ static void ToglCmdDeletedProc( ClientData clientData )
       togl->TkWin = NULL;
       Tk_DestroyWindow(tkwin);
    }
+
 }
 
 
