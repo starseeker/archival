@@ -196,8 +196,7 @@ MeshTp<Face>::MeshTp(Vertex *cv, uint nfaces, uint *nverts, uint *verts) {
     for(int u = 0; u < novtx; ++u) 
       _v[u] = &(cv[verts[start+u]]);
     TLFaceType* t = new TLFaceType(novtx, _v);
-    delete _v;
-      
+
     EnoType e;
 
     for(e = 1; e < t->noVtx()+1; ++e) {
