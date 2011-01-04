@@ -26,6 +26,7 @@ Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 
 #include "mesh.h"
 #include "trimesh.h"
+#include "triangleiter.h"
 
 TriangleIter::TriangleIter(TriIter ti) 
 { _ti = new TriIter(ti); }
