@@ -113,13 +113,13 @@ public:
 		   v[Y] + t * ( v1.v[Y] - v[Y] ), 
 		     v[Z] + t * ( v1.v[Z] - v[Z])); }
   //: returns the componentwise minimum
-  CVec3T min( const CVec3T& o ) const
+  CVec3T vmin( const CVec3T& o ) const
     { F a = ::min( v[X], o.v[X] );
       F b = ::min( v[Y], o.v[Y] );
       F c = ::min( v[Z], o.v[Z] );
       return CVec3T( a, b,c); }
   //: returns the componentwise maximum
-  CVec3T max( const CVec3T& o ) const
+  CVec3T vmax( const CVec3T& o ) const
     { F a = ::max( v[X], o.v[X] );
       F b = ::max( v[Y], o.v[Y] );
       F c = ::max( v[Z], o.v[Z] );
