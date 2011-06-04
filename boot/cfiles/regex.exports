@@ -1,0 +1,12 @@
+glob->regexp
+grep
+regexp
+regexp-escape
+regexp?
+string-match
+string-match-positions
+string-search
+string-search-positions
+string-split-fields
+string-substitute
+string-substitute*
