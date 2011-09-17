@@ -200,23 +200,6 @@ ENDIF(TCL_TOMMATH)
 
 #----------------------------------------------------------------------------
 
-#This should probably be part of SC_TCL_64BIT_FLAGS()
-IF(NOT CMAKE_CPU_TYPE)
-	IF(${CMAKE_SIZEOF_VOID_P} MATCHES "^8$")
-		SET(CMAKE_CPU_TYPE "64BIT")
-	ELSE(${CMAKE_SIZEOF_VOID_P} MATCHES "^8$")
-		SET(CMAKE_CPU_TYPE "32BIT")
-	ENDIF(${CMAKE_SIZEOF_VOID_P} MATCHES "^8$")
-ENDIF(NOT CMAKE_CPU_TYPE)
-
-IF(${CMAKE_CPU_TYPE} STREQUAL "64BIT")
-	add_definitions(-DTCL_CFG_DO64BIT=1)
-ENDIF(${CMAKE_CPU_TYPE} STREQUAL "64BIT")
-IF(CMAKE_CL_64)
-	add_definitions(-D_stati64=_stat64)
-ENDIF(CMAKE_CL_64)
-
-
 SC_MISSING_POSIX_HEADERS()
 
 SC_ENABLE_THREADS()
