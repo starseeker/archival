@@ -15,8 +15,11 @@ SET(TK_LIBRARY_FILES
 	dialog.tcl
 	entry.tcl
 	focus.tcl
+	fontchooser.tcl
 	icons.tcl
+	iconlist.tcl
 	listbox.tcl
+	megawidget.tcl
 	menu.tcl
 	mkpsenc.tcl
 	msgbox.tcl
@@ -41,6 +44,8 @@ TK_SCRIPTS_BUILD(TK_LIBRARY_FILES lib/tk${TK_VERSION_MAJOR}.${TK_VERSION_MINOR})
 
 SET(TK_LIBRARY_IMAGE_FILES
 	images/README
+	images/lamp.png
+	images/lamp.svg
 	images/logo.eps
 	images/logo100.gif
 	images/logo64.gif
@@ -142,6 +147,7 @@ SET(TK_DEMO_FILES
 	demos/entry3.tcl
 	demos/filebox.tcl
 	demos/floor.tcl
+	demos/fontchoose.tcl
 	demos/form.tcl
 	demos/goldberg.tcl
 	demos/hscale.tcl
@@ -197,6 +203,7 @@ SET(TK_DEMO_IMAGES
 	demos/images/gray25.xbm
 	demos/images/letters.xbm
 	demos/images/noletter.xbm
+	demos/images/ouster.png
 	demos/images/pattern.xbm
 	demos/images/tcllogo.gif
 	demos/images/teapot.ppm
