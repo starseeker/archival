@@ -45,7 +45,6 @@ ENDIF(COMMAND CMAKE_POLICY)
 # set CMake project name
 PROJECT(TK)
 
-
 # Without Tcl libraries AND sources, we can't build Tk.  Use TCL_SRC_PREFIX
 # and TCL_BIN_PREFIX to identify the location of the Tcl we are to use.
 IF(TCL_SRC_PREFIX AND TCL_BIN_PREFIX)
@@ -72,10 +71,10 @@ ENDIF(TCL_SRC_PREFIX AND TCL_BIN_PREFIX)
 
 
 # build shared libs by default
-OPTION(BUILD_SHARED_LIBS "Build shared libraries" ON)
+set(BUILD_SHARED_LIBS ON)
 
 # build static libs by default
-OPTION(BUILD_STATIC_LIBS "Build static libraries" ON)
+set(BUILD_STATIC_LIBS ON)
 
 # version numbers
 SET(TK_VERSION_MAJOR 8)
@@ -162,7 +161,7 @@ add_definitions(-DPACKAGE_BUGREPORT="")
 add_definitions(-DSTDC_HEADERS=1)
 
 IF(WIN32)
-	add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ot -Oi -fp:strict -Gs -GS -GL -MD -DBUILD_tk -BUILD_ttk -DSUPPORT_CONFIG_EMBEDDED -DHAVE_UXTHEME_H=1 -DUSE_TCL_STUBS)
+	add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ot -Oi -fp:strict -Gs -GS -GL -MD -DBUILD_tk -BUILD_ttk -DSUPPORT_CONFIG_EMBEDDED -DHAVE_UXTHEME_H=1)
 ENDIF(WIN32)
 
 IF(APPLE)
@@ -171,9 +170,17 @@ ENDIF(APPLE)
 #----------------------------------------------------------------------------
 
 # Probably should be part of SC_TCL_64BIT_FLAGS
-IF(BRLCAD-ENABLE_64BIT)
-       add_definitions(-DTCL_CFG_DO64BIT=1)
-ENDIF(BRLCAD-ENABLE_64BIT)
+IF(NOT CMAKE_CPU_TYPE)
+	IF(${CMAKE_SIZEOF_VOID_P} MATCHES "^8$")
+		SET(CMAKE_CPU_TYPE "64BIT")
+	ELSE(${CMAKE_SIZEOF_VOID_P} MATCHES "^8$")
+		SET(CMAKE_CPU_TYPE "32BIT")
+	ENDIF(${CMAKE_SIZEOF_VOID_P} MATCHES "^8$")
+ENDIF(NOT CMAKE_CPU_TYPE)
+
+IF(${CMAKE_CPU_TYPE} STREQUAL "64BIT")
+	add_definitions(-DTCL_CFG_DO64BIT=1)
+ENDIF(${CMAKE_CPU_TYPE} STREQUAL "64BIT")
 IF(CMAKE_CL_64)
        add_definitions(-D_stati64=_stat64)
 ENDIF(CMAKE_CL_64)
@@ -223,7 +230,8 @@ IF(APPLE)
 	IF(COREFOUNDATION_FRAMEWORK)	 
 		add_definitions(-DHAVE_COREFOUNDATION=1)	 
 	ENDIF(COREFOUNDATION_FRAMEWORK)	 
-	find_library(FONTCONFIG_LIBRARY fontconfig)	 
+	find_library(FONTCONFIG_LIBRARY fontconfig)
+	MARK_AS_ADVANCED(FONTCONFIG_LIBRARY)
 ENDIF(APPLE)
 
 IF(NOT WIN32)
@@ -233,6 +241,7 @@ IF(NOT WIN32)
 		OPTION(TK-ENABLE_FREETYPE "Enable freetype support" ON) 
 	ELSE(FREETYPE_FOUND)
 		OPTION(TK-ENABLE_FREETYPE "Enable freetype support" OFF) 
+		SET(FREETYPE_LIBRARIES "")
 	ENDIF(FREETYPE_FOUND)
 	SET(TK_WINDOWINGSYSTEM X11)
 ENDIF(NOT WIN32)
@@ -401,6 +410,8 @@ SET(TTK_SRCS
 	generic/ttk/ttkSeparator.c
 	generic/ttk/ttkSquare.c
 	generic/ttk/ttkState.c
+	generic/ttk/ttkStubInit.c
+	generic/ttk/ttkStubLib.c
 	generic/ttk/ttkTagSet.c
 	generic/ttk/ttkTheme.c
 	generic/ttk/ttkTrace.c
@@ -481,7 +492,8 @@ SET(TK_AQUA_SRCS
 	macosx/tkMacOSXXStubs.c
 	generic/tkFileFilter.c
 	generic/tkMacWinMenu.c
-	generic/tkPointer.c unix/tkUnix3d.c
+	generic/tkPointer.c
+	unix/tkUnix3d.c
 	unix/tkUnixScale.c
 	xlib/xcolors.c
 	xlib/xdraw.c
@@ -586,16 +598,14 @@ IF(NOT LIB_DIR)
 	SET(LIB_DIR lib)
 ENDIF(NOT LIB_DIR)
 
-add_definitions(-g)
-
 IF(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
 	SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 ENDIF(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
 
 add_library(tkstub STATIC ${TK_STUB_SRCS} ${TTK_STUB_SRCS})
 SET_TARGET_PROPERTIES(tkstub PROPERTIES COMPILE_FLAGS "-fPIC")
-SET_PROPERTY(TARGET tkstub APPEND PROPERTY COMPILE_DEFINITOINS USE_TCL_STUBS)
 install(TARGETS tkstub DESTINATION ${LIB_DIR})
+SET_PROPERTY(TARGET tkstub APPEND PROPERTY COMPILE_DEFINITIONS USE_TCL_STUBS)
 
 add_library(tk ${TK_SRCS})
 IF(WIN32)
@@ -605,8 +615,7 @@ ELSE(WIN32)
 ENDIF(WIN32)
 install(TARGETS tk DESTINATION ${LIB_DIR})
 SET_TARGET_PROPERTIES(tk PROPERTIES VERSION ${TK_VERSION} SOVERSION ${TK_VERSION_MAJOR}.${TK_VERSION_MINOR})
-SET_PROPERTY(TARGET tk APPEND PROPERTY COMPILE_DEFINITOINS USE_TCL_STUBS)
-
+SET_PROPERTY(TARGET tk APPEND PROPERTY COMPILE_DEFINITIONS USE_TCL_STUBS)
 
 GET_TARGET_PROPERTY(TK_LIBLOCATION tk LOCATION_${CMAKE_BUILD_TYPE})
 GET_FILENAME_COMPONENT(TK_LIBNAME ${TK_LIBLOCATION} NAME)

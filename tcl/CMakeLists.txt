@@ -46,10 +46,10 @@ ENDIF(COMMAND CMAKE_POLICY)
 PROJECT(TCL)
 
 # build shared libs by default
-OPTION(BUILD_SHARED_LIBS "Build shared libraries" ON)
+set(BUILD_SHARED_LIBS ON)
 
 # build static libs by default
-OPTION(BUILD_STATIC_LIBS "Build static libraries" ON)
+set(BUILD_STATIC_LIBS ON)
 
 # version numbers
 SET(TCL_VERSION_MAJOR 8)
@@ -201,9 +201,17 @@ ENDIF(TCL_TOMMATH)
 #----------------------------------------------------------------------------
 
 #This should probably be part of SC_TCL_64BIT_FLAGS()
-IF(BRLCAD-ENABLE_64BIT)
+IF(NOT CMAKE_CPU_TYPE)
+	IF(${CMAKE_SIZEOF_VOID_P} MATCHES "^8$")
+		SET(CMAKE_CPU_TYPE "64BIT")
+	ELSE(${CMAKE_SIZEOF_VOID_P} MATCHES "^8$")
+		SET(CMAKE_CPU_TYPE "32BIT")
+	ENDIF(${CMAKE_SIZEOF_VOID_P} MATCHES "^8$")
+ENDIF(NOT CMAKE_CPU_TYPE)
+
+IF(${CMAKE_CPU_TYPE} STREQUAL "64BIT")
 	add_definitions(-DTCL_CFG_DO64BIT=1)
-ENDIF(BRLCAD-ENABLE_64BIT)
+ENDIF(${CMAKE_CPU_TYPE} STREQUAL "64BIT")
 IF(CMAKE_CL_64)
 	add_definitions(-D_stati64=_stat64)
 ENDIF(CMAKE_CL_64)
@@ -726,12 +734,12 @@ SET(TCL_WIN_SRCS
 	win/tclWinSerial.c
 	win/tclWinSock.c
 	win/tclWinThrd.c
+	win/tclWinTest.c
 	win/tclWinTime.c
 )
 
 SET_PROPERTY(SOURCE win/tclWinInit.c APPEND PROPERTY COMPILE_DEFINITIONS TCL_LIBRARY="${CMAKE_INSTALL_PREFIX}/${LIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}tcl${TCL_VERSION_MAJOR}.${TCL_VERSION_MINOR}${CMAKE_SHARED_LIBRARY_SUFFIX}")
 SET_PROPERTY(SOURCE win/tclWinInit.c APPEND PROPERTY COMPILE_DEFINITIONS TCL_PACKAGE_PATH="${CMAKE_INSTALL_PREFIX}/lib")
-
 
 SET(TCL_UNIX_SRCS
 	unix/tclAppInit.c
@@ -764,22 +772,25 @@ SET(TCL_DL_SRCS
 	unix/tclLoadShl.c
 )
 
-SET(TCL_ZLIB_SRCS = 
-	compat/zlib/adler32.c 
-	compat/zlib/compress.c 
-	compat/zlib/crc32.c 
-	compat/zlib/deflate.c 
-	compat/zlib/infback.c 
-	compat/zlib/inffast.c 
-	compat/zlib/inflate.c 
-	compat/zlib/inftrees.c 
-	compat/zlib/trees.c 
-	compat/zlib/uncompr.c 
-	compat/zlib/zutil.c
-)
+IF(NOT ZLIB_FOUND)
+	SET(TCL_ZLIB_SRCS = 
+		compat/zlib/adler32.c 
+		compat/zlib/compress.c 
+		compat/zlib/crc32.c 
+		compat/zlib/deflate.c 
+		compat/zlib/infback.c 
+		compat/zlib/inffast.c 
+		compat/zlib/inflate.c 
+		compat/zlib/inftrees.c 
+		compat/zlib/trees.c 
+		compat/zlib/uncompr.c 
+		compat/zlib/zutil.c
+		)
+	SET(ZLIB_LIBRARY "")
+	SET(ZLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/compat/zlib)
+ENDIF(NOT ZLIB_FOUND)
 
-
-SET(TCL_SRCS ${TCL_GENERIC_SRCS} ${TCL_OO_SRCS} ${TCL_TOMMATH_SRCS} ${TCL_STUB_SRCS}) 
+SET(TCL_SRCS ${TCL_GENERIC_SRCS} ${TCL_OO_SRCS} ${TCL_TOMMATH_SRCS} ${TCL_STUB_SRCS} ${TCL_ZLIB_SRCS}) 
 IF(WIN32)
 	SET(TCL_SRCS ${TCL_SRCS} ${TCL_WIN_SRCS})
 ELSE(WIN32)
@@ -815,7 +826,7 @@ IF(NOT LIB_DIR)
 ENDIF(NOT LIB_DIR)
 add_library(tcl ${TCL_SRCS})
 install(TARGETS tcl DESTINATION ${LIB_DIR})
-target_link_libraries(tcl ${COREFOUNDATION_FRAMEWORK} ${SUN_MATH_LIB} ${TCL_LINK_LIBS} ${DL_LIBRARY} ${M_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${ZLIB_LIBRARY})
+target_link_libraries(tcl ${COREFOUNDATION_FRAMEWORK} ${SUN_MATH_LIB} ${TCL_LINK_LIBS} ${M_LIBRARY} ${DL_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${ZLIB_LIBRARY})
 GET_TARGET_PROPERTY(TCL_INSTALL_LIBNAME tcl LOCATION)
 SET_TARGET_PROPERTIES(tcl PROPERTIES VERSION ${TCL_VERSION} SOVERSION ${TCL_VERSION_MAJOR}.${TCL_VERSION_MINOR})
 IF(${CMAKE_SYSTEM_NAME} MATCHES "^Darwin$")
@@ -832,7 +843,7 @@ set_target_properties(tclstub PROPERTIES COMPILE_FLAGS "-fPIC")
 install(TARGETS tclstub DESTINATION ${LIB_DIR})
 
 add_executable(tclsh ${TCLSH_SRCS})
-target_link_libraries(tclsh tcl ${SUN_MATH_LIB} ${EXTRA_TCLSH_LIBS})
+target_link_libraries(tclsh tcl ${SUN_MATH_LIB} ${M_LIBRARY} ${EXTRA_TCLSH_LIBS})
 install(TARGETS tclsh DESTINATION bin)
 SET_TARGET_PROPERTIES(tclsh PROPERTIES VERSION ${TCL_VERSION_MAJOR}.${TCL_VERSION_MINOR})
 
@@ -849,4 +860,3 @@ MARK_AS_ADVANCED(TCL_LIBRARIES TCL_CONF_PREFIX TCL_INCLUDE_DIRS TCL_INCLUDE_PATH
 MARK_AS_ADVANCED(TCL_STUB_LIBRARIES TCL_TCLSH TCL_TCLSH_EXECUTABLE)
 MARK_AS_ADVANCED(TCL_THREADS TCL_TK_CONF_PREFIX TCL_TOMMATH TCL_UNLOAD_DLLS)
 MARK_AS_ADVANCED(TCL_VERSION_MAJOR TCL_VERSION_MINOR TCL_WISH_EXECUTABLE)
-
