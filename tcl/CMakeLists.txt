@@ -836,6 +836,8 @@ SET(TCL_HDRS
 	generic/tclPlatDecls.h
 	generic/tclTomMath.h
 	generic/tclTomMathDecls.h
+	generic/tclOO.h
+	generic/tclOODecls.h
 	)
 install(FILES ${TCL_HDRS} DESTINATION include)
 
