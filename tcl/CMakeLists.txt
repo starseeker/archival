@@ -117,19 +117,6 @@ IF(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
    SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all executables.")
 ENDIF(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
 
-FIND_PACKAGE(ZLIB)
-IF(ZLIB_FOUND)
-	add_definitions(-DHAVE_ZLIB=1)
-ENDIF(ZLIB_FOUND)
-
-#-----------------------------------------------------------------------------
-# Check if the compiler supports pipe - if so, use it
-INCLUDE(CheckCCompilerFlag)
-CHECK_C_COMPILER_FLAG(-pipe PIPE_COMPILER_FLAG)
-IF(PIPE_COMPILER_FLAG)
-	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pipe")
-ENDIF(PIPE_COMPILER_FLAG)
-
 #-----------------------------------------------------------------------------
 # Set CMake module path
 SET(CMAKE_MODULE_PATH "${TCL_SOURCE_DIR}/CMake")
@@ -138,62 +125,59 @@ SET(CMAKE_MODULE_PATH "${TCL_SOURCE_DIR}/CMake")
 # Tcl/Tk's normal build system uses autotools macros, referred to as the
 # TEA system.  An attempt to duplicate the required functionality from
 # TEA is found in tcl.cmake
-INCLUDE(${TCL_SOURCE_DIR}/CMake/CheckSystemFunctionality.cmake)
-INCLUDE(${TCL_SOURCE_DIR}/CMake/ac_std_funcs.cmake)
 INCLUDE(${TCL_SOURCE_DIR}/CMake/tcl.cmake)
 
-#----------------------------------------------------------------------------
-# Define some standard configuration settings passed to all Tcl build targets
-add_definitions(-DPACKAGE_NAME="tcl")
-add_definitions(-DPACKAGE_TARNAME="tcl")
-add_definitions(-DPACKAGE_VERSION="${TCL_VERSION_MAJOR}.${TCL_VERSION_MINOR}")
-add_definitions(-DPACKAGE_STRING="tcl ${TCL_VERSION_MAJOR}.${TCL_VERSION_MINOR}")
-add_definitions(-DPACKAGE_BUGREPORT="")
+#-----------------------------------------------------------------------------
+# Our replacement for SC_CONFIG_MANPAGES
+ADD_SUBDIRECTORY(doc)
 
-add_definitions(-DBUILD_tcl)
+#--------------------------------------------------------------------
+# Supply substitutes for missing POSIX header files.
+SC_MISSING_POSIX_HEADERS()
 
-# First, get some standard options out of the way - things that are constant
-# between various platforms or pertain to specific OS definitions
-ADD_TCL_CFLAG(STDC_HEADERS)
+#------------------------------------------------------------------------
+# Check if the compiler understands -pipe.  If so, use it.
+# It makes compiling go faster.  (This is only a performance feature.)
+#------------------------------------------------------------------------
+INCLUDE(CheckCCompilerFlag)
+CHECK_C_COMPILER_FLAG(-pipe PIPE_COMPILER_FLAG)
+IF(PIPE_COMPILER_FLAG)
+	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pipe")
+ENDIF(PIPE_COMPILER_FLAG)
 
-add_definitions(-DTCL_SHLIB_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}")
+#------------------------------------------------------------------------
+# Threads support
+#------------------------------------------------------------------------
+SC_ENABLE_THREADS()
 
-# Windows specific flags
-IF(WIN32)
-   add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEP -Ot -Oi -fp:strict -Gs -GS -GL -MD)
-   add_definitions(-DTCL_PIPE_DLL="tclpip${TCL_VERSION_MAJOR}${TCL_VERSION_MINOR}.dll")
-   add_definitions(-Dinline=__inline -DBUILD_tcl)
-ENDIF(WIN32)
+#------------------------------------------------------------------------
+# Embedded configuration information, encoding to use for the values, TIP #59
+#------------------------------------------------------------------------
+SC_TCL_CFG_ENCODING()
 
-INCLUDE(CheckLibraryExists)
-INCLUDE(ResolveCompilerPaths)
-find_library(IEEE_LIB ieee)
-IF(NOT WIN32)
-	CHECK_LIBRARY_EXISTS(m cos "" HAVE_M_LIBRARY)
-	IF(HAVE_M_LIBRARY)
-		RESOLVE_LIBRARIES(M_LIBRARY "-lm")
-	ENDIF(HAVE_M_LIBRARY)
-	IF(IEEE_LIB)
-		SET(M_LIBRARY "-lieee ${M_LIBRARY}")
-	ENDIF(IEEE_LIB)
-ENDIF(NOT WIN32)
+#--------------------------------------------------------------------
+# Look for libraries that we will need when compiling the Tcl shell
+#--------------------------------------------------------------------
+SC_TCL_LINK_LIBS()
 
-CHECK_LIBRARY_EXISTS(dl dlopen "" HAVE_DL_LIBRARY)
-IF(HAVE_DL_LIBRARY)
-	RESOLVE_LIBRARIES(DL_LIBRARY "-ldl")
-ENDIF(HAVE_DL_LIBRARY)
+# Add the Threading library, if we're using it
+SET(TCL_LINK_LIBS ${TCL_LINK_LIBS} ${TCL_THREADS_LIB})
 
-
-IF(APPLE)
-	ADD_TCL_CFLAG(MAC_OSX_TCL)
-	find_library(COREFOUNDATION_FRAMEWORK CoreFoundation)
-	IF(COREFOUNDATION_FRAMEWORK)
-		ADD_TCL_CFLAG(HAVE_COREFOUNDATION)
-	ENDIF(COREFOUNDATION_FRAMEWORK)
-ENDIF(APPLE)
+#--------------------------------------------------------------------
+# Handle zlib
+#--------------------------------------------------------------------
+FIND_PACKAGE(ZLIB)
+IF(ZLIB_FOUND)
+	add_definitions(-DHAVE_ZLIB=1)
+ELSE(ZLIB_FOUND)
+	ADD_SUBDIRECTORY(compat/zlib)
+	SET(ZLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/compat/zlib)
+	SET(ZLIB_LIBRARY zlib)
+ENDIF(ZLIB_FOUND)
 
 #----------------------------------------------------------------------------
 # Tom's math library - should MP_PREC be an option?
+#----------------------------------------------------------------------------
 OPTION(TCL_TOMMATH "Enable Tom's Math Library" ON)
 IF(TCL_TOMMATH)
 	ADD_TCL_CFLAG(TCL_TOMMATH)
@@ -201,20 +185,30 @@ IF(TCL_TOMMATH)
 ENDIF(TCL_TOMMATH)
 
 #----------------------------------------------------------------------------
-
-SC_MISSING_POSIX_HEADERS()
-
-SC_ENABLE_THREADS()
-
-SC_TCL_CFG_ENCODING()
-
-SC_TCL_LINK_LIBS()
-
-# TODO - look over SC_ENABLE_SHARED, SC_CONFIG_CFLAGS and SC_ENABLE_SYMBOLS
-# need to decide how much of that logic is needed
-
+# 64 Bit support - unlike TEA, we enable by default if the platform looks
+# like it's 64 bit.  Can be overridden by specifying CMAKE_CPU_TYPE=32BIT
+#----------------------------------------------------------------------------
 SC_TCL_64BIT_FLAGS()
 
+#----------------------------------------------------------------------------
+# Add options for optimized and debug compile options
+#----------------------------------------------------------------------------
+OPTION(TCL_OPTIMIZED "Built optimized Tcl" ON)
+IF(TCL_OPTIMIZED)
+	ADD_TCL_CFLAG(TCL_CFG_OPTIMIZED)
+	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DNDEBUG -O2")
+ENDIF(TCL_OPTIMIZED)
+
+OPTION(TCL_DEBUG "Built optimized Tcl" ON)
+IF(TCL_OPTIMIZED)
+	ADD_TCL_CFLAG(TCL_CFG_DEBUG)
+ENDIF(TCL_OPTIMIZED)
+
+
+#--------------------------------------------------------------------
+#       Check endianness because we can optimize comparisons of
+#       Tcl_UniChar strings to memcmp on big-endian systems.
+#--------------------------------------------------------------------
 # Test endianness 
 IF(NOT MSVC)
 	INCLUDE(TestBigEndian)
@@ -224,31 +218,36 @@ IF(NOT MSVC)
 	ENDIF(WORDS_BIGENDIAN)
 ENDIF(NOT MSVC)
 
-# POSIX substitutes
-CONFIG_CHECK_FUNCTION_EXISTS(getcwd HAVE_GETCWD)
+#--------------------------------------------------------------------
+#       Supply substitutes for missing POSIX library procedures, or
+#       set flags so Tcl uses alternate procedures.
+#--------------------------------------------------------------------
+TCL_CHECK_FUNCTION_EXISTS(getcwd HAVE_GETCWD)
 IF(NOT HAVE_GETCWD)
-	add_definitions(-DUSEGETWD=1) 
-ENDIF(NOT HAVE_GETCWD)
-IF(NOT HAVE_GETCWD)
-	CONFIG_CHECK_FUNCTION_EXISTS(getwd HAVE_GETWD)
+	TCL_CHECK_FUNCTION_EXISTS(getwd HAVE_GETWD)
 	IF(NOT HAVE_GETWD)
 		ADD_TCL_CFLAG(NO_GETWD)
+	ELSE(NOT HAVE_GETWD)
+		ADD_TCL_CFLAG(USEGETWD)
 	ENDIF(NOT HAVE_GETWD)
 ENDIF(NOT HAVE_GETCWD)
-CONFIG_CHECK_FUNCTION_EXISTS(opendir HAVE_OPENDIR)
+TCL_CHECK_FUNCTION_EXISTS(mkstemp HAVE_MKSTEMP)
+IF(NOT HAVE_MKSTEMP)
+	SET(COMPAT_SRCS ${COMPAT_SRCS} compat/mkstemp.c)
+ENDIF(NOT HAVE_MKSTEMP)
+TCL_CHECK_FUNCTION_EXISTS(opendir HAVE_OPENDIR)
 IF(NOT HAVE_OPENDIR)
 	SET(COMPAT_SRCS ${COMPAT_SRCS} compat/opendir.c)
-	ADD_TCL_CFLAG(USE_DIRENT2_H)
 ENDIF(NOT HAVE_OPENDIR)
-CONFIG_CHECK_FUNCTION_EXISTS(strtol HAVE_STRTOL)
+TCL_CHECK_FUNCTION_EXISTS(strtol HAVE_STRTOL)
 IF(NOT HAVE_STRTOL)
 	SET(COMPAT_SRCS ${COMPAT_SRCS} compat/strtol.c)
 ENDIF(NOT HAVE_STRTOL)
-CONFIG_CHECK_FUNCTION_EXISTS(waitpid HAVE_WAITPID)
+TCL_CHECK_FUNCTION_EXISTS(waitpid HAVE_WAITPID)
 IF(NOT HAVE_WAITPID)
 	SET(COMPAT_SRCS ${COMPAT_SRCS} compat/waitpid.c)
 ENDIF(NOT HAVE_WAITPID)
-CONFIG_CHECK_FUNCTION_EXISTS(strerror HAVE_STRERROR)
+CHECK_FUNCTION_EXISTS(strerror HAVE_STRERROR)
 IF(NOT HAVE_STRERROR)
 	ADD_TCL_CFLAG(NO_STRERROR)
 ENDIF(NOT HAVE_STRERROR)
@@ -256,10 +255,34 @@ CHECK_FUNCTION_EXISTS(wait3 HAVE_WAIT3)
 IF(NOT HAVE_WAIT3)
 	ADD_TCL_CFLAG(NO_WAIT3)
 ENDIF(NOT HAVE_WAIT3)
-CONFIG_CHECK_FUNCTION_EXISTS(uname HAVE_UNAME)
+CHECK_FUNCTION_EXISTS(uname HAVE_UNAME)
 IF(NOT HAVE_UNAME)
 	ADD_TCL_CFLAG(NO_UNAME)
 ENDIF(NOT HAVE_UNAME)
+
+SET(UNION_WAIT_SRC "
+#include <sys/types.h>
+#include <sys/wait.h>
+int
+main ()
+{
+
+union wait x;
+WIFEXITED(x);           /* Generates compiler error if WIFEXITED
+                         * uses an int. */
+return 0;
+}
+")
+CHECK_C_SOURCE_RUNS("${UNION_WAIT_SRC}" HAVE_UNION_WAIT)
+IF(NOT HAVE_UNION_WAIT)
+	ADD_TCL_CFLAG(NO_UNION_WAIT)
+ENDIF(NOT HAVE_UNION_WAIT)
+
+
+#-------------------------------------------------------------------- 
+#       Look for thread-safe variants of some library functions.
+#--------------------------------------------------------------------
+
 # Check for early Darwin version here - realpath
 # is not threadsafe prior to Darwin 7
 CHECK_FUNCTION_EXISTS(realpath HAVE_REALPATH)
@@ -273,8 +296,6 @@ ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "^Darwin$" AND TCL_THREADS AND HAVE_REALPATH)
 IF(NOT HAVE_REALPATH)
 	ADD_TCL_CFLAG(NO_REALPATH)
 ENDIF(NOT HAVE_REALPATH)
-
-SC_TCL_GETADDRINFO()
 
 # Thread safe tests - need to go over macros and
 # get the right logic going here
@@ -314,25 +335,36 @@ IF(TCL_THREADS)
 
 ENDIF(TCL_THREADS)
 
-# Determine which interface to use to talk to the serial port.
+#---------------------------------------------------------------------------
+#       Determine which interface to use to talk to the serial port.
+#       Note that #include lines must begin in leftmost column for
+#       some compilers to recognize them as preprocessor directives.
+#---------------------------------------------------------------------------
 SC_SERIAL_PORT()
 
-# Do we need the sys/select.h check these days?
+#---------------------------------------------------------------------------
+# TODO - Do we need the sys/select.h check these days?
+#---------------------------------------------------------------------------
 
-
-# Handle time
+#------------------------------------------------------------------------------
+#       Find out all about time handling differences.
+#------------------------------------------------------------------------------
 SC_TIME_HANDLER()
 
-# memove check - need to revisit this, not finding memmove
-# on OSX
-#CHECK_FUNCTION_EXISTS(memmove, HAVE_MEMMOVE)
-#IF(NOT HAVE_MEMMOVE)
-#	add_definitions(-DNO_MEMMOVE=1) 
-#	add_definitions(-DNO_STRING_H=1) 
-#ENDIF(NOT HAVE_MEMMOVE)
+#---------------------------------------------------------------------------
+# TODO 
+#---------------------------------------------------------------------------
+#AC_CHECK_MEMBERS([struct stat.st_blocks, struct stat.st_blksize])
+#AC_CHECK_TYPES([blkcnt_t])
+#AC_CHECK_FUNC(fstatfs, , [AC_DEFINE(NO_FSTATFS, 1, [Do we have fstatfs()?])])
+#AC_FUNC_MEMCMP
+#AC_CHECK_FUNC(memmove, , [
+#	    AC_DEFINE(NO_MEMMOVE, 1, [Do we have memmove()?])
+#		     AC_DEFINE(NO_STRING_H, 1, [Do we have <string.h>?]) ])
 
-
-# Test for bad functions
+#------------------------------------------------------------------------------
+#       Test for broken functions.
+#------------------------------------------------------------------------------
 SC_TCL_CHECK_BROKEN_FUNC(
 	strstr "
 	extern int strstr();
@@ -347,54 +379,117 @@ SC_TCL_CHECK_BROKEN_FUNC(
 	exit(strtoul(string,&term,0) != 0 || term != string+1);"
 )
 
-# Check for union wait
 
-SET(UNION_WAIT_SRC "
-#include <sys/types.h>
-#include <sys/wait.h>
-int
-main ()
-{
+SC_TCL_CHECK_BROKEN_FUNC(
+	strtod "
+	extern double strtod();
+	char *term, *string = \" +69\";
+	exit(strtod(string,&term) != 69 || term != string+4);"
+)
 
-union wait x;
-WIFEXITED(x);           /* Generates compiler error if WIFEXITED
-                         * uses an int. */
-return 0;
-}
-")
-CHECK_C_SOURCE_RUNS("${UNION_WAIT_SRC}" HAVE_UNION_WAIT)
-IF(NOT HAVE_UNION_WAIT)
-	ADD_TCL_CFLAG(NO_UNION_WAIT)
-ENDIF(NOT HAVE_UNION_WAIT)
+
+
+#TODO SC_BUGGY_STRTOD - Solaris 2.4 only?  Do we still care?
+
+
+
+#----------------------------------------------------------------------------
+# Define some standard configuration settings passed to all Tcl build targets
+add_definitions(-DPACKAGE_NAME="tcl")
+add_definitions(-DPACKAGE_TARNAME="tcl")
+add_definitions(-DPACKAGE_VERSION="${TCL_VERSION_MAJOR}.${TCL_VERSION_MINOR}")
+add_definitions(-DPACKAGE_STRING="tcl ${TCL_VERSION_MAJOR}.${TCL_VERSION_MINOR}")
+add_definitions(-DPACKAGE_BUGREPORT="")
+
+# We're building Tcl
+add_definitions(-DBUILD_tcl)
+
+
+
+
+
+#----------------------------------------------------------------------------
+# Define some platform specific flags
+
+# Windows specific flags
+IF(WIN32)
+   add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEP -Ot -Oi -fp:strict -Gs -GS -GL -MD)
+   add_definitions(-DTCL_PIPE_DLL="tclpip${TCL_VERSION_MAJOR}${TCL_VERSION_MINOR}.dll")
+   add_definitions(-Dinline=__inline -DBUILD_tcl)
+ENDIF(WIN32)
+
+
+
+IF(APPLE)
+	ADD_TCL_CFLAG(MAC_OSX_TCL)
+	find_library(COREFOUNDATION_FRAMEWORK CoreFoundation)
+	IF(COREFOUNDATION_FRAMEWORK)
+		ADD_TCL_CFLAG(HAVE_COREFOUNDATION)
+	ENDIF(COREFOUNDATION_FRAMEWORK)
+ENDIF(APPLE)
+
+#----------------------------------------------------------------------------
+
+# First, get some standard options out of the way - things that are constant
+# between various platforms or pertain to specific OS definitions
+ADD_TCL_CFLAG(STDC_HEADERS)
+
+add_definitions(-DTCL_SHLIB_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}")
+
+CHECK_LIBRARY_EXISTS(dl dlopen "" HAVE_DL_LIBRARY)
+IF(HAVE_DL_LIBRARY)
+	RESOLVE_LIBRARIES(DL_LIBRARY "-ldl")
+ENDIF(HAVE_DL_LIBRARY)
+
+
+
+# TODO - look over SC_ENABLE_SHARED, SC_CONFIG_CFLAGS and SC_ENABLE_SYMBOLS
+# need to decide how much of that logic is needed
+
+SC_TCL_GETADDRINFO()
+
+# Determine which interface to use to talk to the serial port.
+
+
+
+# memove check - need to revisit this, not finding memmove
+# on OSX
+#CHECK_FUNCTION_EXISTS(memmove, HAVE_MEMMOVE)
+#IF(NOT HAVE_MEMMOVE)
+#	add_definitions(-DNO_MEMMOVE=1) 
+#	add_definitions(-DNO_STRING_H=1) 
+#ENDIF(NOT HAVE_MEMMOVE)
+
+
 
 
 # Check for types - TODO: still need to define substitutes if these
 # are not found
-CONFIG_CHECK_TYPE_SIZE(mode_t MODE)
-CONFIG_CHECK_TYPE_SIZE(pid_t PID)
-CONFIG_CHECK_TYPE_SIZE(size_t SIZE)
-CONFIG_CHECK_TYPE_SIZE(uid_t UID)
-CONFIG_CHECK_TYPE_SIZE(blkcnt_t BLKCNT)
-CONFIG_CHECK_TYPE_SIZE(intptr_t INTPTR)
-CONFIG_CHECK_TYPE_SIZE(uintptr_t UINTPTR)
+TCL_CHECK_TYPE_SIZE(mode_t MODE)
+TCL_CHECK_TYPE_SIZE(pid_t PID)
+TCL_CHECK_TYPE_SIZE(size_t SIZE)
+TCL_CHECK_TYPE_SIZE(uid_t UID)
+TCL_CHECK_TYPE_SIZE(blkcnt_t BLKCNT)
+TCL_CHECK_TYPE_SIZE(intptr_t INTPTR)
+TCL_CHECK_TYPE_SIZE(uintptr_t UINTPTR)
 
 
 SC_ENABLE_LANGINFO()
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "^Darwin$")
-	CONFIG_CHECK_FUNCTION_EXISTS(getattrlist HAVE_GETATTRLIST)
-	CONFIG_CHECK_INCLUDE_FILE(copyfile.h HAVE_COPYFILE_H)
-	CONFIG_CHECK_FUNCTION_EXISTS(copyfile HAVE_COPYFILE)
+	TCL_CHECK_FUNCTION_EXISTS(getattrlist HAVE_GETATTRLIST)
+	TCL_CHECK_INCLUDE_FILE(copyfile.h HAVE_COPYFILE_H)
+	TCL_CHECK_FUNCTION_EXISTS(copyfile HAVE_COPYFILE)
 	IF(${COREFOUNDATION_FRAMEWORK})
-		CONFIG_CHECK_INCLUDE_FILE(libkern/OSAtomic.h HAVE_LIBKERN_OSATOMIC_H)
-		CONFIG_CHECK_FUNCTION_EXISTS(OSSpinLockLock HAVE_OSSPINLOCKLOCK)
-		CONFIG_CHECK_FUNCTION_EXISTS(pthread_atfork HAVE_PTHREAD_ATFORK)
+		TCL_CHECK_INCLUDE_FILE(libkern/OSAtomic.h HAVE_LIBKERN_OSATOMIC_H)
+		TCL_CHECK_FUNCTION_EXISTS(OSSpinLockLock HAVE_OSSPINLOCKLOCK)
+		TCL_CHECK_FUNCTION_EXISTS(pthread_atfork HAVE_PTHREAD_ATFORK)
 	ENDIF(${COREFOUNDATION_FRAMEWORK})
 	ADD_TCL_CFLAG(USE_VFORK)
 	add_definitions(-DTCL_DEFAULT_ENCODING="utf-8")
 	ADD_TCL_CFLAG(TCL_LOAD_FROM_MEMORY)
 	ADD_TCL_CFLAG(TCL_WIDE_CLICKS)
-	CONFIG_CHECK_INCLUDE_FILE_USABILITY(AvailabilityMacros.h HAVE_AVAILABILITYMACROS_H)
+	TCL_CHECK_INCLUDE_FILE_USABILITY(AvailabilityMacros.h HAVE_AVAILABILITYMACROS_H)
 	IF(HAVE_AVAILABILITYMACROS_H)
 		SET(WEAK_IMPORT_SRCS "
 #ifdef __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__
@@ -480,26 +575,26 @@ IF(STACK_GROWS_UP)
 	ADD_TCL_CFLAG(TCL_STACK_GROWS_UP)
 ENDIF(STACK_GROWS_UP)
 
-CONFIG_CHECK_INCLUDE_FILE(sys/types.h HAVE_SYS_TYPES_H)
-CONFIG_CHECK_INCLUDE_FILE(sys/stat.h HAVE_SYS_STAT_H)
-CONFIG_CHECK_INCLUDE_FILE(sys/fstatfs.h HAVE_SYS_FSTATFS_H)
+TCL_CHECK_INCLUDE_FILE(sys/types.h HAVE_SYS_TYPES_H)
+TCL_CHECK_INCLUDE_FILE(sys/stat.h HAVE_SYS_STAT_H)
+TCL_CHECK_INCLUDE_FILE(sys/fstatfs.h HAVE_SYS_FSTATFS_H)
 IF(NOT HAVE_SYS_FSTATFS_H)
    add_definitions(-DNO_FSTATFS=1)
 ENDIF(NOT HAVE_SYS_FSTATFS_H)
-CONFIG_CHECK_INCLUDE_FILE(memory.h HAVE_MEMORY_H)
-CONFIG_CHECK_INCLUDE_FILE(strings.h HAVE_STRINGS_H)
-CONFIG_CHECK_INCLUDE_FILE(inttypes.h HAVE_INTTYPES_H)
-CONFIG_CHECK_INCLUDE_FILE(stdint.h HAVE_STDINT_H)
-CONFIG_CHECK_INCLUDE_FILE(unistd.h HAVE_UNISTD_H)
+TCL_CHECK_INCLUDE_FILE(memory.h HAVE_MEMORY_H)
+TCL_CHECK_INCLUDE_FILE(strings.h HAVE_STRINGS_H)
+TCL_CHECK_INCLUDE_FILE(inttypes.h HAVE_INTTYPES_H)
+TCL_CHECK_INCLUDE_FILE(stdint.h HAVE_STDINT_H)
+TCL_CHECK_INCLUDE_FILE(unistd.h HAVE_UNISTD_H)
 
 CHECK_COMPILER_SUPPORTS_HIDDEN_D()
 
-CONFIG_CHECK_INCLUDE_FILE_USABILITY(sys/modem.h SYS_MODEM_H)
+TCL_CHECK_INCLUDE_FILE_USABILITY(sys/modem.h SYS_MODEM_H)
 
 
 CHECK_FD_SET_IN_TYPES_D()
 
-CONFIG_CHECK_FUNCTION_EXISTS(chflags HAVE_CHFLAGS)
+TCL_CHECK_FUNCTION_EXISTS(chflags HAVE_CHFLAGS)
 
 IF(COMPAT_SRCS)
 	ADD_TCL_CFLAG(USE_COMPAT)
@@ -510,7 +605,6 @@ IF(APPLE)
 	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/unix/tclConfig.h.in ${TCL_BINARY_DIR}/include/tclConfig.h)
 ENDIF(APPLE)
 
-ADD_SUBDIRECTORY(doc)
 ADD_SUBDIRECTORY(library)
 
 SET(TCL_GENERIC_SRCS
@@ -585,6 +679,7 @@ SET(TCL_GENERIC_SRCS
 	generic/tclThreadAlloc.c
 	generic/tclThreadJoin.c
 	generic/tclThreadStorage.c
+	generic/tclThreadTest.c
 	generic/tclTimer.c
 	generic/tclTrace.c
 	generic/tclUtf.c
@@ -811,7 +906,7 @@ IF(NOT LIB_DIR)
 ENDIF(NOT LIB_DIR)
 add_library(tcl ${TCL_SRCS})
 install(TARGETS tcl DESTINATION ${LIB_DIR})
-target_link_libraries(tcl ${COREFOUNDATION_FRAMEWORK} ${SUN_MATH_LIB} ${TCL_LINK_LIBS} ${M_LIBRARY} ${DL_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${ZLIB_LIBRARY})
+target_link_libraries(tcl ${COREFOUNDATION_FRAMEWORK} ${TCL_LINK_LIBS} ${DL_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${ZLIB_LIBRARY})
 GET_TARGET_PROPERTY(TCL_INSTALL_LIBNAME tcl LOCATION)
 SET_TARGET_PROPERTIES(tcl PROPERTIES VERSION ${TCL_VERSION} SOVERSION ${TCL_VERSION_MAJOR}.${TCL_VERSION_MINOR})
 IF(${CMAKE_SYSTEM_NAME} MATCHES "^Darwin$")
@@ -823,12 +918,12 @@ ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "^Darwin$")
 
 
 add_library(tclstub STATIC ${TCL_STUB_SRCS})
-target_link_libraries(tclstub ${CMAKE_THREAD_LIBS_INIT} ${COREFOUNDATION_FRAMEWORK} ${M_LIBRARY} ${DL_LIBRARY})
+target_link_libraries(tclstub ${CMAKE_THREAD_LIBS_INIT} ${COREFOUNDATION_FRAMEWORK} ${DL_LIBRARY})
 set_target_properties(tclstub PROPERTIES COMPILE_FLAGS "-fPIC")
 install(TARGETS tclstub DESTINATION ${LIB_DIR})
 
 add_executable(tclsh ${TCLSH_SRCS})
-target_link_libraries(tclsh tcl ${SUN_MATH_LIB} ${M_LIBRARY} ${EXTRA_TCLSH_LIBS})
+target_link_libraries(tclsh tcl ${SUN_MATH_LIB} ${M_LIBRARY} ${TCL_THREADS_LIB}${EXTRA_TCLSH_LIBS})
 install(TARGETS tclsh DESTINATION bin)
 SET_TARGET_PROPERTIES(tclsh PROPERTIES VERSION ${TCL_VERSION_MAJOR}.${TCL_VERSION_MINOR})
 
@@ -848,4 +943,3 @@ MARK_AS_ADVANCED(TCL_STUB_LIBRARIES TCL_TCLSH TCL_TCLSH_EXECUTABLE)
 MARK_AS_ADVANCED(TCL_THREADS TCL_TK_CONF_PREFIX TCL_TOMMATH TCL_UNLOAD_DLLS)
 MARK_AS_ADVANCED(TCL_VERSION_MAJOR TCL_VERSION_MINOR TCL_WISH_EXECUTABLE)
 
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DNDEBUG -O2 -pipe -fvisibility=hidden -Wall")
