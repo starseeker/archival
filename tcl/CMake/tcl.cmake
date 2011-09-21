@@ -378,6 +378,22 @@ return 0;
 			ADD_TCL_CFLAG(HAVE_TIMEZONE_VAR)
 		ENDIF(HAVE_TIMEZONE_VAR)
 	ENDIF(HAVE_TIMEZONE_VAR)
+	IF(HAVE_SYS_TIME_H)
+		SET(TIME_WITH_SYS_TIME_SRC "
+#include <sys/time.h>
+#include <time.h>
+int main() {
+extern time_t timezone;
+timezone += 1;
+exit (0);
+return 0;
+}
+      ")
+		CHECK_C_SOURCE_COMPILES("${TIME_WITH_SYS_TIME_SRC}" TIME_WITH_SYS_TIME_WORKS)
+		IF(TIME_WITH_SYS_TIME_WORKS)
+			add_definitions(-DTIME_WITH_SYS_TIME=1)
+		ENDIF(TIME_WITH_SYS_TIME_WORKS)
+	ENDIF(HAVE_SYS_TIME_H)
 ENDMACRO(SC_TIME_HANDLER)
 
 #--------------------------------------------------------------------
