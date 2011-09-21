@@ -200,8 +200,8 @@ ENDMACRO(SC_ENABLE_THREADS)
 # SC_ENABLE_LANGINFO
 #------------------------------------------------------------------------
 MACRO(SC_ENABLE_LANGINFO)
-	OPTION(ENABLE_LANGINFO "Trigger use of nl_langinfo if available." ON)
-	IF(ENABLE_LANGINFO)
+	set(TCL_ENABLE_LANGINFO "Trigger use of nl_langinfo if available." ON)
+	IF(TCL_ENABLE_LANGINFO)
 		CHECK_INCLUDE_FILE(langinfo.h HAVE_LANGINFO)
 		IF(HAVE_LANGINFO)
 			SET(LANGINFO_SRC "
@@ -214,13 +214,13 @@ MACRO(SC_ENABLE_LANGINFO)
 			IF(LANGINFO_COMPILES)
 				ADD_TCL_CFLAG(HAVE_LANGINFO)
 			ELSE(LANGINFO_COMPILES)
-				SET(ENABLE_LANGINFO OFF CACHE STRING "Langinfo off" FORCE)
+				SET(TCL_ENABLE_LANGINFO OFF CACHE STRING "Langinfo not available" FORCE)
 			ENDIF(LANGINFO_COMPILES)
 		ELSE(HAVE_LANGINFO)
-			SET(ENABLE_LANGINFO OFF CACHE STRING "Langinfo off" FORCE)
+			SET(TCL_ENABLE_LANGINFO OFF CACHE STRING "Langinfo not available" FORCE)
 		ENDIF(HAVE_LANGINFO)
-		MARK_AS_ADVANCED(ENABLE_LANGINFO)
-	ENDIF(ENABLE_LANGINFO)
+		MARK_AS_ADVANCED(TCL_ENABLE_LANGINFO)
+	ENDIF(TCL_ENABLE_LANGINFO)
 ENDMACRO(SC_ENABLE_LANGINFO)
 
 #--------------------------------------------------------------------
@@ -733,9 +733,9 @@ return 0;}
 ENDMACRO(SC_TCL_GETHOSTBYNAME_R)
 
 #--------------------------------------------------------------------
-# SC_TCL_GETADDRINFO
+# SC_TCL_IPV6
 #--------------------------------------------------------------------
-MACRO(SC_TCL_GETADDRINFO)
+MACRO(SC_TCL_IPV6)
 	CHECK_FUNCTION_EXISTS(getaddrinfo HAVE_GETADDRINFO)
 	IF(HAVE_GETADDRINFO)
 		SET(GETADDRINFO_SRC "
@@ -753,7 +753,7 @@ return 0;
 			ADD_TCL_CFLAG(HAVE_GETADDRINFO)
 		ENDIF(WORKING_GETADDRINFO)
 	ENDIF(HAVE_GETADDRINFO)
-ENDMACRO(SC_TCL_GETADDRINFO)
+ENDMACRO(SC_TCL_IPV6)
 
 #--------------------------------------------------------------------
 # SC_TCL_GETPWUID_R

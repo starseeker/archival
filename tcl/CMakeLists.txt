@@ -54,7 +54,7 @@ set(BUILD_STATIC_LIBS ON)
 # version numbers
 SET(TCL_VERSION_MAJOR 8)
 SET(TCL_VERSION_MINOR 6)
-SET(TCL_VERSION_PATCH 2)
+SET(TCL_VERSION_PATCH 0)
 
 SET(TCL_VERSION "${TCL_VERSION_MAJOR}.${TCL_VERSION_MINOR}.${TCL_VERSION_PATCH}")
 
@@ -131,6 +131,46 @@ INCLUDE(${TCL_SOURCE_DIR}/CMake/tcl.cmake)
 # Our replacement for SC_CONFIG_MANPAGES
 ADD_SUBDIRECTORY(doc)
 
+#----------------------------------------------------------------------------
+# Define some standard configuration settings passed to all Tcl build targets
+add_definitions(-DPACKAGE_NAME="tcl")
+add_definitions(-DPACKAGE_TARNAME="tcl")
+add_definitions(-DPACKAGE_VERSION="${TCL_VERSION_MAJOR}.${TCL_VERSION_MINOR}")
+add_definitions(-DPACKAGE_STRING="tcl ${TCL_VERSION_MAJOR}.${TCL_VERSION_MINOR}")
+add_definitions(-DPACKAGE_BUGREPORT="")
+
+# We're building Tcl
+add_definitions(-DBUILD_tcl)
+
+# First, get some standard settings out of the way
+# Assume we have STDC_HEADERS until we meet a situation where we don't
+ADD_TCL_CFLAG(STDC_HEADERS)
+# Get the SHLIB extension from CMake
+add_definitions(-DTCL_SHLIB_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}")
+
+
+#----------------------------------------------------------------------------
+# Define some platform specific flags
+
+# Windows specific flags
+IF(WIN32)
+   add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEP -Ot -Oi -fp:strict -Gs -GS -GL -MD)
+   add_definitions(-DTCL_PIPE_DLL="tclpip${TCL_VERSION_MAJOR}${TCL_VERSION_MINOR}.dll")
+   add_definitions(-Dinline=__inline -DBUILD_tcl)
+ENDIF(WIN32)
+
+
+
+IF(APPLE)
+	ADD_TCL_CFLAG(MAC_OSX_TCL)
+	find_library(COREFOUNDATION_FRAMEWORK CoreFoundation)
+	IF(COREFOUNDATION_FRAMEWORK)
+		ADD_TCL_CFLAG(HAVE_COREFOUNDATION)
+	ENDIF(COREFOUNDATION_FRAMEWORK)
+ENDIF(APPLE)
+#----------------------------------------------------------------------------
+
+
 #--------------------------------------------------------------------
 # Supply substitutes for missing POSIX header files.
 SC_MISSING_POSIX_HEADERS()
@@ -175,6 +215,36 @@ ELSE(ZLIB_FOUND)
 	SET(ZLIB_LIBRARY zlib)
 ENDIF(ZLIB_FOUND)
 
+
+# TODO - look over SC_ENABLE_SHARED, SC_CONFIG_CFLAGS and SC_ENABLE_SYMBOLS
+# need to decide how much of that logic is needed.  Clearly we need SOME
+# of it.
+
+# Load and Unload
+OPTION(TCL_ENABLE_LOAD "Enable dynamic loading" ON)
+IF(TCL_ENABLE_LOAD)
+	CHECK_LIBRARY_EXISTS(dl dlopen "" HAVE_DL_LIBRARY)
+	IF(HAVE_DL_LIBRARY)
+		RESOLVE_LIBRARIES(DL_LIBRARY "-ldl")
+	ENDIF(HAVE_DL_LIBRARY)
+ENDIF(TCL_ENABLE_LOAD)
+
+OPTION(TCL_UNLOAD_DLLS "Allow unloading of shared libraries" ON)
+IF(TCL_UNLOAD_DLLS)
+	ADD_TCL_CFLAG(TCL_UNLOAD_DLLS)
+ENDIF(TCL_UNLOAD_DLLS)
+
+# CoreFoundation check.  TODO - check for 64 bit stuff at some point
+IF(APPLE)
+	OPTION(TCL_ENABLE_COREFOUNDATION "Use CoreFoundation" ON)
+	IF(TCL_ENABLE_COREFOUNDATION)
+		find_library(COREFOUNDATION_FRAMEWORK CoreFoundation)
+		IF(COREFOUNDATION_FRAMEWORK)
+			ADD_TCL_CFLAG(HAVE_COREFOUNDATION)
+		ENDIF(COREFOUNDATION_FRAMEWORK)
+	ENDIF(TCL_ENABLE_COREFOUNDATION)
+ENDIF(APPLE)
+
 #----------------------------------------------------------------------------
 # Tom's math library - should MP_PREC be an option?
 #----------------------------------------------------------------------------
@@ -203,7 +273,6 @@ OPTION(TCL_DEBUG "Built optimized Tcl" ON)
 IF(TCL_OPTIMIZED)
 	ADD_TCL_CFLAG(TCL_CFG_DEBUG)
 ENDIF(TCL_OPTIMIZED)
-
 
 #--------------------------------------------------------------------
 #       Check endianness because we can optimize comparisons of
@@ -260,29 +329,6 @@ IF(NOT HAVE_UNAME)
 	ADD_TCL_CFLAG(NO_UNAME)
 ENDIF(NOT HAVE_UNAME)
 
-SET(UNION_WAIT_SRC "
-#include <sys/types.h>
-#include <sys/wait.h>
-int
-main ()
-{
-
-union wait x;
-WIFEXITED(x);           /* Generates compiler error if WIFEXITED
-                         * uses an int. */
-return 0;
-}
-")
-CHECK_C_SOURCE_RUNS("${UNION_WAIT_SRC}" HAVE_UNION_WAIT)
-IF(NOT HAVE_UNION_WAIT)
-	ADD_TCL_CFLAG(NO_UNION_WAIT)
-ENDIF(NOT HAVE_UNION_WAIT)
-
-
-#-------------------------------------------------------------------- 
-#       Look for thread-safe variants of some library functions.
-#--------------------------------------------------------------------
-
 # Check for early Darwin version here - realpath
 # is not threadsafe prior to Darwin 7
 CHECK_FUNCTION_EXISTS(realpath HAVE_REALPATH)
@@ -297,8 +343,12 @@ IF(NOT HAVE_REALPATH)
 	ADD_TCL_CFLAG(NO_REALPATH)
 ENDIF(NOT HAVE_REALPATH)
 
-# Thread safe tests - need to go over macros and
-# get the right logic going here
+SC_TCL_IPV6()
+
+#-------------------------------------------------------------------- 
+#       Look for thread-safe variants of some library functions.
+#--------------------------------------------------------------------
+
 IF(TCL_THREADS)
 
 	SC_TCL_GETPWUID_R()
@@ -352,18 +402,43 @@ SC_SERIAL_PORT()
 SC_TIME_HANDLER()
 
 #---------------------------------------------------------------------------
-# TODO 
+# Check for stat structure files and blkcnt_t
 #---------------------------------------------------------------------------
-#AC_CHECK_MEMBERS([struct stat.st_blocks, struct stat.st_blksize])
-#AC_CHECK_TYPES([blkcnt_t])
-#AC_CHECK_FUNC(fstatfs, , [AC_DEFINE(NO_FSTATFS, 1, [Do we have fstatfs()?])])
-#AC_FUNC_MEMCMP
-#AC_CHECK_FUNC(memmove, , [
-#	    AC_DEFINE(NO_MEMMOVE, 1, [Do we have memmove()?])
-#		     AC_DEFINE(NO_STRING_H, 1, [Do we have <string.h>?]) ])
+
+TCL_CHECK_STRUCT_HAS_MEMBER("struct stat" st_blocks sys/stat.h	STRUCT_HAS_ST_BLOCKS)
+TCL_CHECK_STRUCT_HAS_MEMBER("struct stat" st_blksize sys/stat.h STRUCT_HAS_ST_BLKSIZE)
+CHECK_TYPE_SIZE(blkcnt_t HAVE_BLKCNT_T)
+IF(HAVE_BLKCNT_T)
+	ADD_TCL_CFLAG(HAVE_BLKCNT_T)
+ENDIF(HAVE_BLKCNT_T)
+TCL_CHECK_FUNCTION_EXISTS(fstatfs, HAVE_FSTATFS)
+IF(NOT HAVE_FSTATFS)
+	ADD_TCL_CFLAG(NO_FSTATFS)
+ENDIF(NOT HAVE_FSTATFS)
+
+#---------------------------------------------------------------------------
+# GNU manual lists AC_FUNC_MEMCMP as obsolete - just check for memcmp
+#---------------------------------------------------------------------------
+TCL_CHECK_FUNCTION_EXISTS(memcmp HAVE_MEMCMP)
+IF(NOT HAVE_MEMCMP)
+	SET(COMPAT_SRCS ${COMPAT_SRCS} compat/memcmp.c)
+ENDIF(NOT HAVE_MEMCMP)
+
+#---------------------------------------------------------------------------
+# Check for memmove
+#---------------------------------------------------------------------------
+# need to revisit this, not finding memmove
+#TCL_CHECK_FUNCTION_EXISTS(memmove HAVE_MEMMOVE)
+#IF(NOT HAVE_MEMMOVE)
+#	ADD_TCL_CFLAG(NO_MEMMOVE)
+#	TCL_CHECK_INCLUDE_FILE(string.h HAVE_STRING_H)
+#	IF(NOT HAVE_STRING_H)
+#		ADD_TCL_CFLAG(NO_STRING_H)
+#	ENDIF(NOT HAVE_STRING_H)
+#ENDIF(NOT HAVE_MEMMOVE)
 
 #------------------------------------------------------------------------------
-#       Test for broken functions.
+# Test for broken functions.  Not clear how many of these are still needed.
 #------------------------------------------------------------------------------
 SC_TCL_CHECK_BROKEN_FUNC(
 	strstr "
@@ -391,91 +466,132 @@ SC_TCL_CHECK_BROKEN_FUNC(
 
 #TODO SC_BUGGY_STRTOD - Solaris 2.4 only?  Do we still care?
 
-
-
-#----------------------------------------------------------------------------
-# Define some standard configuration settings passed to all Tcl build targets
-add_definitions(-DPACKAGE_NAME="tcl")
-add_definitions(-DPACKAGE_TARNAME="tcl")
-add_definitions(-DPACKAGE_VERSION="${TCL_VERSION_MAJOR}.${TCL_VERSION_MINOR}")
-add_definitions(-DPACKAGE_STRING="tcl ${TCL_VERSION_MAJOR}.${TCL_VERSION_MINOR}")
-add_definitions(-DPACKAGE_BUGREPORT="")
-
-# We're building Tcl
-add_definitions(-DBUILD_tcl)
-
-
-
-
-
-#----------------------------------------------------------------------------
-# Define some platform specific flags
-
-# Windows specific flags
-IF(WIN32)
-   add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEP -Ot -Oi -fp:strict -Gs -GS -GL -MD)
-   add_definitions(-DTCL_PIPE_DLL="tclpip${TCL_VERSION_MAJOR}${TCL_VERSION_MINOR}.dll")
-   add_definitions(-Dinline=__inline -DBUILD_tcl)
-ENDIF(WIN32)
-
-
-
-IF(APPLE)
-	ADD_TCL_CFLAG(MAC_OSX_TCL)
-	find_library(COREFOUNDATION_FRAMEWORK CoreFoundation)
-	IF(COREFOUNDATION_FRAMEWORK)
-		ADD_TCL_CFLAG(HAVE_COREFOUNDATION)
-	ENDIF(COREFOUNDATION_FRAMEWORK)
-ENDIF(APPLE)
-
-#----------------------------------------------------------------------------
-
-# First, get some standard options out of the way - things that are constant
-# between various platforms or pertain to specific OS definitions
-ADD_TCL_CFLAG(STDC_HEADERS)
-
-add_definitions(-DTCL_SHLIB_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}")
-
-CHECK_LIBRARY_EXISTS(dl dlopen "" HAVE_DL_LIBRARY)
-IF(HAVE_DL_LIBRARY)
-	RESOLVE_LIBRARIES(DL_LIBRARY "-ldl")
-ENDIF(HAVE_DL_LIBRARY)
-
-
-
-# TODO - look over SC_ENABLE_SHARED, SC_CONFIG_CFLAGS and SC_ENABLE_SYMBOLS
-# need to decide how much of that logic is needed
-
-SC_TCL_GETADDRINFO()
-
-# Determine which interface to use to talk to the serial port.
-
-
-
-# memove check - need to revisit this, not finding memmove
-# on OSX
-#CHECK_FUNCTION_EXISTS(memmove, HAVE_MEMMOVE)
-#IF(NOT HAVE_MEMMOVE)
-#	add_definitions(-DNO_MEMMOVE=1) 
-#	add_definitions(-DNO_STRING_H=1) 
-#ENDIF(NOT HAVE_MEMMOVE)
-
-
-
-
-# Check for types - TODO: still need to define substitutes if these
-# are not found
+#--------------------------------------------------------------------
+#       Check for various typedefs and provide substitutes if
+#       they don't exist.
+#--------------------------------------------------------------------
 TCL_CHECK_TYPE_SIZE(mode_t MODE)
 TCL_CHECK_TYPE_SIZE(pid_t PID)
 TCL_CHECK_TYPE_SIZE(size_t SIZE)
 TCL_CHECK_TYPE_SIZE(uid_t UID)
-TCL_CHECK_TYPE_SIZE(blkcnt_t BLKCNT)
+# The following tests may need to be more elaborate to function properly
+TCL_CHECK_TYPE_SIZE(socklen_t SOCKLEN sys/types.h sys/socket.h)
 TCL_CHECK_TYPE_SIZE(intptr_t INTPTR)
 TCL_CHECK_TYPE_SIZE(uintptr_t UINTPTR)
 
+IF(NOT HAVE_OPENDIR)
+	ADD_TCL_CFLAG(USE_DIRENT2_H)
+ENDIF(NOT HAVE_OPENDIR)
 
+# The union wait test was for HP-UX - do we still need this?
+SET(UNION_WAIT_SRC "
+#include <sys/types.h>
+#include <sys/wait.h>
+int
+main ()
+{
+
+union wait x;
+WIFEXITED(x);           /* Generates compiler error if WIFEXITED
+                         * uses an int. */
+return 0;
+}
+")
+CHECK_C_SOURCE_RUNS("${UNION_WAIT_SRC}" HAVE_UNION_WAIT)
+IF(NOT HAVE_UNION_WAIT)
+	ADD_TCL_CFLAG(NO_UNION_WAIT)
+ENDIF(NOT HAVE_UNION_WAIT)
+
+#----------------------------------------------------------------------------
+# Check for strncasecmp
+#----------------------------------------------------------------------------
+CHECK_FUNCTION_EXISTS(strncasecmp HAVE_STRNCASECMP)
+IF(NOT HAVE_STRNCASECMP)
+	CHECK_LIBRARY_EXISTS(socket strncasecmp "" HAVE_SOCKET_STRNCASECMP)
+	CHECK_LIBRARY_EXISTS(inet strncasecmp "" HAVE_INET_STRNCASECMP)
+	IF(NOT HAVE_SOCKET_STRNCASECMP AND NOT HAVE_INET_STRNCASECMP)
+		SET(COMPAT_SRCS ${COMPAT_SRCS} compat/strncasecmp.c)
+	ENDIF(NOT HAVE_SOCKET_STRNCASECMP AND NOT HAVE_INET_STRNCASECMP)
+ENDIF(NOT HAVE_STRNCASECMP)
+
+#----------------------------------------------------------------------------
+# gettimeofday issues
+#----------------------------------------------------------------------------
+TCL_CHECK_FUNCTION_EXISTS(BSDgettimeofday HAVE_BSDGETTIMEOFDAY)
+IF(NOT HAVE_BSDGETTIMEOFDAY)
+	CHECK_FUNCTION_EXISTS(gettimeofday HAVE_GETTIMEOFDAY)
+	IF(NOT HAVE_GETTIMEOFDAY)
+		ADD_TCL_CFLAG(NO_GETTOD)
+	ENDIF(NOT HAVE_GETTIMEOFDAY)
+ENDIF(NOT HAVE_BSDGETTIMEOFDAY)
+INCLUDE(CheckSymbolExists)
+CHECK_SYMBOL_EXISTS(gettimeofday "sys/time.h" IS_GETTOD_DECLARED)
+IF(NOT IS_GETTOD_DECLARED)
+	ADD_TCL_CFLAG(GETTOD_NOT_DECLARED)
+ENDIF(NOT IS_GETTOD_DECLARED)
+
+
+#----------------------------------------------------------------------------
+# signed/unsigned char - does the Tcl code still need this? See
+# http://lists.gnu.org/archive/html/autoconf/2008-06/msg00054.html
+#----------------------------------------------------------------------------
+SET(unsigned_char_srcs "
+int
+main ()
+{
+   static int test_array [1 - 2 * !(((char) -1) < 0)];
+   test_array [0] = 0;
+   return 0;
+}
+")
+CHECK_C_SOURCE_RUNS("${unsigned_char_srcs}" CHAR_IS_UNSIGNED)
+IF(CHAR_IS_UNSIGNED)
+	ADD_TCL_CFLAG(__CHAR_UNSIGNED__)
+ENDIF(CHAR_IS_UNSIGNED)
+SET(signed_char_srcs "
+int
+main ()
+{
+   signed char *p;
+	p = 0;
+	return 0;
+}
+")
+CHECK_C_SOURCE_COMPILES("${signed_char_srcs}" HAVE_SIGNED_CHAR)
+IF(HAVE_SIGNED_CHAR)
+	ADD_TCL_CFLAG(HAVE_SIGNED_CHAR)
+ENDIF(HAVE_SIGNED_CHAR)
+
+#--------------------------------------------------------------------
+# Check for support of nl_langinfo function
+#--------------------------------------------------------------------
 SC_ENABLE_LANGINFO()
 
+#--------------------------------------------------------------------
+# Check for chflags and mkstemps
+#--------------------------------------------------------------------
+TCL_CHECK_FUNCTION_EXISTS(chflags HAVE_CHFLAGS)
+TCL_CHECK_FUNCTION_EXISTS(mkstemps HAVE_MKSTEMPS)
+
+
+#--------------------------------------------------------------------
+# Check for support of isnan() function or macro
+#--------------------------------------------------------------------
+SET(isnan_srcs "
+#include <math.h>
+int main () {
+   isnan(0.0); /* Generates an error if isnan is missing */
+	return 0;
+}
+")
+CHECK_C_SOURCE_RUNS("${isnan_srcs}" USABLE_ISNAN)
+IF(NOT USABLE_ISNAN)
+	ADD_TCL_CFLAG(NO_ISNAN)
+ENDIF(NOT USABLE_ISNAN)
+
+#----------------------------------------------------------------------------
+# Darwin specific API checks and defines
+#--------------------------------------------------------------------
 IF(${CMAKE_SYSTEM_NAME} MATCHES "^Darwin$")
 	TCL_CHECK_FUNCTION_EXISTS(getattrlist HAVE_GETATTRLIST)
 	TCL_CHECK_INCLUDE_FILE(copyfile.h HAVE_COPYFILE_H)
@@ -530,7 +646,9 @@ int main ()	{return 0;}
 	ENDIF(HAVE_AVAILABILITYMACROS_H)
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "^Darwin$")
 
-# Check for support of fts functions (readdir replacement)
+#--------------------------------------------------------------------
+#       Check for support of fts functions (readdir replacement)
+#--------------------------------------------------------------------
 SET(FTS_SRCS "
 #include <sys/param.h>
 #include <sys/stat.h>
@@ -548,14 +666,34 @@ IF(FTS_WORKING)
 	ADD_TCL_CFLAG(HAVE_FTS)
 ENDIF(FTS_WORKING)
 
-OPTION(TCL_UNLOAD_DLLS "Allow unloading of shared libraries?" ON)
-IF(TCL_UNLOAD_DLLS)
-	ADD_TCL_CFLAG(TCL_UNLOAD_DLLS)
-ENDIF(TCL_UNLOAD_DLLS)
+# TODO SC_BLOCKING_STYLE is for older systems, do we still need it?
 
-# TODO - Need to set up check for timezone info
+#------------------------------------------------------------------------
+#       Check whether the timezone data is supplied by the OS or has
+#       to be installed by Tcl. The default is autodetection, but can
+#       be overriden on the configure command line either way.
+#------------------------------------------------------------------------
+IF(TCL_TIMEZONE_DATA)
+	IF(${TCL_TIMEZONE_DATA} STREQUAL "")
+		SET(TCL_TIMEZONE_DATA "AUTO" CACHE STRING "Use Tcl's local timezone data")
+	ENDIF(${TCL_TIMEZONE_DATA} STREQUAL "")
+ELSE(TCL_TIMEZONE_DATA)
+	SET(TCL_TIMEZONE_DATA "AUTO" CACHE STRING "Use Tcl's local timezone data")
+ENDIF(TCL_TIMEZONE_DATA)
+IF(${TCL_TIMEZONE_DATA} STREQUAL "AUTO")
+	SET(LOCAL_TZ_DATA OFF)
+	find_package(TIMEZONE)
+	IF(NOT TIMEZONE_FOUND)
+		SET(LOCAL_TZ_DATA ON)
+	ENDIF(NOT TIMEZONE_FOUND)
+ELSE(${TCL_TIMEZONE_DATA} STREQUAL "AUTO")
+	SET(LOCAL_TZ_DATA ${TCL_TIMEZONE_DATA})
+ENDIF(${TCL_TIMEZONE_DATA} STREQUAL "AUTO")
 
-# TODO - Dtrace
+#--------------------------------------------------------------------
+#       DTrace support
+#--------------------------------------------------------------------
+# TODO
 
 #--------------------------------------------------------------------
 #  Does the C stack grow upwards or downwards? Or cross-compiling?
@@ -594,8 +732,12 @@ TCL_CHECK_INCLUDE_FILE_USABILITY(sys/modem.h SYS_MODEM_H)
 
 CHECK_FD_SET_IN_TYPES_D()
 
-TCL_CHECK_FUNCTION_EXISTS(chflags HAVE_CHFLAGS)
+#--------------------------------------------------------------------
+#       OSX Framework Configuration
+#--------------------------------------------------------------------
+# TODO
 
+# If we collected any compat sources, pass the flag
 IF(COMPAT_SRCS)
 	ADD_TCL_CFLAG(USE_COMPAT)
 ENDIF(COMPAT_SRCS)
