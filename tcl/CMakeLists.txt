@@ -261,7 +261,8 @@ ENDIF(TCL_TOMMATH)
 SC_TCL_64BIT_FLAGS()
 
 #----------------------------------------------------------------------------
-# Add options for optimized and debug compile options
+# Add options for optimized and debug compile options - replaces 
+# SC_ENABLE_SYMBOLS
 #----------------------------------------------------------------------------
 OPTION(TCL_OPTIMIZED "Built optimized Tcl" ON)
 IF(TCL_OPTIMIZED)
@@ -269,10 +270,21 @@ IF(TCL_OPTIMIZED)
 	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DNDEBUG -O2")
 ENDIF(TCL_OPTIMIZED)
 
-OPTION(TCL_DEBUG "Built optimized Tcl" ON)
-IF(TCL_OPTIMIZED)
+OPTION(TCL_DEBUG "Enable Debugging" ON)
+IF(TCL_DEBUG)
 	ADD_TCL_CFLAG(TCL_CFG_DEBUG)
-ENDIF(TCL_OPTIMIZED)
+ENDIF(TCL_DEBUG)
+
+OPTION(TCL_COMPILE_DEBUG "Bytecode debugging" OFF)
+IF(TCL_COMPILE_DEBUG)
+	ADD_TCL_CFLAG(TCL_COMPILE_DEBUG)
+ENDIF(TCL_COMPILE_DEBUG)
+
+OPTION(TCL_COMPILE_STATS "Bytecode statistics" OFF)
+IF(TCL_COMPILE_STATS)
+	ADD_TCL_CFLAG(TCL_COMPILE_STATS)
+ENDIF(TCL_COMPILE_STATS)
+
 
 #--------------------------------------------------------------------
 #       Check endianness because we can optimize comparisons of
