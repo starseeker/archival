@@ -160,6 +160,8 @@ add_definitions(-DPACKAGE_VERSION="${TK_VERSION_MAJOR}.${TK_VERSION_MINOR}")
 add_definitions(-DPACKAGE_BUGREPORT="")
 add_definitions(-DSTDC_HEADERS=1)
 
+add_definitions(-DBUILD_tk)
+
 IF(WIN32)
 	add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ot -Oi -fp:strict -Gs -GS -GL -MD -DBUILD_tk -BUILD_ttk -DSUPPORT_CONFIG_EMBEDDED -DHAVE_UXTHEME_H=1)
 ENDIF(WIN32)
@@ -340,6 +342,7 @@ SET(TK_GENERIC_SRCS
 	generic/tkPanedWindow.c
 	generic/tkScale.c
 	generic/tkScrollbar.c
+	generic/tkStubInit.c
 	generic/tkCanvas.c
 	generic/tkCanvArc.c
 	generic/tkCanvBmap.c
@@ -639,3 +642,5 @@ IF(NOT WIN32)
 	FILE(COPY unix/tkAppInit.c DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/tk${TK_VERSION_MAJOR}.${TK_VERSION_MINOR})
 	INSTALL(FILES unix/tkAppInit.c DESTINATION lib/tk${TK_VERSION_MAJOR}.${TK_VERSION_MINOR})
 ENDIF(NOT WIN32)
+
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O2 -pipe -fvisibility=hidden -Wall")
