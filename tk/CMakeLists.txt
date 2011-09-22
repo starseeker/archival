@@ -317,7 +317,7 @@ IF(NOT WIN32)
 		MARK_AS_ADVANCED(FONTCONFIG_LIBRARY)
 	ENDIF(APPLE)
 ENDIF(NOT WIN32)
-CMAKE_DEPENDENT_OPTION(TK_ENABLE_XFT "Use XScreenSaver" ${X11_Xft_FOUND} "TK_SYSTEM_GRAPHICS STREQUAL x11;FREETYPE_FOUND" OFF)
+CMAKE_DEPENDENT_OPTION(TK_ENABLE_XFT "Use freetype/fontconfig/xft" ${X11_Xft_FOUND} "TK_SYSTEM_GRAPHICS STREQUAL x11;FREETYPE_FOUND" OFF)
 
 #----------------------------------------------------------------------------
 # signed/unsigned char - does the Tcl code still need this? See
