@@ -281,7 +281,7 @@ IF(NOT WIN32)
 	IF(APPLE)
 		OPTION(TK_ENABLE_AQUA "Build Tk using the Aqua windowing system" OFF)
 		IF(TK_ENABLE_AQUA)
-			SET(TK_WINDOWINGSYSTEM Aqua)
+			SET(TK_SYSTEM_GRAPHICS aqua)
 			add_definitions(-DMAC_OSX_TK=1)
 			add_definitions(-D_DARWIN_C_SOURCE=1)
 			SET(X11_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/xlib")
@@ -289,12 +289,14 @@ IF(NOT WIN32)
 			find_library(CARBON_FRAMEWORK Carbon)	
 		ELSE(TK_ENABLE_AQUA)
 			find_package(X11)
-			SET(TK_WINDOWINGSYSTEM X11)
+			SET(TK_SYSTEM_GRAPHICS x11)
 		ENDIF(TK_ENABLE_AQUA)
 	ELSE(APPLE)
 		find_package(X11)
-		SET(TK_WINDOWINGSYSTEM X11)
+		SET(TK_SYSTEM_GRAPHICS x11)
 	ENDIF(APPLE)
+ELSE(NOT WIN32)
+	SET(TK_SYSTEM_GRAPHICS win32)
 ENDIF(NOT WIN32)
 
 #--------------------------------------------------------------------
@@ -302,29 +304,20 @@ ENDIF(NOT WIN32)
 # extension are available, and set HAVE_XSS if so.
 # XScreenSaver is needed for Tk_GetUserInactiveTime().
 #--------------------------------------------------------------------
-IF(NOT TK_ENABLE_AQUA AND NOT WIN32)
-	OPTION(TK_ENABLE_XSS "Use XScreenSaver" ${X11_Xscreensaver_FOUND})
-	IF(TK_ENABLE_XSS)
-		ADD_TCL_CFLAG(HAVE_XSS)
-	ENDIF(TK_ENABLE_XSS)
-ENDIF(NOT TK_ENABLE_AQUA AND NOT WIN32)
+INCLUDE(CMakeDependentOption)
+CMAKE_DEPENDENT_OPTION(TK_ENABLE_XSS "Use XScreenSaver" ${X11_Xscreensaver_FOUND} "TK_SYSTEM_GRAPHICS STREQUAL x11" OFF)
 
 #--------------------------------------------------------------------
 #       Check for freetype / fontconfig / Xft support.
 #--------------------------------------------------------------------
-IF(NOT TK_ENABLE_AQUA AND NOT WIN32)
+IF(NOT WIN32)
 	find_package(Freetype)
 	IF(APPLE)
 		find_library(FONTCONFIG_LIBRARY fontconfig)
 		MARK_AS_ADVANCED(FONTCONFIG_LIBRARY)
 	ENDIF(APPLE)
-	IF(FREETYPE_FOUND)
-		OPTION(TK_ENABLE_XFT "Enable freetype/fontconfig/Xft support" ${X11_Xft_FOUND})
-	ELSE(FREETYPE_FOUND)
-		OPTION(TK_ENABLE_XFT "Enable freetype/fontconfig/Xft support" OFF)
-		SET(FREETYPE_LIBRARIES "")
-	ENDIF(FREETYPE_FOUND)
-ENDIF(NOT TK_ENABLE_AQUA AND NOT WIN32)
+ENDIF(NOT WIN32)
+CMAKE_DEPENDENT_OPTION(TK_ENABLE_XFT "Use XScreenSaver" ${X11_Xft_FOUND} "TK_SYSTEM_GRAPHICS STREQUAL x11;FREETYPE_FOUND" OFF)
 
 #----------------------------------------------------------------------------
 # signed/unsigned char - does the Tcl code still need this? See
