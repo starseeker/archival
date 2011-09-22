@@ -79,7 +79,7 @@ set(BUILD_STATIC_LIBS ON)
 # version numbers
 SET(TK_VERSION_MAJOR 8)
 SET(TK_VERSION_MINOR 6)
-SET(TK_VERSION_PATCH 2)
+SET(TK_VERSION_PATCH 0)
 
 SET(TK_VERSION "${TK_VERSION_MAJOR}.${TK_VERSION_MINOR}.${TK_VERSION_PATCH}")
 
@@ -110,26 +110,41 @@ SET(CMAKE_INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 # directories outside the build tree to the install RPATH
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+#----------------------------------------------------------------------------
+# The location in which to install Tcl.  Only do this if CMAKE_INSTALL_PREFIX 
+# hasn't been set already, to try and allow parent builds (if any) some control.
+IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+   IF(NOT WIN32)
+      IF ("${CMAKE_BUILD_TYPE}" MATCHES "Debug")
+         SET(CMAKE_INSTALL_PREFIX "/usr/local/tcldev-${TCL_VERSION}")
+      ELSE ("${CMAKE_BUILD_TYPE}" MATCHES "Debug")
+         SET(CMAKE_INSTALL_PREFIX "/usr")
+      ENDIF ("${CMAKE_BUILD_TYPE}" MATCHES "Debug")
+   ENDIF(NOT WIN32)
+   SET(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX} CACHE STRING "TCL install prefix" FORCE)
+   SET(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT 0)
+ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+
 #-----------------------------------------------------------------------------
 # Output directories.
-IF(NOT LIBRARY_OUTPUT_PATH)
-  SET(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib CACHE INTERNAL "Single output directory for building all libraries.")
-ENDIF(NOT LIBRARY_OUTPUT_PATH)
-IF(NOT EXECUTABLE_OUTPUT_PATH)
-  SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all executables.")
-ENDIF(NOT EXECUTABLE_OUTPUT_PATH)
+   
+IF(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+   IF(WIN32)
+      SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all libraries.")
+   ELSE(WIN32)
+      SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib CACHE INTERNAL "Single output directory for building all libraries.")
+   ENDIF(WIN32)
+ENDIF(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+IF(NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
+   SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib CACHE INTERNAL "Single output directory for building all archives.")
+ENDIF(NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
+IF(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+   SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all executables.")
+ENDIF(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
 
 #-----------------------------------------------------------------------------
-# Configure install locations. 
-
-IF(NOT CMAKE_INSTALL_PREFIX)
-	IF(WIN32)
-		SET(CMAKE_INSTALL_PREFIX "/usr/local")
-	ELSE(WIN32) 
-		SET(CMAKE_INSTALL_PREFIX "C:/Tcl")
-	ENDIF(WIN32) 
-ENDIF(NOT CMAKE_INSTALL_PREFIX)
-
+# Set CMake module path
+SET(CMAKE_MODULE_PATH "${TK_SOURCE_DIR}/CMake")
 
 #-----------------------------------------------------------------------------
 # Check if the compiler supports pipe - if so, use it
@@ -140,14 +155,14 @@ IF(PIPE_COMPILER_FLAG)
 ENDIF(PIPE_COMPILER_FLAG)
 
 #-----------------------------------------------------------------------------
-# Set CMake module path
-SET(CMAKE_MODULE_PATH "${TK_SOURCE_DIR}/CMake;${CMAKE_MODULE_PATH}")
-
-#-----------------------------------------------------------------------------
 # Tcl/Tk's normal build system uses autotools macros, referred to as the
 # TEA system.  An attempt to duplicate the required functionality from
 # TEA is found in tcl.cmake
 INCLUDE(${TK_SOURCE_DIR}/CMake/tcl.cmake)
+
+#-----------------------------------------------------------------------------
+# Our replacement for SC_CONFIG_MANPAGES
+ADD_SUBDIRECTORY(doc)
 
 #----------------------------------------------------------------------------
 # First, get some standard options out of the way - things that are constant
@@ -158,7 +173,17 @@ add_definitions(-DPACKAGE_VERSION="${TK_VERSION_MAJOR}.${TK_VERSION_MINOR}")
 add_definitions(-DPACKAGE_BUGREPORT="")
 add_definitions(-DSTDC_HEADERS=1)
 
+# We're building Tk
 add_definitions(-DBUILD_tk)
+
+# First, get some standard settings out of the way
+# Assume we have STDC_HEADERS until we meet a situation where we don't
+ADD_TCL_CFLAG(STDC_HEADERS)
+# Get the SHLIB extension from CMake
+add_definitions(-DTCL_SHLIB_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}")
+
+#----------------------------------------------------------------------------
+# Define some platform specific flags
 
 IF(WIN32)
 	add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ot -Oi -fp:strict -Gs -GS -GL -MD -DBUILD_tk -BUILD_ttk -DSUPPORT_CONFIG_EMBEDDED -DHAVE_UXTHEME_H=1)
@@ -166,17 +191,34 @@ ENDIF(WIN32)
 
 IF(APPLE)
 	add_definitions(-DMAC_OSX_TCL=1)
+	find_library(COREFOUNDATION_FRAMEWORK CoreFoundation)	 
+	IF(COREFOUNDATION_FRAMEWORK)	 
+		add_definitions(-DHAVE_COREFOUNDATION=1)	 
+	ENDIF(COREFOUNDATION_FRAMEWORK)	 
+	find_library(IOKIT_FRAMEWORK IOKit)	 
 ENDIF(APPLE)
 #----------------------------------------------------------------------------
 
-SC_MISSING_POSIX_HEADERS()  
+#------------------------------------------------------------------------
+# Threads support
+#------------------------------------------------------------------------
 SC_ENABLE_THREADS()
 
-SC_TCL_64BIT_FLAGS()
-
+#------------------------------------------------------------------------
+# Call the LINK_LIBS macro to get M_LIBRARY properly defined (TEA
+# doesn't do this, needs looking into...)
+#------------------------------------------------------------------------
 SC_TCL_LINK_LIBS()
 
-# Test endianness
+#----------------------------------------------------------------------------
+# 64 Bit support - unlike TEA, we enable by default if the platform looks
+# like it's 64 bit.  Can be overridden by specifying CMAKE_CPU_TYPE=32BIT
+#----------------------------------------------------------------------------
+SC_TCL_64BIT_FLAGS()
+
+#--------------------------------------------------------------------
+#       Check endianness because we can optimize some operations
+#--------------------------------------------------------------------
 IF(NOT MSVC)
 	INCLUDE(TestBigEndian)
 	TEST_BIG_ENDIAN(WORDS_BIGENDIAN)
@@ -185,17 +227,136 @@ IF(NOT MSVC)
 	ENDIF(WORDS_BIGENDIAN)
 ENDIF(NOT MSVC)
 
+#------------------------------------------------------------------------------
+#       Find out all about time handling differences.
+#------------------------------------------------------------------------------
 SC_TIME_HANDLER()
 
-# Check for types - TODO: still need to define substitutes if these
-# are not found
+#TODO SC_BUGGY_STRTOD - Solaris 2.4 only?  Do we still care?
+
+#--------------------------------------------------------------------
+#       Check for various typedefs and provide substitutes if
+#       they don't exist.
+#--------------------------------------------------------------------
 TCL_CHECK_TYPE_SIZE(mode_t MODE)
 TCL_CHECK_TYPE_SIZE(pid_t PID)
 TCL_CHECK_TYPE_SIZE(size_t SIZE)
 TCL_CHECK_TYPE_SIZE(uid_t UID)
-TCL_CHECK_TYPE_SIZE(blkcnt_t BLKCNT)
+# The following tests may need to be more elaborate to function properly
+TCL_CHECK_TYPE_SIZE(socklen_t SOCKLEN sys/types.h sys/socket.h)
 TCL_CHECK_TYPE_SIZE(intptr_t INTPTR)
 TCL_CHECK_TYPE_SIZE(uintptr_t UINTPTR)
+
+IF(NOT HAVE_OPENDIR)
+   ADD_TCL_CFLAG(USE_DIRENT2_H)
+ENDIF(NOT HAVE_OPENDIR)
+
+# The union wait test was for HP-UX - do we still need this?
+SET(UNION_WAIT_SRC "
+#include <sys/types.h>
+#include <sys/wait.h>
+int
+main ()
+{
+
+union wait x;
+WIFEXITED(x);           /* Generates compiler error if WIFEXITED
+                         * uses an int. */
+return 0;
+}
+")
+CHECK_C_SOURCE_RUNS("${UNION_WAIT_SRC}" HAVE_UNION_WAIT)
+IF(NOT HAVE_UNION_WAIT)
+   ADD_TCL_CFLAG(NO_UNION_WAIT)
+ENDIF(NOT HAVE_UNION_WAIT)
+
+#--------------------------------------------------------------------
+#       On Mac OS X, we can build either with X11 or with Aqua
+#       For the moment, we don't allow enabling X11 on Windows,
+#       eventually we may want to change that.
+#       We support enabling only the new Cocoa backend, not the 
+#       older Carbon code
+#--------------------------------------------------------------------
+IF(NOT WIN32)
+	IF(APPLE)
+		OPTION(TK_ENABLE_AQUA "Build Tk using the Aqua windowing system" OFF)
+		IF(TK_ENABLE_AQUA)
+			SET(TK_WINDOWINGSYSTEM Aqua)
+			add_definitions(-DMAC_OSX_TK=1)
+			add_definitions(-D_DARWIN_C_SOURCE=1)
+			SET(X11_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/xlib")
+			find_library(COCOA_FRAMEWORK Cocoa)	
+			find_library(CARBON_FRAMEWORK Carbon)	
+		ELSE(TK_ENABLE_AQUA)
+			find_package(X11)
+			SET(TK_WINDOWINGSYSTEM X11)
+		ENDIF(TK_ENABLE_AQUA)
+	ELSE(APPLE)
+		find_package(X11)
+		SET(TK_WINDOWINGSYSTEM X11)
+	ENDIF(APPLE)
+ENDIF(NOT WIN32)
+
+#--------------------------------------------------------------------
+# Check whether the header and library for the XScreenSaver
+# extension are available, and set HAVE_XSS if so.
+# XScreenSaver is needed for Tk_GetUserInactiveTime().
+#--------------------------------------------------------------------
+IF(NOT TK_ENABLE_AQUA AND NOT WIN32)
+	OPTION(TK_ENABLE_XSS "Use XScreenSaver" ${X11_Xscreensaver_FOUND})
+	IF(TK_ENABLE_XSS)
+		ADD_TCL_CFLAG(HAVE_XSS)
+	ENDIF(TK_ENABLE_XSS)
+ENDIF(NOT TK_ENABLE_AQUA AND NOT WIN32)
+
+#--------------------------------------------------------------------
+#       Check for freetype / fontconfig / Xft support.
+#--------------------------------------------------------------------
+IF(NOT TK_ENABLE_AQUA AND NOT WIN32)
+	find_package(Freetype)
+	IF(APPLE)
+		find_library(FONTCONFIG_LIBRARY fontconfig)
+		MARK_AS_ADVANCED(FONTCONFIG_LIBRARY)
+	ENDIF(APPLE)
+	IF(FREETYPE_FOUND)
+		OPTION(TK_ENABLE_XFT "Enable freetype/fontconfig/Xft support" ${X11_Xft_FOUND})
+	ELSE(FREETYPE_FOUND)
+		OPTION(TK_ENABLE_XFT "Enable freetype/fontconfig/Xft support" OFF)
+		SET(FREETYPE_LIBRARIES "")
+	ENDIF(FREETYPE_FOUND)
+ENDIF(NOT TK_ENABLE_AQUA AND NOT WIN32)
+
+#----------------------------------------------------------------------------
+# signed/unsigned char - does the Tcl code still need this? See
+# http://lists.gnu.org/archive/html/autoconf/2008-06/msg00054.html
+#----------------------------------------------------------------------------
+SET(unsigned_char_srcs "
+int
+main ()
+{
+   static int test_array [1 - 2 * !(((char) -1) < 0)];
+   test_array [0] = 0;
+   return 0;
+}
+")
+CHECK_C_SOURCE_RUNS("${unsigned_char_srcs}" CHAR_IS_UNSIGNED)
+IF(CHAR_IS_UNSIGNED)
+   ADD_TCL_CFLAG(__CHAR_UNSIGNED__)
+ENDIF(CHAR_IS_UNSIGNED)
+SET(signed_char_srcs "
+int
+main ()
+{
+   signed char *p;
+   p = 0;
+   return 0;
+}
+")
+CHECK_C_SOURCE_COMPILES("${signed_char_srcs}" HAVE_SIGNED_CHAR)
+IF(HAVE_SIGNED_CHAR)
+   ADD_TCL_CFLAG(HAVE_SIGNED_CHAR)
+ENDIF(HAVE_SIGNED_CHAR)
+
 
 
 TCL_CHECK_INCLUDE_FILE(sys/types.h HAVE_SYS_TYPES_H)
@@ -209,37 +370,6 @@ TCL_CHECK_INCLUDE_FILE(strings.h HAVE_STRINGS_H)
 TCL_CHECK_INCLUDE_FILE(inttypes.h HAVE_INTTYPES_H)
 TCL_CHECK_INCLUDE_FILE(stdint.h HAVE_STDINT_H)
 TCL_CHECK_INCLUDE_FILE(unistd.h HAVE_UNISTD_H)
-
-IF(APPLE)
-	find_library(COREFOUNDATION_FRAMEWORK CoreFoundation)	 
-	IF(COREFOUNDATION_FRAMEWORK)	 
-		add_definitions(-DHAVE_COREFOUNDATION=1)	 
-	ENDIF(COREFOUNDATION_FRAMEWORK)	 
-	find_library(FONTCONFIG_LIBRARY fontconfig)
-	MARK_AS_ADVANCED(FONTCONFIG_LIBRARY)
-	find_library(COCOA_FRAMEWORK Cocoa)	
-	find_library(CARBON_FRAMEWORK Carbon)	
-	find_library(IOKIT_FRAMEWORK IOKit)	 
-ENDIF(APPLE)
-
-IF(NOT WIN32)
-	IF(NOT ENABLE_AQUA)
-		find_package(X11)
-		find_package(Freetype)
-		SET(TK_WINDOWINGSYSTEM X11)
-	ELSE(NOT ENABLE_AQUA)
-		SET(TK_WINDOWINGSYSTEM Aqua)
-		add_definitions(-DMAC_OSX_TK=1)
-		add_definitions(-D_DARWIN_C_SOURCE=1)
-		SET(X11_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/xlib")
-	ENDIF(NOT ENABLE_AQUA)
-	IF(FREETYPE_FOUND)
-		OPTION(TK-ENABLE_FREETYPE "Enable freetype support" ON) 
-	ELSE(FREETYPE_FOUND)
-		OPTION(TK-ENABLE_FREETYPE "Enable freetype support" OFF) 
-		SET(FREETYPE_LIBRARIES "")
-	ENDIF(FREETYPE_FOUND)
-ENDIF(NOT WIN32)
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "^Darwin$")
 	TCL_CHECK_FUNCTION_EXISTS(getattrlist HAVE_GETATTRLIST)
@@ -295,7 +425,6 @@ int main ()	{return 0;}
 	ENDIF(HAVE_AVAILABILITYMACROS_H)
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "^Darwin$")
 
-ADD_SUBDIRECTORY(doc)
 ADD_SUBDIRECTORY(library)
 
 SET(TK_GENERIC_SRCS
@@ -449,11 +578,11 @@ SET(TK_X11_SRCS
 	unix/tkUnixXId.c
 )
 
-IF(TK-ENABLE_FREETYPE)
+IF(TK_ENABLE_XFT)
    SET(TK_X11_SRCS ${TK_X11_SRCS} unix/tkUnixRFont.c)
-ELSE(TK-ENABLE_FREETYPE)
+ELSE(TK_ENABLE_XFT)
    SET(TK_X11_SRCS ${TK_X11_SRCS} unix/tkUnixFont.c)
-ENDIF(TK-ENABLE_FREETYPE)
+ENDIF(TK_ENABLE_XFT)
 
 SET(TK_AQUA_SRCS
 	macosx/tkMacOSXBitmap.c
@@ -548,11 +677,11 @@ SET(TK_SRCS ${TK_GENERIC_SRCS} ${TTK_SRCS})
 IF(WIN32)
 	SET(TK_SRCS ${TK_SRCS} ${TK_WIN_SRCS})
 ELSE(WIN32)
-	IF(ENABLE_AQUA)
+	IF(TK_ENABLE_AQUA)
 		SET(TK_SRCS ${TK_SRCS} ${TK_AQUA_SRCS})
-	ELSE(ENABLE_AQUA)
+	ELSE(TK_ENABLE_AQUA)
 		SET(TK_SRCS ${TK_SRCS} ${TK_X11_SRCS})
-	ENDIF(ENABLE_AQUA)
+	ENDIF(TK_ENABLE_AQUA)
 ENDIF(WIN32)
 
 SET(TK_INCLUDE_PATH ${TK_SOURCE_DIR}/generic ${TK_SOURCE_DIR}/bitmaps ${TK_BINARY_DIR}/include)
@@ -574,20 +703,22 @@ ENDIF(NOT WIN32)
 include_directories(
    ${TCL_INCLUDE_DIRS}	
    ${TK_INCLUDE_PATH}
-	${X11_INCLUDE_DIR}	
+	${X11_INCLUDE_DIR}
+	${X11_Xft_INCLUDE_PATH}
+	${X11_Xrender_INCLUDE_PATH}
+	${X11_Xscreensaver_INCLUDE_PATH}
 	${FREETYPE_INCLUDE_DIRS}
 )
 
 SET(X11_TK_LIBS ${X11_X11_LIB} ${X11_Xext_LIB})
-
-IF(X11_Xscreensaver_LIB)
-SET(X11_TK_LIBS ${X11_TK_LIBS} ${X11_Xscreensaver_LIB})
-ENDIF(X11_Xscreensaver_LIB)
+IF(TK_ENABLE_XSS)
+	SET(X11_TK_LIBS ${X11_TK_LIBS} ${X11_Xscreensaver_LIB})
+ENDIF(TK_ENABLE_XSS)
 IF(X11_Xft_LIB)
-SET(X11_TK_LIBS ${X11_TK_LIBS} ${X11_Xft_LIB})
+	SET(X11_TK_LIBS ${X11_TK_LIBS} ${X11_Xft_LIB})
 ENDIF(X11_Xft_LIB)
 IF(X11_Xrender_LIB)
-SET(X11_TK_LIBS ${X11_TK_LIBS} ${X11_Xrender_LIB})
+	SET(X11_TK_LIBS ${X11_TK_LIBS} ${X11_Xrender_LIB})
 ENDIF(X11_Xrender_LIB)
 
 IF(NOT LIB_DIR)
@@ -605,16 +736,16 @@ SET_PROPERTY(TARGET tkstub APPEND PROPERTY COMPILE_DEFINITIONS USE_TCL_STUBS)
 
 add_library(tk ${TK_SRCS})
 IF(WIN32)
-	target_link_libraries(tk tkstub ${TCL_STUB_LIBRARY} ${X11_TK_LIBS} ${FREETYPE_LIBRARIES} ${FONTCONFIG_LIBRARY})
+	target_link_libraries(tk tkstub ${TCL_STUB_LIBRARY} ${TCL_THREADS_LIB} ${X11_TK_LIBS} ${FREETYPE_LIBRARIES} ${FONTCONFIG_LIBRARY})
 ELSE(WIN32)
-	target_link_libraries(tk tkstub ${TCL_STUB_LIBRARY} ${COREFOUNDATION_FRAMEWORK} ${CARBON_FRAMEWORK} ${COCOA_FRAMEWORK} ${IOKIT_FRAMEWORK} ${X11_TK_LIBS} ${FREETYPE_LIBRARIES} ${FONTCONFIG_LIBRARY})
+	target_link_libraries(tk tkstub ${TCL_STUB_LIBRARY} ${TCL_THREADS_LIB} ${COREFOUNDATION_FRAMEWORK} ${CARBON_FRAMEWORK} ${COCOA_FRAMEWORK} ${IOKIT_FRAMEWORK} ${X11_TK_LIBS} ${FREETYPE_LIBRARIES} ${FONTCONFIG_LIBRARY})
 ENDIF(WIN32)
 install(TARGETS tk DESTINATION ${LIB_DIR})
 SET_TARGET_PROPERTIES(tk PROPERTIES VERSION ${TK_VERSION} SOVERSION ${TK_VERSION_MAJOR}.${TK_VERSION_MINOR})
 SET_PROPERTY(TARGET tk APPEND PROPERTY COMPILE_DEFINITIONS USE_TCL_STUBS)
-IF(ENABLE_AQUA)
+IF(TK_ENABLE_AQUA)
 	SET_PROPERTY(TARGET tk APPEND PROPERTY COMPILE_FLAGS "-std=gnu99 -x objective-c -fobjc-gc")
-ENDIF(ENABLE_AQUA)
+ENDIF(TK_ENABLE_AQUA)
 
 GET_TARGET_PROPERTY(TK_LIBLOCATION tk LOCATION_${CMAKE_BUILD_TYPE})
 GET_FILENAME_COMPONENT(TK_LIBNAME ${TK_LIBLOCATION} NAME)
@@ -630,10 +761,10 @@ IF(WIN32)
 	target_link_libraries(wish tcl tk imm32.lib comctl32.lib)
 ELSE(WIN32)
 	add_executable(wish ${WISH_SRCS})
-	target_link_libraries(wish ${TCL_LIBRARY} tk ${COREFOUNDATION_FRAMEWORK} ${CARBON_FRAMEWORK} ${COCOA_FRAMEWORK} ${IOKIT_FRAMEWORK} ${M_LIBRARY} ${X11_TK_LIBS} ${TK_FREETYPE_LIBRARIES} ${TK_FONTCONFIG_LIBRARY})
-	IF(ENABLE_AQUA)
+	target_link_libraries(wish ${TCL_LIBRARY} tk ${COREFOUNDATION_FRAMEWORK}  ${CARBON_FRAMEWORK} ${COCOA_FRAMEWORK} ${IOKIT_FRAMEWORK} ${TCL_THREADS_LIB} ${M_LIBRARY} ${X11_TK_LIBS} ${TK_FREETYPE_LIBRARIES} ${TK_FONTCONFIG_LIBRARY})
+	IF(TK_ENABLE_AQUA)
 		SET_PROPERTY(TARGET wish APPEND PROPERTY COMPILE_FLAGS "-std=gnu99 -x objective-c -fobjc-gc")
-	ENDIF(ENABLE_AQUA)
+	ENDIF(TK_ENABLE_AQUA)
 ENDIF(WIN32)
 SET_TARGET_PROPERTIES(wish PROPERTIES VERSION ${TK_VERSION_MAJOR}.${TK_VERSION_MINOR})
 install(TARGETS wish DESTINATION bin)
@@ -642,5 +773,3 @@ IF(NOT WIN32)
 	FILE(COPY unix/tkAppInit.c DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/tk${TK_VERSION_MAJOR}.${TK_VERSION_MINOR})
 	INSTALL(FILES unix/tkAppInit.c DESTINATION lib/tk${TK_VERSION_MAJOR}.${TK_VERSION_MINOR})
 ENDIF(NOT WIN32)
-
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O2 -pipe -fvisibility=hidden -Wall")

@@ -173,6 +173,7 @@ ENDIF(APPLE)
 
 #--------------------------------------------------------------------
 # Supply substitutes for missing POSIX header files.
+#--------------------------------------------------------------------
 SC_MISSING_POSIX_HEADERS()
 
 #------------------------------------------------------------------------
@@ -372,7 +373,7 @@ IF(TCL_THREADS)
 	SC_TCL_GETGRNAM_R()
 
 	IF(NOT HAVE_GETHOSTBYNAME)
-		CHECK_LIBRARY(GHBN lnsl gethostbyname)
+		CHECK_LIBRARY_EXISTS(GHBN lnsl "" gethostbyname)
 		SET(HAVE_GETHOSTBYNAME ${GHBN})
 	ENDIF(NOT HAVE_GETHOSTBYNAME)
 
