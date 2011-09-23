@@ -310,7 +310,7 @@ ENDIF(NOT WIN32)
 # XScreenSaver is needed for Tk_GetUserInactiveTime().
 #--------------------------------------------------------------------
 INCLUDE(CMakeDependentOption)
-CMAKE_DEPENDENT_OPTION(TK_ENABLE_XSS "Use XScreenSaver" ${X11_Xscreensaver_FOUND} "TK_SYSTEM_GRAPHICS STREQUAL x11" OFF)
+CMAKE_DEPENDENT_OPTION(TK_ENABLE_XSS "Use XScreenSaver" ON "TK_SYSTEM_GRAPHICS STREQUAL x11;${X11_Xscreensaver_FOUND}" OFF)
 
 #--------------------------------------------------------------------
 #       Check for freetype / fontconfig / Xft support.
@@ -322,7 +322,7 @@ IF(NOT WIN32)
 		MARK_AS_ADVANCED(FONTCONFIG_LIBRARY)
 	ENDIF(APPLE)
 ENDIF(NOT WIN32)
-CMAKE_DEPENDENT_OPTION(TK_ENABLE_XFT "Use freetype/fontconfig/xft" ${X11_Xft_FOUND} "TK_SYSTEM_GRAPHICS STREQUAL x11;FREETYPE_FOUND" OFF)
+CMAKE_DEPENDENT_OPTION(TK_ENABLE_XFT "Use freetype/fontconfig/xft" ON "TK_SYSTEM_GRAPHICS STREQUAL x11;FREETYPE_FOUND;${X11_Xft_FOUND}" OFF)
 
 #----------------------------------------------------------------------------
 # signed/unsigned char - does the Tcl code still need this? See
