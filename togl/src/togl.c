@@ -3558,6 +3558,11 @@ Togl_EventProc(ClientData clientData, XEvent *eventPtr)
 
     switch (eventPtr->type) {
       case Expose:
+#if defined(TOGL_NSOPENGL)
+          if (!Tk_IsMapped(togl->TkWin))
+              /* Tk Cocoa generates expose events for unmapped windows! */
+              break;
+#endif
           if (eventPtr->xexpose.count == 0) {
               if (!togl->UpdatePending
                       && eventPtr->xexpose.window == Tk_WindowId(togl->TkWin)) {
@@ -3571,7 +3576,7 @@ Togl_EventProc(ClientData clientData, XEvent *eventPtr)
               }
 #endif
 #if defined(TOGL_NSOPENGL)
-	      [togl->Ctx setView:togl->nsview];
+              [togl->Ctx setView:togl->nsview];
               SetMacBufRect(togl);
 #endif
           }
@@ -3585,7 +3590,8 @@ Togl_EventProc(ClientData clientData, XEvent *eventPtr)
 #if defined(TOGL_AGL) || defined(TOGL_NSOPENGL)
               // Even though the size hasn't changed,
               // it's position on the screen may have.
-              SetMacBufRect(togl);
+              if (Tk_IsMapped(togl->TkWin))
+                  SetMacBufRect(togl);
 #endif
               break;
           }
