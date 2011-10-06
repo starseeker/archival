@@ -753,7 +753,7 @@ GET_FILENAME_COMPONENT(TK_LIBNAME ${TK_LIBLOCATION} NAME)
 FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkgIndex.tcl "package ifneeded Tk ${TK_PATCH_LEVEL} [list load [file join $dir .. .. ${LIB_DIR} ${TK_LIBNAME}] Tk]")
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/pkgIndex.tcl DESTINATION lib/tk${TK_PATCH_LEVEL})
 
-FILE(WRITE ${CMAKE_BINARY_DIR}/lib/tk${TK_PATCH_LEVEL}/pkgIndex.tcl "package ifneeded Tk ${TK_PATCH_LEVEL} [list load [file join $dir ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${TK_LIBNAME}] Tk]")
+FILE(WRITE ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/tk${TK_PATCH_LEVEL}/pkgIndex.tcl "package ifneeded Tk ${TK_PATCH_LEVEL} [list load [file join $dir ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${TK_LIBNAME}] Tk]")
 
 install(FILES ${TK_HDRS} DESTINATION include)
 
