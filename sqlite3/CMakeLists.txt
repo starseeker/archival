@@ -50,9 +50,9 @@ target_link_libraries(libsqlite3 ${SQLITE_LIBS})
 set_target_properties(libsqlite3 PROPERTIES PREFIX "")
 install(TARGETS libsqlite3 DESTINATION ${LIB_DIR})
 
-add_executable(sqlite shell.c)
-target_link_libraries(sqlite libsqlite3)
-install(TARGETS sqlite DESTINATION bin)
+add_executable(sqlite3 shell.c)
+target_link_libraries(sqlite3 libsqlite3)
+install(TARGETS sqlite3 DESTINATION bin)
 
 SET(SQLITE3_LIBRARIES libsqlite3 CACHE STRING "sqlite lib")
 
@@ -60,6 +60,7 @@ SET(SQLITE3_LIBRARIES libsqlite3 CACHE STRING "sqlite lib")
 include_directories(${TCL_INCLUDE_DIRS})
 add_definitions(-DSQLITE3_ENABLE_FTS3=1)
 add_library(libtclsqlite3 SHARED tclsqlite3.c)
+target_link_libraries(libtclsqlite3 ${TCL_LIBRARY})
 set_target_properties(libtclsqlite3 PROPERTIES PREFIX "")
 install(TARGETS libtclsqlite3 DESTINATION ${LIB_DIR})
 
