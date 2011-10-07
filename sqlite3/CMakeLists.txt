@@ -37,6 +37,13 @@ IF(NOT LIB_DIR)
 	ENDIF(NOT WIN32)
 ENDIF(NOT LIB_DIR)
 
+add_definitions(-D_REENTRANT=1)
+
+add_definitions(-DSQLITE_THREADSAFE=1)
+
+add_definitions(-DSQLITE_ENABLE_FTS3)
+add_definitions(-DSQLITE_ENABLE_RTREE)
+
 INCLUDE(CheckLibraryExists)
 INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/CMake/ResolveCompilerPaths.cmake)
 CHECK_LIBRARY_EXISTS(dl dlopen "" HAVE_DLOPEN)
@@ -57,19 +64,4 @@ install(TARGETS sqlite3 DESTINATION bin)
 SET(SQLITE3_LIBRARIES libsqlite3 CACHE STRING "sqlite lib")
 
 # Tcl bindings
-include_directories(${TCL_INCLUDE_DIRS})
-add_definitions(-DSQLITE3_ENABLE_FTS3=1)
-add_library(libtclsqlite3 SHARED tclsqlite3.c)
-target_link_libraries(libtclsqlite3 ${TCL_LIBRARY})
-set_target_properties(libtclsqlite3 PROPERTIES PREFIX "")
-install(TARGETS libtclsqlite3 DESTINATION ${LIB_DIR})
-
-SET(SQLITE3_PKGNAME sqlite3)
-SET(SQLITE3_PKGVERSION "3.7.8")
-GET_TARGET_PROPERTY(SQLITE3_LIBLOCATION libtclsqlite3 LOCATION_${CMAKE_BUILD_TYPE})
-GET_FILENAME_COMPONENT(SQLITE3_LIBNAME ${SQLITE3_LIBLOCATION} NAME)
-FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkgIndex.tcl "package ifneeded ${SQLITE3_PKGNAME} ${SQLITE3_PKGVERSION} [list load [file join $dir .. .. ${LIB_DIR} ${SQLITE3_LIBNAME}]]")
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/pkgIndex.tcl DESTINATION lib/${SQLITE3_PKGNAME}${SQLITE3_PKGVERSION})
-
-FILE(WRITE ${CMAKE_BINARY_DIR}/lib/${SQLITE3_PKGNAME}${SQLITE3_PKGVERSION}/pkgIndex.tcl "package ifneeded ${SQLITE3_PKGNAME} ${SQLITE3_PKGVERSION} [list load [file join $dir .. .. lib  ${SQLITE3_LIBNAME}] ${SQLITE3_PKGNAME}]")
-
+ADD_SUBDIRECTORY(tcl)
