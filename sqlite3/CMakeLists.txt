@@ -58,7 +58,7 @@ set_target_properties(libsqlite3 PROPERTIES PREFIX "")
 install(TARGETS libsqlite3 DESTINATION ${LIB_DIR})
 
 add_executable(sqlite3 shell.c)
-target_link_libraries(sqlite3 libsqlite3)
+target_link_libraries(sqlite3 libsqlite3 ${SQLITE_LIBS})
 install(TARGETS sqlite3 DESTINATION bin)
 
 SET(SQLITE3_LIBRARIES libsqlite3 CACHE STRING "sqlite lib")
