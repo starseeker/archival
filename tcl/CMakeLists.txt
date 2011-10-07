@@ -842,7 +842,6 @@ SET(TCL_GENERIC_SRCS
 	generic/tclUtil.c
 	generic/tclVar.c
 	generic/tclZlib.c
-	generic/tclTomMathInterface.c
 	generic/tclUniData.c
 )
 
