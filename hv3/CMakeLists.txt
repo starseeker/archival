@@ -7,19 +7,10 @@ SET(hv3_TCLSCRIPTS
 	hv3_util.tcl
 	snit.tcl
 )
-BRLCAD_ADDDATA(hv3_TCLSCRIPTS tclscripts/hv3)
-pkgIndex_BUILD(hv3 tclscripts/hv3)
-tclIndex_BUILD(hv3 tclscripts/hv3)
-install(FILES hv3.man DESTINATION ${DATA_DIR}/doc)
-install(FILES tkhtml.n DESTINATION ${MAN_DIR}/mann)
-SET(hv3_ignore_files
-	demo
-	hv3.man
-	license.txt
-	license_snit.txt
-	tkhtml.n
-	pkgIndex.tcl
-	tclIndex
-	)
-CMAKEFILES(${hv3_ignore_files})
-CMAKEFILES(Makefile.am)
+file(COPY ${hv3_TCLSCRIPTS} DESTINATION ${CMAKE_BINARY_DIR}/lib/hv3)
+install(FILES ${hv3_TCLSCRIPTS} DESTINATION lib/hv3)
+
+file(WRITE ${CMAKE_BINARY_DIR}/lib/hv3/pkgIndex.tcl "package ifneeded snit 1.0 [list source [file join $dir snit.tcl]]\n")
+file(APPEND ${CMAKE_BINARY_DIR}/lib/hv3/pkgIndex.tcl "package ifneeded hv3 0.1 [list source [file join $dir hv3.tcl]]")
+install(FILES ${CMAKE_BINARY_DIR}/lib/hv3/pkgIndex.tcl DESTINATION lib/hv3)
+
