@@ -225,9 +225,9 @@ Itk_ConfigClassOption(
     mcode = opt->codePtr;
     if (mcode && mcode->bodyPtr) {
 //fprintf(stderr, "EXE!%s!\n", Tcl_GetString(mcode->bodyPtr));
-        Itcl_SetCallFrameResolver(interp, opt->iclsPtr->resolvePtr);
         Tcl_Namespace *saveNsPtr = Tcl_GetCurrentNamespace(interp);
 //fprintf(stderr, "MCNS!%s!\n", saveNsPtr->fullName);
+        Itcl_SetCallFrameResolver(interp, opt->iclsPtr->resolvePtr);
         Itcl_SetCallFrameNamespace(interp, opt->iclsPtr->nsPtr);
         result = Tcl_EvalObjEx(interp, mcode->bodyPtr, 0);
         Itcl_SetCallFrameNamespace(interp, saveNsPtr);

@@ -312,6 +312,7 @@ Itk_ArchInitOptsCmd(
      */
     result = TCL_OK;
 
+    {
     Tcl_CmdInfo cmdInfo;
     Tcl_GetCommandInfoFromToken(contextObj->accessCmd, &cmdInfo);
     if (cmdInfo.namespacePtr != Tcl_GetGlobalNamespace(interp)) {
@@ -331,6 +332,7 @@ Itk_ArchInitOptsCmd(
 
         Tcl_DecrRefCount(oldNamePtr);
         Tcl_DecrRefCount(newNamePtr);
+    }
     }
 
     return result;
@@ -422,6 +424,7 @@ Itk_ArchComponentCmd(
     /*
      *  Check arguments and handle the various options...
      */
+    {
     Tcl_DString buffer;
     char *head;
     char *tail;
@@ -471,6 +474,7 @@ Itk_ArchComponentCmd(
             }
             return Itk_ArchCompDeleteCmd(dummy, interp, objc-1, objv+1);
         }
+    }
     }
 
     /*
@@ -876,6 +880,7 @@ Itk_ArchCompAccessCmd(
         return TCL_ERROR;
     }
 
+    {
     ItclObjectInfo *infoPtr;
     infoPtr = (ItclObjectInfo *)Tcl_GetAssocData(interp,
             ITCL_INTERP_DATA, NULL);
@@ -892,6 +897,8 @@ Itk_ArchCompAccessCmd(
 #endif
         callingNs = callContextPtr->nsPtr;
     }
+    }
+
     /*
      *  With no arguments, return a list of components that can be
      *  accessed from the calling scope.
@@ -952,17 +959,17 @@ fprintf(stderr, "ERR 2 archComp == NULL\n");
      */
     if (objc == 2) {
 	Tcl_Obj *objPtr;
+	Tcl_DString buffer;
+	Tcl_Namespace *nsPtr;
+	Tcl_CallFrame frame;
 	objPtr = Tcl_NewObj();
 	Tcl_GetCommandFullName(interp, archComp->accessCmd, objPtr);
 	Tcl_IncrRefCount(objPtr);
-	Tcl_DString buffer;
 	Tcl_DStringInit(&buffer);
 	Tcl_DStringAppend(&buffer, ITCL_VARIABLES_NAMESPACE, -1);
 	Tcl_DStringAppend(&buffer, Tcl_GetString(objPtr), -1);
 	Tcl_DecrRefCount(objPtr);
 	Tcl_DStringAppend(&buffer, archComp->iclsPtr->nsPtr->fullName, -1);
-	Tcl_Namespace *nsPtr;
-	Tcl_CallFrame frame;
 	nsPtr = Tcl_FindNamespace(interp, Tcl_DStringValue(&buffer), NULL, 0);
 	Itcl_PushCallFrame(interp, &frame, nsPtr, /*isProcCallFrame*/0);
         val = Tcl_GetVar2(interp, "itk_component", token, 0);
