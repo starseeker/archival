@@ -188,6 +188,7 @@ add_definitions(-DTCL_SHLIB_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
 IF(WIN32)
 	add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Ot -Oi -fp:strict -Gs -GS -GL -MD -DBUILD_tk -BUILD_ttk -DSUPPORT_CONFIG_EMBEDDED -DHAVE_UXTHEME_H=1)
+	add_definitions(-Dinline=__inline)
 ENDIF(WIN32)
 
 IF(APPLE)
@@ -638,7 +639,6 @@ SET(TK_WIN_SRCS
 	xlib/ximage.c
 	xlib/xutil.c
 	win/stubs.c
-	win/rc/tk.rc
 	generic/tkFileFilter.c
 	generic/tkMacWinMenu.c
 	generic/tkPointer.c
