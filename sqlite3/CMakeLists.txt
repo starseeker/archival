@@ -37,7 +37,7 @@ IF(NOT LIB_DIR)
 	ENDIF(NOT WIN32)
 ENDIF(NOT LIB_DIR)
 
-add_definitions(-BUILD_sqlite)
+add_definitions(-DBUILD_sqlite)
 
 IF(MSVC)
 	add_definitions(-DSQLITE_MAX_TRIGGER_DEPTH=100)
@@ -53,11 +53,11 @@ add_definitions(-DSQLITE_ENABLE_RTREE)
 
 INCLUDE(CheckLibraryExists)
 INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/CMake/ResolveCompilerPaths.cmake)
-CHECK_LIBRARY_EXISTS(dl dlopen "" HAVE_DLOPEN)
-IF(HAVE_DLOPEN)
+CHECK_LIBRARY_EXISTS(dl dlopen "" HAVE_DL_LIBRARY)
+IF(HAVE_DL_LIBRARY)
 	RESOLVE_LIBRARIES(DL_LIBRARY "-ldl")
 	SET(SQLITE_LIBS ${SQLITE_LIBS} ${DL_LIBRARY})
-ENDIF(HAVE_DLOPEN)
+ENDIF(HAVE_DL_LIBRARY)
 
 add_executable(sqlite3 shell.c sqlite3.c)
 target_link_libraries(sqlite3 ${SQLITE_LIBS})
