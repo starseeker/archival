@@ -703,7 +703,7 @@ ENDIF(WIN32)
 IF(NOT WIN32)
 	SET(WISH_SRCS unix/tkAppInit.c)
 ELSE(NOT WIN32)
-        SET(WISH_SRCS win/winMain.c)# win/rc/wish.rc)
+	SET(WISH_SRCS win/winMain.c win/rc/wish.rc)
 ENDIF(NOT WIN32)
 
 IF(X11_INCLUDE_DIR)
