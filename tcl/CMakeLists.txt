@@ -821,7 +821,6 @@ SET(TCL_GENERIC_SRCS
 	generic/tclResult.c
 	generic/tclScan.c
 	generic/tclStubInit.c
-	generic/tclStubLib.c
 	generic/tclStringObj.c
 	generic/tclStrToD.c
 	generic/tclTestObj.c
@@ -1064,7 +1063,11 @@ ENDIF(WIN32)
 
 add_library(tclstub STATIC ${TCL_STUB_SRCS})
 target_link_libraries(tclstub ${CMAKE_THREAD_LIBS_INIT} ${COREFOUNDATION_FRAMEWORK} ${DL_LIBRARY})
-set_target_properties(tclstub PROPERTIES COMPILE_FLAGS "-fPIC")
+IF(NOT WIN32)
+    set_target_properties(tclstub PROPERTIES COMPILE_FLAGS "-fPIC")
+ELSE(NOT WIN32)
+    SET_PROPERTY(TARGET tclstub APPEND PROPERTY COMPILE_DEFINITIONS STATIC_BUILD)
+ENDIF(NOT WIN32)
 install(TARGETS tclstub DESTINATION ${LIB_DIR})
 
 add_library(tcl ${TCL_SRCS})
