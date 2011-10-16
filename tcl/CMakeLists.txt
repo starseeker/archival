@@ -154,9 +154,9 @@ add_definitions(-DTCL_SHLIB_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
 # Windows specific flags
 IF(WIN32)
-   add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEP -Ot -Oi -fp:strict -Gs -GS -GL -MD)
-   add_definitions(-DTCL_PIPE_DLL="tclpip${TCL_VERSION_MAJOR}${TCL_VERSION_MINOR}.dll")
-   add_definitions(-Dinline=__inline -DBUILD_tcl)
+	add_definitions(-DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEP -Ot -Oi -fp:strict -Gs -GS -GL -MD)
+	add_definitions(-DTCL_PIPE_DLL="tclpip${TCL_VERSION_MAJOR}${TCL_VERSION_MINOR}.dll")
+   add_definitions(-Dinline=__inline)
 ENDIF(WIN32)
 
 
@@ -821,6 +821,7 @@ SET(TCL_GENERIC_SRCS
 	generic/tclResult.c
 	generic/tclScan.c
 	generic/tclStubInit.c
+	generic/tclStubLib.c
 	generic/tclStringObj.c
 	generic/tclStrToD.c
 	generic/tclTestObj.c
@@ -953,12 +954,9 @@ SET(TCL_OSX_SRCS
 )
 
 SET(TCL_WIN_SRCS
-	win/tcl.rc
-	win/tclAppInit.c
 	win/tclWin32Dll.c
 	win/tclWinChan.c
 	win/tclWinConsole.c
-	win/tclWinDde.c
 	win/tclWinError.c
 	win/tclWinFCmd.c
 	win/tclWinFile.c
@@ -966,7 +964,6 @@ SET(TCL_WIN_SRCS
 	win/tclWinLoad.c
 	win/tclWinNotify.c
 	win/tclWinPipe.c
-	win/tclWinReg.c
 	win/tclWinSerial.c
 	win/tclWinSock.c
 	win/tclWinThrd.c
@@ -1064,9 +1061,15 @@ ELSE(WIN32)
 	SET(TCLSH_SRCS unix/tclAppInit.c)
 ENDIF(WIN32)
 
+
+add_library(tclstub STATIC ${TCL_STUB_SRCS})
+target_link_libraries(tclstub ${CMAKE_THREAD_LIBS_INIT} ${COREFOUNDATION_FRAMEWORK} ${DL_LIBRARY})
+set_target_properties(tclstub PROPERTIES COMPILE_FLAGS "-fPIC")
+install(TARGETS tclstub DESTINATION ${LIB_DIR})
+
 add_library(tcl ${TCL_SRCS})
 install(TARGETS tcl DESTINATION ${LIB_DIR})
-target_link_libraries(tcl ${COREFOUNDATION_FRAMEWORK} ${TCL_LINK_LIBS} ${DL_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${ZLIB_LIBRARY} ${TCLWIN_LIBS})
+target_link_libraries(tcl tclstub ${COREFOUNDATION_FRAMEWORK} ${TCL_LINK_LIBS} ${DL_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${ZLIB_LIBRARY} ${TCLWIN_LIBS})
 GET_TARGET_PROPERTY(TCL_INSTALL_LIBNAME tcl LOCATION)
 SET_TARGET_PROPERTIES(tcl PROPERTIES VERSION ${TCL_VERSION} SOVERSION ${TCL_VERSION_MAJOR}.${TCL_VERSION_MINOR})
 IF(${CMAKE_SYSTEM_NAME} MATCHES "^Darwin$")
@@ -1075,12 +1078,6 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "^Darwin$")
 	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/macosx/Tcl-Info.plist.in ${TCL_BINARY_DIR}/Tcl-Info.plist)
 	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/macosx/Tclsh-Info.plist.in ${TCL_BINARY_DIR}/Tclsh-Info.plist)
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "^Darwin$")
-
-
-add_library(tclstub STATIC ${TCL_STUB_SRCS})
-target_link_libraries(tclstub ${CMAKE_THREAD_LIBS_INIT} ${COREFOUNDATION_FRAMEWORK} ${DL_LIBRARY})
-set_target_properties(tclstub PROPERTIES COMPILE_FLAGS "-fPIC")
-install(TARGETS tclstub DESTINATION ${LIB_DIR})
 
 add_executable(tclsh ${TCLSH_SRCS})
 target_link_libraries(tclsh tcl tclstub ${M_LIBRARY} ${TCL_THREADS_LIB} ${EXTRA_TCLSH_LIBS})
