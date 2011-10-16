@@ -823,14 +823,12 @@ SET(TCL_GENERIC_SRCS
 	generic/tclStubInit.c
 	generic/tclStringObj.c
 	generic/tclStrToD.c
-	generic/tclTest.c
 	generic/tclTestObj.c
 	generic/tclTestProcBodyObj.c
 	generic/tclThread.c
 	generic/tclThreadAlloc.c
 	generic/tclThreadJoin.c
 	generic/tclThreadStorage.c
-	generic/tclThreadTest.c
 	generic/tclTimer.c
 	generic/tclTrace.c
 	generic/tclUtf.c
@@ -838,6 +836,14 @@ SET(TCL_GENERIC_SRCS
 	generic/tclVar.c
 	generic/tclZlib.c
 	generic/tclUniData.c
+)
+
+SET(TCL_TEST_SRCS
+	generic/tclTest.c
+	generic/tclThreadTest.c
+	unix/tclUnixTest.c
+	unix/tclXtTest.c
+	win/tclWinTest.c
 )
 
 IF(TCL_TOMMATH)
@@ -964,7 +970,6 @@ SET(TCL_WIN_SRCS
 	win/tclWinSerial.c
 	win/tclWinSock.c
 	win/tclWinThrd.c
-	win/tclWinTest.c
 	win/tclWinTime.c
 )
 
@@ -987,7 +992,6 @@ SET(TCL_UNIX_SRCS
 	unix/tclUnixFile.c
 	unix/tclUnixPipe.c
 	unix/tclUnixSock.c
-	unix/tclUnixTest.c
 	unix/tclUnixThrd.c
 	unix/tclUnixTime.c
 	unix/tclUnixInit.c
@@ -1031,7 +1035,7 @@ ENDIF(NOT ZLIB_FOUND)
 SET(TCL_SRCS ${TCL_GENERIC_SRCS} ${TCL_OO_SRCS} ${TCL_TOMMATH_SRCS} ${TCL_STUB_SRCS} ${TCL_ZLIB_SRCS}) 
 IF(WIN32)
 	SET(TCL_SRCS ${TCL_SRCS} ${TCL_WIN_SRCS})
-	SET(TCLWIN_LIBS Netapi32.lib)
+	SET(TCLWIN_LIBS netapi32.lib kernel32.lib user32.lib advapi32.lib ws2_32.lib)
 ELSE(WIN32)
 	SET(TCL_SRCS ${TCL_SRCS} ${TCL_NOTIFY_SRCS} ${TCL_UNIX_SRCS})
 	IF(APPLE)
@@ -1079,7 +1083,7 @@ set_target_properties(tclstub PROPERTIES COMPILE_FLAGS "-fPIC")
 install(TARGETS tclstub DESTINATION ${LIB_DIR})
 
 add_executable(tclsh ${TCLSH_SRCS})
-target_link_libraries(tclsh tcl ${M_LIBRARY} ${TCL_THREADS_LIB} ${EXTRA_TCLSH_LIBS})
+target_link_libraries(tclsh tcl tclstub ${M_LIBRARY} ${TCL_THREADS_LIB} ${EXTRA_TCLSH_LIBS})
 install(TARGETS tclsh DESTINATION bin)
 SET_TARGET_PROPERTIES(tclsh PROPERTIES VERSION ${TCL_VERSION_MAJOR}.${TCL_VERSION_MINOR})
 
