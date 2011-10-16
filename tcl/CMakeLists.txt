@@ -209,9 +209,9 @@ SET(TCL_LINK_LIBS ${TCL_LINK_LIBS} ${TCL_THREADS_LIB})
 # Handle zlib
 #--------------------------------------------------------------------
 FIND_PACKAGE(ZLIB)
-IF(ZLIB_FOUND)
-	add_definitions(-DHAVE_ZLIB=1)
-ENDIF(ZLIB_FOUND)
+# We're going to have zlib one way or the other,
+# either with the found lib or with compat srcs.
+add_definitions(-DHAVE_ZLIB=1)
 
 # TODO - look over SC_ENABLE_SHARED, SC_CONFIG_CFLAGS and SC_ENABLE_SYMBOLS
 # need to decide how much of that logic is needed.  Clearly we need SOME
