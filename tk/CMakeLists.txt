@@ -779,12 +779,8 @@ install(FILES ${TK_HDRS} DESTINATION include)
 
 IF(WIN32)
 	add_executable(wish WIN32 ${WISH_SRCS})
-<<<<<<< HEAD
-	target_link_libraries(wish tcl tk tclstub tkstub imm32.lib comctl32.lib)
-	SET_PROPERTY(TARGET wish APPEND PROPERTY COMPILE_DEFINITIONS TCL_USE_STATIC_PACKAGES=0)
-=======
 	target_link_libraries(wish tcl tk tclstub tkstub netapi32.lib kernel32.lib user32.lib advapi32.lib ws2_32.lib gdi32.lib)
->>>>>>> 32c129e8670f9dbccc0070abbfa7aab1e5205a55
+	SET_PROPERTY(TARGET wish APPEND PROPERTY COMPILE_DEFINITIONS TCL_USE_STATIC_PACKAGES=0)
 ELSE(WIN32)
 	add_executable(wish ${WISH_SRCS})
 	target_link_libraries(wish ${TCL_LIBRARY} tk ${COREFOUNDATION_FRAMEWORK}  ${CARBON_FRAMEWORK} ${COCOA_FRAMEWORK} ${IOKIT_FRAMEWORK} ${TCL_THREADS_LIB} ${M_LIBRARY} ${X11_TK_LIBS} ${TK_FREETYPE_LIBRARIES} ${TK_FONTCONFIG_LIBRARY})
