@@ -630,6 +630,7 @@ SET(TK_AQUA_SRCS
 )
 
 SET(TK_WIN_SRCS
+	win/rc/tk.rc
 	xlib/xcolors.c
 	xlib/xdraw.c
 	xlib/xgc.c
