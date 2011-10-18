@@ -504,9 +504,6 @@ SET(TK_GENERIC_SRCS
 	generic/tkTextTag.c
 	generic/tkTextWind.c
 	generic/tkOldConfig.c
-	generic/tkOldTest.c
-	generic/tkSquare.c
-	generic/tkTest.c
 	)
 
 SET(TK_HDRS
@@ -666,7 +663,6 @@ SET(TK_WIN_SRCS
 	win/tkWinScrlbr.c
 	win/tkWinSend.c
 	win/tkWinSendCom.c
-	win/tkWinTest.c
 	win/tkWinWindow.c
 	win/tkWinWm.c
 	win/tkWinX.c
