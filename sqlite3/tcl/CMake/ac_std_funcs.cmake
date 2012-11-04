@@ -22,7 +22,6 @@ ENDFOREACH($candidate_dir ${CMAKE_MODULE_PATH})
 
 INCLUDE(CheckPrototypeExists)
 INCLUDE(CheckCSourceRuns)
-INCLUDE(CheckCFileRuns)
 
 MACRO(CHECK_BASENAME_D)
 	SET(BASENAME_SRC "
