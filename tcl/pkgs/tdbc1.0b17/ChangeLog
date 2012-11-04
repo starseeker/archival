@@ -1,3 +1,46 @@
+2012-08-17  Jan Nijtmans  <nijtmans@users.sf.net>
+
+	* win/nmakehlp.c: Add "-V<num>" option, in order to be able
+	to detect partial version numbers.
+
+2012-07-26  Jan Nijtmans  <jan.nijtmans@gmail.com>
+
+	* tclconfig/install-sh:  Update to latest TEA
+	* tclconfig/tcl.m4:	
+	* configure:		autoconf-2.59
+
+2012-07-17  Jan Nijtmans  <nijtmans@users.sf.net>
+
+	* win/makefile.vc: [Bug 3544932]: Visual studio compiler check fails
+
+2012-07-12  Kevin B. Kenny  <kennykb@acm.org>
+
+	* generic/tdbc.h:
+	* generic/tdbc.c:  Restored Unix buildability for 'tdbc', and
+			   removed code that swizzles TCL_STORAGE_CLASS
+		           in favour of avoiding Tcl's EXTERN macro.
+
+2012-06-10  Jan Nijtmans  <jan.nijtmans@gmail.com>
+
+	* configure.in:0
+	* generic/tdbc.decls:
+	* generic/tdbc.h:
+	* tdbcConfig.sh.in:
+	* tools/genStubs.tcl: FRQ-b4029dc351: make all TDBC API functions
+	                      MODULE_SCOPE
+
+	* generic/tdbcDecls.h:
+	* generic/tdbcStubInit.c:
+	* generic/tdbcStubLib.c:  Regen
+
+	* configure:	autoconf-2.59
+
+2012-06-08  Jan Nijtmans  <jan.nijtmans@gmail.com>
+
+	* tclconfig/ChangeLog:
+	* tclconfig/tcl.m4: Update to latest TEA
+	* configure: 	autoconf-2.59
+
 2011-08-01  Don Porter  <dgp@users.sourceforge.net>
 
 	* win/rules.vc: Extend support to MSVC10.  Thanks to Twylite.

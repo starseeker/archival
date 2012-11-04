@@ -1,0 +1,21 @@
+# -*- tcl -*-
+# Tcl package index file, version 1.1
+#
+if {![package vsatisfies [package provide Tcl] @TCL_VERSION@]} return
+if {![::tcl::pkgconfig get threaded]} return
+
+    package ifneeded Thread @PACKAGE_VERSION@ [list load [file join $dir @PKG_LIB_FILE@]]
+
+	package ifneeded Ttrace @PACKAGE_VERSION@ [list ::apply {{dir} {
+	    if {[info exists ::env(TCL_THREAD_LIBRARY)] &&
+		[file readable $::env(TCL_THREAD_LIBRARY)/ttrace.tcl]} {
+		source $::env(TCL_THREAD_LIBRARY)/ttrace.tcl
+	    } elseif {[file readable [file join $dir .. lib ttrace.tcl]]} {
+		source [file join $dir .. lib ttrace.tcl]
+	    } elseif {[file readable [file join $dir ttrace.tcl]]} {
+		source [file join $dir ttrace.tcl]
+	    }
+	    if {[llength [info commands ttrace::update]]} {
+		ttrace::update
+	    }
+	}} $dir]

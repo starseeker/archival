@@ -18,11 +18,22 @@
 
 #include <tcl.h>
 
+#ifndef TDBCAPI
+#   if defined(BUILD_tdbc)
+#	define TDBCAPI MODULE_SCOPE
+#   else
+#	define TDBCAPI extern
+#	undef USE_TDBC_STUBS
+#	define USE_TDBC_STUBS 1
+#   endif
+#endif
+
 #if defined(BUILD_tdbc)
-#    define	TDBCAPI 	DLLEXPORT
-#    undef	USE_TDBC_STUBS
+DLLEXPORT int		Tdbc_Init(Tcl_Interp *interp);
+#elif defined(STATIC_BUILD)
+extern    int		Tdbc_Init(Tcl_Interp* interp);
 #else
-#    define	TDBCAPI		DLLIMPORT
+DLLIMPORT int		Tdbc_Init(Tcl_Interp* interp);
 #endif
 
 /*
