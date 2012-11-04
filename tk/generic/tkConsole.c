@@ -112,25 +112,17 @@ ShouldUseConsoleChannel(
     DCB dcb;
     DWORD consoleParams;
     DWORD fileType;
-    int mode;
-    const char *bufMode;
     HANDLE handle;
 
     switch (type) {
     case TCL_STDIN:
 	handleId = STD_INPUT_HANDLE;
-	mode = TCL_READABLE;
-	bufMode = "line";
 	break;
     case TCL_STDOUT:
 	handleId = STD_OUTPUT_HANDLE;
-	mode = TCL_WRITABLE;
-	bufMode = "line";
 	break;
     case TCL_STDERR:
 	handleId = STD_ERROR_HANDLE;
-	mode = TCL_WRITABLE;
-	bufMode = "none";
 	break;
     default:
 	return 0;
@@ -520,7 +512,7 @@ ConsoleOutput(
 	     * Assumption is utf-8 Tcl_Encoding is reliably present.
 	     */
 
-	    CONST char *bytes
+	    const char *bytes
 		    = Tcl_ExternalToUtfDString(utf8, buf, toWrite, &ds);
 	    int numBytes = Tcl_DStringLength(&ds);
 	    Tcl_Obj *cmd = Tcl_NewStringObj("tk::ConsoleOutput", -1);
@@ -755,7 +747,9 @@ ConsoleObjCmd(
 	Tcl_SetObjResult(interp, Tcl_GetObjResult(consoleInterp));
 	Tcl_Release(consoleInterp);
     } else {
-	Tcl_AppendResult(interp, "no active console interp", NULL);
+	Tcl_SetObjResult(interp, Tcl_NewStringObj(
+		"no active console interp", -1));
+	Tcl_SetErrorCode(interp, "TK", "CONSOLE", "NONE", NULL);
 	result = TCL_ERROR;
     }
     Tcl_DecrRefCount(cmd);
@@ -804,7 +798,9 @@ InterpreterObjCmd(
     }
 
     if ((otherInterp == NULL) || Tcl_InterpDeleted(otherInterp)) {
-	Tcl_AppendResult(interp, "no active master interp", NULL);
+	Tcl_SetObjResult(interp, Tcl_NewStringObj(
+		"no active master interp", -1));
+	Tcl_SetErrorCode(interp, "TK", "CONSOLE", "NO_INTERP", NULL);
 	return TCL_ERROR;
     }
 

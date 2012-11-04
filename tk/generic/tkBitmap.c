@@ -23,7 +23,7 @@
  * that warning message.
  */
 
-#if (defined(__WIN32__) || defined(_WIN32)) && !defined(__GNUC__)
+#if defined(_MSC_VER)
 #pragma warning (disable : 4305)
 #endif
 
@@ -38,7 +38,7 @@
 #include "question.xbm"
 #include "warning.xbm"
 
-#if (defined(__WIN32__) || defined(_WIN32)) && !defined(__GNUC__)
+#if defined(_MSC_VER)
 #pragma warning (default : 4305)
 #endif
 
@@ -342,8 +342,10 @@ GetBitmap(
 	int result;
 
 	if (Tcl_IsSafe(interp)) {
-	    Tcl_AppendResult(interp, "can't specify bitmap with '@' in a",
-		    " safe interpreter", NULL);
+	    Tcl_SetObjResult(interp, Tcl_NewStringObj(
+		    "can't specify bitmap with '@' in a safe interpreter",
+		    -1));
+	    Tcl_SetErrorCode(interp, "TK", "SAFE", "BITMAP_FILE", NULL);
 	    goto error;
 	}
 
@@ -363,8 +365,9 @@ GetBitmap(
 		&bitmap, &dummy2, &dummy2);
 	if (result != BitmapSuccess) {
 	    if (interp != NULL) {
-		Tcl_AppendResult(interp, "error reading bitmap file \"",
-			string, "\"", NULL);
+		Tcl_SetObjResult(interp, Tcl_ObjPrintf(
+			"error reading bitmap file \"%s\"", string));
+		Tcl_SetErrorCode(interp, "TK", "BITMAP", "FILE_ERROR", NULL);
 	    }
 	    Tcl_DStringFree(&buffer);
 	    goto error;
@@ -384,8 +387,10 @@ GetBitmap(
 
 	    if (bitmap == None) {
 		if (interp != NULL) {
-		    Tcl_AppendResult(interp, "bitmap \"", string,
-			    "\" not defined", NULL);
+		    Tcl_SetObjResult(interp, Tcl_ObjPrintf(
+			    "bitmap \"%s\" not defined", string));
+		    Tcl_SetErrorCode(interp, "TK", "LOOKUP", "BITMAP", string,
+			    NULL);
 		}
 		goto error;
 	    }
@@ -458,18 +463,6 @@ GetBitmap(
  */
 
 int
-Tk_OldDefineBitmap(
-    Tcl_Interp *interp,		/* Interpreter to use for error reporting. */
-    const char *name,		/* Name to use for bitmap. Must not already be
-				 * defined as a bitmap. */
-    const char *source,		/* Address of bits for bitmap. */
-    int width,			/* Width of bitmap. */
-    int height)			/* Height of bitmap. */
-{
-    return Tk_DefineBitmap(interp, name, source, width, height);
-}
-
-int
 Tk_DefineBitmap(
     Tcl_Interp *interp,		/* Interpreter to use for error reporting. */
     const char *name,		/* Name to use for bitmap. Must not already be
@@ -499,8 +492,9 @@ Tk_DefineBitmap(
     predefHashPtr = Tcl_CreateHashEntry(&tsdPtr->predefBitmapTable,
 	    name, &isNew);
     if (!isNew) {
-	Tcl_AppendResult(interp, "bitmap \"", name, "\" is already defined",
-		NULL);
+	Tcl_SetObjResult(interp, Tcl_ObjPrintf(
+		"bitmap \"%s\" is already defined", name));
+	Tcl_SetErrorCode(interp, "TK", "BITMAP", "EXISTS", NULL);
 	return TCL_ERROR;
     }
     predefPtr = ckalloc(sizeof(TkPredefBitmap));
@@ -813,16 +807,6 @@ DupBitmapObjProc(
  */
 
 	/* ARGSUSED */
-Pixmap
-Tk_OldGetBitmapFromData(
-    Tcl_Interp *interp,		/* Interpreter to use for error reporting. */
-    Tk_Window tkwin,		/* Window in which bitmap will be used. */
-    const char *source,		/* Bitmap data for bitmap shape. */
-    int width, int height)	/* Dimensions of bitmap. */
-{
-	return Tk_GetBitmapFromData(interp, tkwin, source, width, height);
-}
-
 Pixmap
 Tk_GetBitmapFromData(
     Tcl_Interp *interp,		/* Interpreter to use for error reporting. */

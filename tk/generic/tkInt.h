@@ -824,6 +824,8 @@ typedef struct {
 				 * allocated with ckalloc(). */
     int charValueLen;		/* Length of string in charValuePtr when that
 				 * is non-NULL. */
+    KeySym keysym;		/* Key symbol computed after input methods
+				 * have been invoked */
 } TkKeyEvent;
 
 /*
@@ -941,6 +943,8 @@ MODULE_SCOPE Tk_PhotoImageFormat tkImgFmtPPM;
 MODULE_SCOPE TkMainInfo		*tkMainWindowList;
 MODULE_SCOPE Tk_ImageType	tkPhotoImageType;
 MODULE_SCOPE Tcl_HashTable	tkPredefBitmapTable;
+
+MODULE_SCOPE const char *const tkWebColors[20];
 
 /*
  * The definition of pi, at least from the perspective of double-precision
@@ -1166,7 +1170,7 @@ MODULE_SCOPE void	TkpBuildRegionFromAlphaData(TkRegion region,
 			    unsigned x, unsigned y, unsigned width,
 			    unsigned height, unsigned char *dataPtr,
 			    unsigned pixelStride, unsigned lineStride);
-MODULE_SCOPE void	TkPrintPadAmount(Tcl_Interp *interp,
+MODULE_SCOPE void	TkAppendPadAmount(Tcl_Obj *bufferObj,
 			    const char *buffer, int pad1, int pad2);
 MODULE_SCOPE int	TkParsePadAmount(Tcl_Interp *interp,
 			    Tk_Window tkwin, Tcl_Obj *objPtr,
@@ -1208,6 +1212,17 @@ MODULE_SCOPE int	TkInitTkCmd(Tcl_Interp *interp,
 MODULE_SCOPE int	TkInitFontchooser(Tcl_Interp *interp,
 			    ClientData clientData);
 MODULE_SCOPE void	TkpWarpPointer(TkDisplay *dispPtr);
+
+#ifdef __WIN32__
+#define TkParseColor XParseColor
+#else
+MODULE_SCOPE Status TkParseColor (Display * display,
+				Colormap map, const char* spec,
+				XColor * colorPtr);
+#endif
+#ifdef HAVE_XFT
+MODULE_SCOPE void	TkUnixSetXftClipRegion(TkRegion clipRegion);
+#endif
 
 /*
  * Unsupported commands.

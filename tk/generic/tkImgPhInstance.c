@@ -635,7 +635,8 @@ TkImgPhotoDisplay(
 		(unsigned int)width, (unsigned int)height, AllPlanes, ZPixmap);
 	if (bgImg == NULL) {
 	    Tk_DeleteErrorHandler(handler);
-	    return;
+	    /* We failed to get the image so draw without blending alpha. It's the best we can do */
+	    goto fallBack;
 	}
 
 	BlendComplexAlpha(bgImg, instancePtr, imageX, imageY, width, height);
@@ -657,6 +658,7 @@ TkImgPhotoDisplay(
 	 * origin appropriately, and use it when drawing the image.
 	 */
 
+    fallBack:
 	TkSetRegion(display, instancePtr->gc,
 		instancePtr->masterPtr->validRegion);
 	XSetClipOrigin(display, instancePtr->gc, drawableX - imageX,
@@ -1066,8 +1068,7 @@ GetColorTable(
      * Allocate colors for this color table if necessary.
      */
 
-    if ((colorPtr->numColors == 0)
-	    && ((colorPtr->flags & BLACK_AND_WHITE) == 0)) {
+    if ((colorPtr->numColors == 0) && !(colorPtr->flags & BLACK_AND_WHITE)) {
 	AllocateColors(colorPtr);
     }
 }
@@ -1102,12 +1103,12 @@ FreeColorTable(
     }
 
     if (force) {
-	if ((colorPtr->flags & DISPOSE_PENDING) != 0) {
+	if (colorPtr->flags & DISPOSE_PENDING) {
 	    Tcl_CancelIdleCall(DisposeColorTable, colorPtr);
 	    colorPtr->flags &= ~DISPOSE_PENDING;
 	}
 	DisposeColorTable(colorPtr);
-    } else if ((colorPtr->flags & DISPOSE_PENDING) == 0) {
+    } else if (!(colorPtr->flags & DISPOSE_PENDING)) {
 	Tcl_DoWhenIdle(DisposeColorTable, colorPtr);
 	colorPtr->flags |= DISPOSE_PENDING;
     }
@@ -1811,11 +1812,11 @@ TkImgDitherInstance(
 		    }
 		    c = ((c + 2056) >> 4) - 128;
 
-		    if ((masterPtr->flags & COLOR_IMAGE) == 0) {
-			c += srcPtr[0];
-		    } else {
+		    if (masterPtr->flags & COLOR_IMAGE) {
 			c += (unsigned) (srcPtr[0] * 11 + srcPtr[1] * 16
 				+ srcPtr[2] * 5 + 16) >> 5;
+		    } else {
+			c += srcPtr[0];
 		    }
 		    srcPtr += 4;
 
@@ -1884,11 +1885,11 @@ TkImgDitherInstance(
 		    }
 		    c = ((c + 2056) >> 4) - 128;
 
-		    if ((masterPtr->flags & COLOR_IMAGE) == 0) {
-			c += srcPtr[0];
-		    } else {
+		    if (masterPtr->flags & COLOR_IMAGE) {
 			c += (unsigned)(srcPtr[0] * 11 + srcPtr[1] * 16
 				+ srcPtr[2] * 5 + 16) >> 5;
+		    } else {
+			c += srcPtr[0];
 		    }
 		    srcPtr += 4;
 

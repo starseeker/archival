@@ -175,9 +175,9 @@ static const char *const labelAnchorStrings[] = {
 static const Tk_OptionSpec commonOptSpec[] = {
     {TK_OPTION_BORDER, "-background", "background", "Background",
 	DEF_FRAME_BG_COLOR, -1, Tk_Offset(Frame, border),
-	TK_OPTION_NULL_OK, (ClientData) DEF_FRAME_BG_MONO, 0},
+	TK_OPTION_NULL_OK, DEF_FRAME_BG_MONO, 0},
     {TK_OPTION_SYNONYM, "-bg", NULL, NULL,
-	NULL, 0, -1, 0, (ClientData) "-background", 0},
+	NULL, 0, -1, 0, "-background", 0},
     {TK_OPTION_STRING, "-colormap", "colormap", "Colormap",
 	DEF_FRAME_COLORMAP, -1, Tk_Offset(Frame, colormapName),
 	TK_OPTION_NULL_OK, 0, 0},
@@ -220,7 +220,7 @@ static const Tk_OptionSpec commonOptSpec[] = {
 
 static const Tk_OptionSpec frameOptSpec[] = {
     {TK_OPTION_SYNONYM, "-bd", NULL, NULL,
-	NULL, 0, -1, 0, (ClientData) "-borderwidth", 0},
+	NULL, 0, -1, 0, "-borderwidth", 0},
     {TK_OPTION_PIXELS, "-borderwidth", "borderWidth", "BorderWidth",
 	DEF_FRAME_BORDER_WIDTH, -1, Tk_Offset(Frame, borderWidth), 0, 0, 0},
     {TK_OPTION_STRING, "-class", "class", "Class",
@@ -228,12 +228,12 @@ static const Tk_OptionSpec frameOptSpec[] = {
     {TK_OPTION_RELIEF, "-relief", "relief", "Relief",
 	DEF_FRAME_RELIEF, -1, Tk_Offset(Frame, relief), 0, 0, 0},
     {TK_OPTION_END, NULL, NULL, NULL,
-	NULL, 0, 0, 0, (ClientData) commonOptSpec, 0}
+	NULL, 0, 0, 0, commonOptSpec, 0}
 };
 
 static const Tk_OptionSpec toplevelOptSpec[] = {
     {TK_OPTION_SYNONYM, "-bd", NULL, NULL,
-	NULL, 0, -1, 0, (ClientData) "-borderwidth", 0},
+	NULL, 0, -1, 0, "-borderwidth", 0},
     {TK_OPTION_PIXELS, "-borderwidth", "borderWidth", "BorderWidth",
 	DEF_FRAME_BORDER_WIDTH, -1, Tk_Offset(Frame, borderWidth), 0, 0, 0},
     {TK_OPTION_STRING, "-class", "class", "Class",
@@ -250,26 +250,26 @@ static const Tk_OptionSpec toplevelOptSpec[] = {
 	DEF_TOPLEVEL_USE, -1, Tk_Offset(Frame, useThis),
 	TK_OPTION_NULL_OK, 0, 0},
     {TK_OPTION_END, NULL, NULL, NULL,
-	NULL, 0, 0, 0, (ClientData) commonOptSpec, 0}
+	NULL, 0, 0, 0, commonOptSpec, 0}
 };
 
 static const Tk_OptionSpec labelframeOptSpec[] = {
     {TK_OPTION_SYNONYM, "-bd", NULL, NULL,
-	NULL, 0, -1, 0, (ClientData) "-borderwidth", 0},
+	NULL, 0, -1, 0, "-borderwidth", 0},
     {TK_OPTION_PIXELS, "-borderwidth", "borderWidth", "BorderWidth",
 	DEF_LABELFRAME_BORDER_WIDTH, -1, Tk_Offset(Frame, borderWidth),
 	0, 0, 0},
     {TK_OPTION_STRING, "-class", "class", "Class",
 	DEF_LABELFRAME_CLASS, -1, Tk_Offset(Frame, className), 0, 0, 0},
     {TK_OPTION_SYNONYM, "-fg", "foreground", NULL,
-	NULL, 0, -1, 0, (ClientData) "-foreground", 0},
+	NULL, 0, -1, 0, "-foreground", 0},
     {TK_OPTION_FONT, "-font", "font", "Font",
 	DEF_LABELFRAME_FONT, -1, Tk_Offset(Labelframe, tkfont), 0, 0, 0},
     {TK_OPTION_COLOR, "-foreground", "foreground", "Foreground",
 	DEF_LABELFRAME_FG, -1, Tk_Offset(Labelframe, textColorPtr), 0, 0, 0},
     {TK_OPTION_STRING_TABLE, "-labelanchor", "labelAnchor", "LabelAnchor",
 	DEF_LABELFRAME_LABELANCHOR, -1, Tk_Offset(Labelframe, labelAnchor),
-	0, (ClientData) labelAnchorStrings, 0},
+	0, labelAnchorStrings, 0},
     {TK_OPTION_WINDOW, "-labelwidget", "labelWidget", "LabelWidget",
 	NULL, -1, Tk_Offset(Labelframe, labelWin), TK_OPTION_NULL_OK, 0, 0},
     {TK_OPTION_RELIEF, "-relief", "relief", "Relief",
@@ -278,7 +278,7 @@ static const Tk_OptionSpec labelframeOptSpec[] = {
 	DEF_LABELFRAME_TEXT, Tk_Offset(Labelframe, textPtr), -1,
 	TK_OPTION_NULL_OK, 0, 0},
     {TK_OPTION_END, NULL, NULL, NULL,
-	NULL, 0, 0, 0, (ClientData) commonOptSpec, 0}
+	NULL, 0, 0, 0, commonOptSpec, 0}
 };
 
 /*
@@ -334,8 +334,8 @@ static void		MapFrame(ClientData clientData);
 static const Tk_ClassProcs frameClass = {
     sizeof(Tk_ClassProcs),	/* size */
     FrameWorldChanged,		/* worldChangedProc */
-    NULL,					/* createProc */
-    NULL					/* modalProc */
+    NULL,			/* createProc */
+    NULL			/* modalProc */
 };
 
 /*
@@ -465,7 +465,7 @@ CreateFrame(
     Tk_Window newWin;
     const char *className, *screenName, *visualName, *colormapName;
     const char *arg, *useOption;
-    int i, c, length, depth;
+    int i, length, depth;
     unsigned int mask;
     Colormap colormap;
     Visual *visual;
@@ -496,20 +496,19 @@ CreateFrame(
 	if (length < 2) {
 	    continue;
 	}
-	c = arg[1];
-	if ((c == 'c') && (length >= 3)
+	if ((arg[1] == 'c') && (length >= 3)
 		&& (strncmp(arg, "-class", (unsigned) length) == 0)) {
 	    className = Tcl_GetString(objv[i+1]);
-	} else if ((c == 'c')
+	} else if ((arg[1] == 'c') && (length >= 3)
 		&& (strncmp(arg, "-colormap", (unsigned) length) == 0)) {
 	    colormapName = Tcl_GetString(objv[i+1]);
-	} else if ((c == 's') && (type == TYPE_TOPLEVEL)
+	} else if ((arg[1] == 's') && (type == TYPE_TOPLEVEL)
 		&& (strncmp(arg, "-screen", (unsigned) length) == 0)) {
 	    screenName = Tcl_GetString(objv[i+1]);
-	} else if ((c == 'u') && (type == TYPE_TOPLEVEL)
+	} else if ((arg[1] == 'u') && (type == TYPE_TOPLEVEL)
 		&& (strncmp(arg, "-use", (unsigned) length) == 0)) {
 	    useOption = Tcl_GetString(objv[i+1]);
-	} else if ((c == 'v')
+	} else if ((arg[1] == 'v')
 		&& (strncmp(arg, "-visual", (unsigned) length) == 0)) {
 	    visualName = Tcl_GetString(objv[i+1]);
 	}
@@ -548,9 +547,10 @@ CreateFrame(
 	 * are being destroyed. Let an error be thrown.
 	 */
 
-	Tcl_AppendResult(interp, "unable to create widget \"",
-		Tcl_GetString(objv[1]), "\"", NULL);
-	newWin = NULL;
+	Tcl_SetObjResult(interp, Tcl_ObjPrintf(
+		"unable to create widget \"%s\"", Tcl_GetString(objv[1])));
+	Tcl_SetErrorCode(interp, "TK", "APPLICATION_GONE", NULL);
+	return TCL_ERROR;
     } else {
 	/*
 	 * We were called from Tk_Init; create a new application.
@@ -560,13 +560,14 @@ CreateFrame(
     }
     if (newWin == NULL) {
 	goto error;
-    } else {
-	/*
-	 * Mark Tk frames as suitable candidates for [wm manage]
-	 */
-	TkWindow *winPtr = (TkWindow *)newWin;
-	winPtr->flags |= TK_WM_MANAGEABLE;
     }
+
+    /*
+     * Mark Tk frames as suitable candidates for [wm manage].
+     */
+
+    ((TkWindow *) newWin)->flags |= TK_WM_MANAGEABLE;
+
     if (className == NULL) {
 	className = Tk_GetOption(newWin, "class", "Class");
 	if (className == NULL) {
@@ -577,10 +578,9 @@ CreateFrame(
     if (useOption == NULL) {
 	useOption = Tk_GetOption(newWin, "use", "Use");
     }
-    if ((useOption != NULL) && (*useOption != 0)) {
-	if (TkpUseWindow(interp, newWin, useOption) != TCL_OK) {
-	    goto error;
-	}
+    if ((useOption != NULL) && (*useOption != 0)
+	    && (TkpUseWindow(interp, newWin, useOption) != TCL_OK)) {
+	goto error;
     }
     if (visualName == NULL) {
 	visualName = Tk_GetOption(newWin, "visual", "Visual");
@@ -630,12 +630,11 @@ CreateFrame(
 	framePtr = ckalloc(sizeof(Frame));
 	memset(framePtr, 0, sizeof(Frame));
     }
-    framePtr->tkwin		= newWin;
-    framePtr->display		= Tk_Display(newWin);
-    framePtr->interp		= interp;
-    framePtr->widgetCmd		= Tcl_CreateObjCommand(interp,
-	    Tk_PathName(newWin), FrameWidgetObjCmd, framePtr,
-	    FrameCmdDeletedProc);
+    framePtr->tkwin = newWin;
+    framePtr->display = Tk_Display(newWin);
+    framePtr->interp = interp;
+    framePtr->widgetCmd	= Tcl_CreateObjCommand(interp, Tk_PathName(newWin),
+	    FrameWidgetObjCmd, framePtr, FrameCmdDeletedProc);
     framePtr->optionTable = optionTable;
     framePtr->type = type;
     framePtr->colormap = colormap;
@@ -665,14 +664,15 @@ CreateFrame(
 	    (ConfigureFrame(interp, framePtr, objc-2, objv+2) != TCL_OK)) {
 	goto error;
     }
-    if ((framePtr->isContainer)) {
-	if (framePtr->useThis == NULL) {
-	    TkpMakeContainer(framePtr->tkwin);
-	} else {
-	    Tcl_AppendResult(interp, "A window cannot have both the -use ",
-		    "and the -container option set.", NULL);
+    if (framePtr->isContainer) {
+	if (framePtr->useThis != NULL) {
+	    Tcl_SetObjResult(interp, Tcl_NewStringObj(
+		    "windows cannot have both the -use and the -container"
+		    " option set", -1));
+	    Tcl_SetErrorCode(interp, "TK", "FRAME", "CONTAINMENT", NULL);
 	    goto error;
 	}
+	TkpMakeContainer(framePtr->tkwin);
     }
     if (type == TYPE_TOPLEVEL) {
 	Tcl_DoWhenIdle(MapFrame, framePtr);
@@ -765,6 +765,7 @@ FrameWidgetObjCmd(
 
 	    for (i = 2; i < objc; i++) {
 		const char *arg = Tcl_GetStringFromObj(objv[i], &length);
+
 		if (length < 2) {
 		    continue;
 		}
@@ -785,23 +786,22 @@ FrameWidgetObjCmd(
 #ifdef SUPPORT_CONFIG_EMBEDDED
 		    if (c == 'u') {
 			const char *string = Tcl_GetString(objv[i+1]);
+
 			if (TkpUseWindow(interp, framePtr->tkwin,
 				string) != TCL_OK) {
 			    result = TCL_ERROR;
 			    goto done;
 			}
-		    } else {
-			Tcl_AppendResult(interp, "can't modify ", arg,
-				" option after widget is created", NULL);
-			result = TCL_ERROR;
-			goto done;
+			continue;
 		    }
-#else
-			Tcl_AppendResult(interp, "can't modify ", arg,
-				" option after widget is created", NULL);
-			result = TCL_ERROR;
-			goto done;
 #endif
+		    Tcl_SetObjResult(interp, Tcl_ObjPrintf(
+			    "can't modify %s option after widget is created",
+			    arg));
+		    Tcl_SetErrorCode(interp, "TK", "FRAME", "CREATE_ONLY",
+			    NULL);
+		    result = TCL_ERROR;
+		    goto done;
 		}
 	    }
 	    result = ConfigureFrame(interp, framePtr, objc-2, objv+2);
@@ -1011,19 +1011,14 @@ ConfigureFrame(
 		    }
 		    sibling = ancestor;
 		    if (Tk_IsTopLevel(ancestor)) {
-		    badWindow:
-			Tcl_AppendResult(interp, "can't use ",
-				Tk_PathName(labelframePtr->labelWin),
-				" as label in this frame", NULL);
-			labelframePtr->labelWin = NULL;
-			return TCL_ERROR;
+			goto badLabelWindow;
 		    }
 		}
 		if (Tk_IsTopLevel(labelframePtr->labelWin)) {
-		    goto badWindow;
+		    goto badLabelWindow;
 		}
 		if (labelframePtr->labelWin == framePtr->tkwin) {
-		    goto badWindow;
+		    goto badLabelWindow;
 		}
 		Tk_CreateEventHandler(labelframePtr->labelWin,
 			StructureNotifyMask, FrameStructureProc, framePtr);
@@ -1044,6 +1039,14 @@ ConfigureFrame(
 
     FrameWorldChanged(framePtr);
     return TCL_OK;
+
+  badLabelWindow:
+    Tcl_SetObjResult(interp, Tcl_ObjPrintf(
+	    "can't use %s as label in this frame",
+	    Tk_PathName(labelframePtr->labelWin)));
+    Tcl_SetErrorCode(interp, "TK", "GEOMETRY", "HIERARCHY", NULL);
+    labelframePtr->labelWin = NULL;
+    return TCL_ERROR;
 }
 
 /*

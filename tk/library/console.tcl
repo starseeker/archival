@@ -412,8 +412,6 @@ proc ::tk::ConsoleBind {w} {
     bind Console <Control-KeyPress> {# nothing}
 
     foreach {ev key} {
-	<<Console_Prev>>		<Key-Up>
-	<<Console_Next>>		<Key-Down>
 	<<Console_NextImmediate>>	<Control-Key-n>
 	<<Console_PrevImmediate>>	<Control-Key-p>
 	<<Console_PrevSearch>>		<Control-Key-r>
@@ -499,18 +497,16 @@ proc ::tk::ConsoleBind {w} {
     }
     bind Console <Control-h> [bind Console <BackSpace>]
 
-    bind Console <Home> {
+    bind Console <<LineStart>> {
 	if {[%W compare insert < promptEnd]} {
 	    tk::TextSetCursor %W {insert linestart}
 	} else {
 	    tk::TextSetCursor %W promptEnd
 	}
     }
-    bind Console <Control-a> [bind Console <Home>]
-    bind Console <End> {
+    bind Console <<LineEnd>> {
 	tk::TextSetCursor %W {insert lineend}
     }
-    bind Console <Control-e> [bind Console <End>]
     bind Console <Control-d> {
 	if {[%W compare insert < promptEnd]} {
 	    break
@@ -560,10 +556,10 @@ proc ::tk::ConsoleBind {w} {
 	    %W delete insert {insert wordend}
 	}
     }
-    bind Console <<Console_Prev>> {
+    bind Console <<PrevLine>> {
 	tk::ConsoleHistory prev
     }
-    bind Console <<Console_Next>> {
+    bind Console <<NextLine>> {
 	tk::ConsoleHistory next
     }
     bind Console <Insert> {
@@ -978,8 +974,8 @@ proc ::tk::console::Expand {w {type ""}} {
  
 proc ::tk::console::ExpandPathname str {
     set pwd [EvalAttached pwd]
-    if {[catch {EvalAttached [list cd [file dirname $str]]} err]} {
-	return -code error $err
+    if {[catch {EvalAttached [list cd [file dirname $str]]} err opt]} {
+	return -options $opt $err
     }
     set dir [file tail $str]
     ## Check to see if it was known to be a directory and keep the trailing

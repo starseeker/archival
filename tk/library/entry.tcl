@@ -185,10 +185,10 @@ bind Entry <Control-Shift-space> {
 bind Entry <Shift-Select> {
     %W selection adjust insert
 }
-bind Entry <Control-slash> {
+bind Entry <<SelectAll>> {
     %W selection range 0 end
 }
-bind Entry <Control-backslash> {
+bind Entry <<SelectNone>> {
     %W selection clear
 }
 bind Entry <KeyPress> {
@@ -214,12 +214,12 @@ if {[tk windowingsystem] eq "aqua"} {
     bind Entry <Command-KeyPress> {# nothing}
 }
 # Tk-on-Cocoa generates characters for these two keys. [Bug 2971663]
-bind Entry <Down> {# nothing}
-bind Entry <Up> {# nothing}
+bind Entry <<NextLine>> {# nothing}
+bind Entry <<PrevLine>> {# nothing}
 
 # On Windows, paste is done using Shift-Insert.  Shift-Insert already
 # generates the <<Paste>> event, so we don't need to do anything here.
-if {$tcl_platform(platform) ne "windows"} {
+if {[tk windowingsystem] ne "win32"} {
     bind Entry <Insert> {
 	catch {tk::EntryInsert %W [::tk::GetSelection %W PRIMARY]}
     }
@@ -227,29 +227,9 @@ if {$tcl_platform(platform) ne "windows"} {
 
 # Additional emacs-like bindings:
 
-bind Entry <Control-a> {
-    if {!$tk_strictMotif} {
-	tk::EntrySetCursor %W 0
-    }
-}
-bind Entry <Control-b> {
-    if {!$tk_strictMotif} {
-	tk::EntrySetCursor %W [expr {[%W index insert] - 1}]
-    }
-}
 bind Entry <Control-d> {
     if {!$tk_strictMotif} {
 	%W delete insert
-    }
-}
-bind Entry <Control-e> {
-    if {!$tk_strictMotif} {
-	tk::EntrySetCursor %W end
-    }
-}
-bind Entry <Control-f> {
-    if {!$tk_strictMotif} {
-	tk::EntrySetCursor %W [expr {[%W index insert] + 1}]
     }
 }
 bind Entry <Control-h> {
@@ -579,7 +559,7 @@ proc ::tk::EntryTranspose w {
 # w -		The entry window in which the cursor is to move.
 # start -	Position at which to start search.
 
-if {$tcl_platform(platform) eq "windows"}  {
+if {[tk windowingsystem] eq "win32"}  {
     proc ::tk::EntryNextWord {w start} {
 	set pos [tcl_endOfWord [$w get] [$w index $start]]
 	if {$pos >= 0} {

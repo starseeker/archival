@@ -14,7 +14,7 @@ SHELL=/bin/sh
 TK_VERSION=8.6
 TK_MAJOR_VERSION=8
 TK_MINOR_VERSION=6
-TK_PATCH_LEVEL="b2"
+TK_PATCH_LEVEL="b3"
 VER=$TK_MAJOR_VERSION$TK_MINOR_VERSION
 
 #------------------------------------------------------------------------
@@ -55,15 +55,6 @@ AC_CHECK_TOOL(RC, windres)
 AC_PROG_MAKE_SET
 
 #--------------------------------------------------------------------
-# Perform additinal compiler tests.
-#--------------------------------------------------------------------
-
-dnl Currently AC_CYGWIN is disabled since it invokes AC_CANONICAL_HOST
-dnl under autoconf 2.5X.
-dnl
-dnl AC_CYGWIN
-
-#--------------------------------------------------------------------
 # Determines the correct binary file extension (.o, .obj, .exe etc.)
 #--------------------------------------------------------------------
 
@@ -84,6 +75,13 @@ SC_ENABLE_THREADS
 SC_ENABLE_SHARED
 
 #--------------------------------------------------------------------
+# Locate and source the tclConfig.sh file.
+#--------------------------------------------------------------------
+
+SC_PATH_TCLCONFIG($TK_PATCH_LEVEL)
+SC_LOAD_TCLCONFIG
+
+#--------------------------------------------------------------------
 # The statements below define a collection of compile flags.  This
 # macro depends on the value of SHARED_BUILD, and should be called
 # after SC_ENABLE_SHARED checks the configure switches.
@@ -97,6 +95,18 @@ SC_CONFIG_CFLAGS
 
 AC_CHECK_HEADER(errno.h, , MAN2TCLFLAGS="-DNO_ERRNO_H")
 AC_SUBST(MAN2TCLFLAGS)
+
+#-------------------------------------------
+#     Check for _strtoi64
+#-------------------------------------------
+
+AC_CACHE_CHECK([availability of _strtoi64], tcl_cv_strtoi64, [
+    AC_TRY_LINK([#include <stdlib.h>],
+	    [_strtoi64(0,0,0)],
+	    tcl_cv_strtoi64=yes, tcl_cv_strtoi64=no)])
+if test $tcl_cv_strtoi64 = no; then
+    AC_DEFINE(NO_STRTOI64, 1, [Is _strtoi64 function available?])
+fi
 
 #--------------------------------------------------------------------
 # Windows XP theme engine header for Ttk
@@ -124,13 +134,6 @@ TK_DBGX=${DBGX}
 #--------------------------------------------------------------------
 
 SC_EMBED_MANIFEST(wish.exe.manifest)
-
-#--------------------------------------------------------------------
-# Locate and source the tclConfig.sh file.
-#--------------------------------------------------------------------
-
-SC_PATH_TCLCONFIG($TK_PATCH_LEVEL)
-SC_LOAD_TCLCONFIG
 
 SC_BUILD_TCLSH
 SC_PROG_TCLSH

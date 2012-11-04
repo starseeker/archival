@@ -114,7 +114,7 @@ can be dragged and dropped in lieu of the file's finder icon).
 \fB\-transparent\fR
 .
 Makes the window content area transparent and turns off the window shadow. For
-the transparency to be effecive, the toplevel background needs to be set to a
+the transparency to be effective, the toplevel background needs to be set to a
 color with some alpha, e.g.
 .QW systemTransparent .
 .PP
@@ -127,9 +127,9 @@ window managers, and will have no effect under older WMs.
 Requests that the window should be interpreted by the window manager as being
 of the specified type(s). This may cause the window to be decorated in a
 different way or otherwise managed differently, though exactly what happens is
-entirely up to the window manager. A list of types may be used, in order of preferance. The following values are mapped to
-constants defined in the EWMH specification (using others is possible, but not
-advised):
+entirely up to the window manager. A list of types may be used, in order of
+preference. The following values are mapped to constants defined in the EWMH
+specification (using others is possible, but not advised):
 .RS
 .TP
 \fBdesktop\fR
@@ -349,6 +349,15 @@ If \fInewGeometry\fR is specified as an empty string then any
 existing user-specified geometry for \fIwindow\fR is cancelled, and
 the window will revert to the size requested internally by its
 widgets.
+.PP
+Note that this is related to \fBwinfo geometry\fR, but not the same. That can
+only query the geometry, and always reflects Tk's current understanding of the
+actual size and location of \fIwindow\fR, whereas \fBwm geometry\fR allows
+both setting and querying of the \fIwindow manager\fR's understanding of the
+size and location of the window. This can vary significantly, for example to
+reflect the addition of decorative elements to \fIwindow\fR such as title
+bars, and window managers are not required to precisely follow the requests
+made through this command.
 .RE
 .TP
 \fBwm grid \fIwindow\fR ?\fIbaseWidth baseHeight widthInc heightInc\fR?

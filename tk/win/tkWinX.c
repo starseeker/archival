@@ -53,22 +53,6 @@
 #define UNICODE_NOCHAR 0xFFFF
 #endif
 
-static const TkWinProcs unicodeProcs = {
-    1,
-    (LRESULT (WINAPI *)(WNDPROC, HWND, UINT, WPARAM, LPARAM)) CallWindowProcW,
-    (LRESULT (WINAPI *)(HWND, UINT, WPARAM, LPARAM)) DefWindowProcW,
-    (ATOM (WINAPI *)(const WNDCLASS *)) RegisterClassW,
-    (BOOL (WINAPI *)(HWND, LPCTSTR)) SetWindowTextW,
-    (HWND (WINAPI *)(DWORD, LPCTSTR, LPCTSTR, DWORD, int, int,
-	    int, int, HWND, HMENU, HINSTANCE, LPVOID)) CreateWindowExW,
-    (BOOL (WINAPI *)(HMENU, UINT, UINT, UINT, LPCTSTR)) InsertMenuW,
-    (int (WINAPI *)(HWND, LPCTSTR, int)) GetWindowTextW,
-    (HWND (WINAPI *)(LPCTSTR, LPCTSTR)) FindWindowW,
-    (int (WINAPI *)(HWND, LPTSTR, int)) GetClassNameW,
-};
-
-const TkWinProcs *const tkWinProcs = &unicodeProcs;
-
 /*
  * Declarations of static variables used in this file.
  */
@@ -136,20 +120,19 @@ TkGetServerInfo(
     Tk_Window tkwin)		/* Token for window; this selects a particular
 				 * display and server. */
 {
-    char buffer[60];
     OSVERSIONINFO os;
 
     os.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
     GetVersionEx(&os);
-    sprintf(buffer, "Windows %d.%d %d %s", (int)os.dwMajorVersion,
-	    (int)os.dwMinorVersion, (int)os.dwBuildNumber,
+    Tcl_SetObjResult(interp, Tcl_ObjPrintf("Windows %d.%d %d %s",
+	    (int) os.dwMajorVersion, (int) os.dwMinorVersion,
+	    (int) os.dwBuildNumber,
 #ifdef _WIN64
 	    "Win64"
 #else
 	    "Win32"
 #endif
-	    );
-    Tcl_SetResult(interp, buffer, TCL_VOLATILE);
+	    ));
 }
 
 /*
@@ -260,10 +243,10 @@ TkWinXInit(
      * Initialize input language info
      */
 
-    if (GetLocaleInfo(LANGIDFROMLCID((DWORD)GetKeyboardLayout(0)),
+    if (GetLocaleInfo(LANGIDFROMLCID(PTR2INT(GetKeyboardLayout(0))),
 	       LOCALE_IDEFAULTANSICODEPAGE | LOCALE_RETURN_NUMBER,
 	       (LPTSTR) &lpCP, sizeof(lpCP)/sizeof(TCHAR))
-	    && TranslateCharsetInfo((DWORD *)lpCP, &lpCs, TCI_SRCCODEPAGE)) {
+	    && TranslateCharsetInfo(INT2PTR(lpCP), &lpCs, TCI_SRCCODEPAGE)) {
 	UpdateInputLanguage((int) lpCs.ciCharset);
     }
 
@@ -484,8 +467,8 @@ TkWinDisplayChanged(
      * the HWND and we'll just get blank spots copied onto the screen.
      */
 
-    screen->ext_data = (XExtData *) GetDeviceCaps(dc, PLANES);
-    screen->root_depth = GetDeviceCaps(dc, BITSPIXEL) * (int) screen->ext_data;
+    screen->ext_data = INT2PTR(GetDeviceCaps(dc, PLANES));
+    screen->root_depth = GetDeviceCaps(dc, BITSPIXEL) * PTR2INT(screen->ext_data);
 
     if (screen->root_visual != NULL) {
 	ckfree(screen->root_visual);
@@ -732,12 +715,13 @@ TkClipCleanup(
  *----------------------------------------------------------------------
  */
 
-void
+int
 XBell(
     Display *display,
     int percent)
 {
     MessageBeep(MB_OK);
+    return Success;
 }
 
 /*
@@ -1428,7 +1412,7 @@ UpdateInputLanguage(
     if (keyInputCharset == charset) {
 	return;
     }
-    if (TranslateCharsetInfo((DWORD*)charset, &charsetInfo,
+    if (TranslateCharsetInfo(INT2PTR(charset), &charsetInfo,
 	    TCI_SRCCHARSET) == 0) {
 	/*
 	 * Some mysterious failure.
@@ -1552,7 +1536,7 @@ HandleIMEComposition(
 	return 0;
     }
 
-    n = ImmGetCompositionStringW(hIMC, GCS_RESULTSTR, NULL, 0);
+    n = ImmGetCompositionString(hIMC, GCS_RESULTSTR, NULL, 0);
 
     if (n > 0) {
 	char *buff = ckalloc(n);
@@ -1560,7 +1544,7 @@ HandleIMEComposition(
 	XEvent event;
 	int i;
 
-	n = ImmGetCompositionStringW(hIMC, GCS_RESULTSTR, buff, (unsigned) n);
+	n = ImmGetCompositionString(hIMC, GCS_RESULTSTR, buff, (unsigned) n);
 
 	/*
 	 * Set up the fields pertinent to key event.
@@ -1916,7 +1900,7 @@ Tk_ResetUserInactiveTime(
     inp.mi.mouseData = 0;
     inp.mi.dwFlags = MOUSEEVENTF_MOVE;
     inp.mi.time = 0;
-    inp.mi.dwExtraInfo = (DWORD) NULL;
+    inp.mi.dwExtraInfo = (DWORD) 0;
 
     SendInput(1, &inp, sizeof(inp));
 }

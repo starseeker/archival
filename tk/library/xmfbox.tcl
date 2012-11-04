@@ -246,8 +246,12 @@ proc ::tk::MotifFDialog_Config {dataName type argList} {
     if {$type eq "open"} {
 	lappend specs {-multiple "" "" "0"}
     }
+    if {$type eq "save"} {
+	lappend specs {-confirmoverwrite "" "" "1"}
+    }
 
     set data(-multiple) 0
+    set data(-confirmoverwrite) 1
     # 2: default values depending on the type of the dialog
     #
     if {![info exists data(selectPath)]} {
@@ -301,7 +305,8 @@ proc ::tk::MotifFDialog_Config {dataName type argList} {
 	set data(filter) *
     }
     if {![winfo exists $data(-parent)]} {
-	error "bad window path name \"$data(-parent)\""
+	return -code error -errorcode [list TK LOOKUP WINDOW $data(-parent)] \
+	    "bad window path name \"$data(-parent)\""
     }
 }
 
@@ -847,7 +852,7 @@ proc ::tk::MotifFDialog_ActivateSEnt {w} {
 			-message [mc {File "%1$s" does not exist.} $item]
 		return
 	    }
-	} elseif {$data(type) eq "save"} {
+	} elseif {$data(type) eq "save" && $data(-confirmoverwrite)} {
 	    set message [format %s%s \
 		    [mc "File \"%1\$s\" already exists.\n\n" $selectFilePath] \
 		    [mc {Replace existing file?}]]

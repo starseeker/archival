@@ -188,7 +188,7 @@ static const Tk_OptionSpec tkCheckButtonEntryConfigSpecs[] = {
 	DEF_MENU_ENTRY_CHECK_VARIABLE,
 	Tk_Offset(TkMenuEntry, namePtr), -1, TK_OPTION_NULL_OK, NULL, 0},
     {TK_OPTION_END, NULL, NULL, NULL,
-	NULL, 0, -1, 0, (ClientData) tkBasicMenuEntryConfigSpecs, 0}
+	NULL, 0, -1, 0, tkBasicMenuEntryConfigSpecs, 0}
 };
 
 static const Tk_OptionSpec tkRadioButtonEntryConfigSpecs[] = {
@@ -208,7 +208,7 @@ static const Tk_OptionSpec tkRadioButtonEntryConfigSpecs[] = {
 	DEF_MENU_ENTRY_RADIO_VARIABLE,
 	Tk_Offset(TkMenuEntry, namePtr), -1, 0, NULL, 0},
     {TK_OPTION_END, NULL, NULL, NULL,
-	NULL, 0, -1, 0, (ClientData) tkBasicMenuEntryConfigSpecs, 0}
+	NULL, 0, -1, 0, tkBasicMenuEntryConfigSpecs, 0}
 };
 
 static const Tk_OptionSpec tkCascadeEntryConfigSpecs[] = {
@@ -216,7 +216,7 @@ static const Tk_OptionSpec tkCascadeEntryConfigSpecs[] = {
 	DEF_MENU_ENTRY_MENU,
 	Tk_Offset(TkMenuEntry, namePtr), -1, TK_OPTION_NULL_OK, NULL, 0},
     {TK_OPTION_END, NULL, NULL, NULL,
-	NULL, 0, -1, 0, (ClientData) tkBasicMenuEntryConfigSpecs, 0}
+	NULL, 0, -1, 0, tkBasicMenuEntryConfigSpecs, 0}
 };
 
 static const Tk_OptionSpec tkTearoffEntryConfigSpecs[] = {
@@ -259,9 +259,9 @@ static const Tk_OptionSpec tkMenuConfigSpecs[] = {
 	DEF_MENU_BG_COLOR, Tk_Offset(TkMenu, borderPtr), -1, 0,
 	(ClientData) DEF_MENU_BG_MONO, 0},
     {TK_OPTION_SYNONYM, "-bd", NULL, NULL,
-	NULL, 0, -1, 0, (ClientData) "-borderwidth", 0},
+	NULL, 0, -1, 0, "-borderwidth", 0},
     {TK_OPTION_SYNONYM, "-bg", NULL, NULL,
-	NULL, 0, -1, 0, (ClientData) "-background", 0},
+	NULL, 0, -1, 0, "-background", 0},
     {TK_OPTION_PIXELS, "-borderwidth", "borderWidth", "BorderWidth",
 	DEF_MENU_BORDER_WIDTH,
 	Tk_Offset(TkMenu, borderWidthPtr), -1, 0, NULL, 0},
@@ -273,7 +273,7 @@ static const Tk_OptionSpec tkMenuConfigSpecs[] = {
 	Tk_Offset(TkMenu, disabledFgPtr), -1, TK_OPTION_NULL_OK,
 	(ClientData) DEF_MENU_DISABLED_FG_MONO, 0},
     {TK_OPTION_SYNONYM, "-fg", NULL, NULL,
-	NULL, 0, -1, 0, (ClientData) "-foreground", 0},
+	NULL, 0, -1, 0, "-foreground", 0},
     {TK_OPTION_FONT, "-font", "font", "Font",
 	DEF_MENU_FONT, Tk_Offset(TkMenu, fontPtr), -1, 0, NULL, 0},
     {TK_OPTION_COLOR, "-foreground", "foreground", "Foreground",
@@ -374,8 +374,8 @@ static void		TkMenuCleanup(ClientData unused);
 static const Tk_ClassProcs menuClass = {
     sizeof(Tk_ClassProcs),	/* size */
     MenuWorldChanged,		/* worldChangedProc */
-    NULL,					/* createProc */
-    NULL					/* modalProc */
+    NULL,			/* createProc */
+    NULL			/* modalProc */
 };
 
 /*
@@ -889,7 +889,7 @@ MenuWidgetObjCmd(
 	    goto error;
 	}
 	if (index < 0) {
-	    Tcl_SetResult(interp, "none", TCL_STATIC);
+	    Tcl_SetObjResult(interp, Tcl_NewStringObj("none", -1));
 	} else {
 	    Tcl_SetObjResult(interp, Tcl_NewIntObj(index));
 	}
@@ -966,6 +966,7 @@ MenuWidgetObjCmd(
     }
     case MENU_TYPE: {
 	int index;
+	const char *typeStr;
 
 	if (objc != 3) {
 	    Tcl_WrongNumArgs(interp, 2, objv, "index");
@@ -978,11 +979,11 @@ MenuWidgetObjCmd(
 	    goto done;
 	}
 	if (menuPtr->entries[index]->type == TEAROFF_ENTRY) {
-	    Tcl_SetResult(interp, "tearoff", TCL_STATIC);
+	    typeStr = "tearoff";
 	} else {
-	    Tcl_SetObjResult(interp, Tcl_NewStringObj(
-		    menuEntryTypeStrings[menuPtr->entries[index]->type], -1));
+	    typeStr = menuEntryTypeStrings[menuPtr->entries[index]->type];
 	}
+	Tcl_SetObjResult(interp, Tcl_NewStringObj(typeStr, -1));
 	break;
     }
     case MENU_UNPOST:
@@ -2206,7 +2207,9 @@ TkGetMenuIndex(
 	}
     }
 
-    Tcl_AppendResult(interp, "bad menu entry index \"", string, "\"", NULL);
+    Tcl_SetObjResult(interp, Tcl_ObjPrintf(
+	    "bad menu entry index \"%s\"", string));
+    Tcl_SetErrorCode(interp, "TK", "MENU", "INDEX", NULL);
     return TCL_ERROR;
 
   success:
@@ -2390,9 +2393,9 @@ MenuAddOrInsert(
 	index = menuPtr->numEntries;
     }
     if (index < 0) {
-	const char *indexString = Tcl_GetString(indexPtr);
-
-	Tcl_AppendResult(interp, "bad index \"", indexString, "\"", NULL);
+	Tcl_SetObjResult(interp, Tcl_ObjPrintf(
+		"bad index \"%s\"", Tcl_GetString(indexPtr)));
+	Tcl_SetErrorCode(interp, "TK", "MENU", "INDEX", NULL);
 	return TCL_ERROR;
     }
     if (menuPtr->tearoff && (index == 0)) {
@@ -3265,6 +3268,7 @@ TkSetWindowMenuBar(
 		    && (cloneMenuRefPtr->menuPtr != NULL)) {
 		Tcl_Obj *cursorPtr = Tcl_NewStringObj("-cursor", -1);
 		Tcl_Obj *nullPtr = Tcl_NewObj();
+
 		cloneMenuRefPtr->menuPtr->parentTopLevelPtr = tkwin;
 		menuBarPtr = cloneMenuRefPtr->menuPtr;
 		newObjv[0] = cursorPtr;
@@ -3468,6 +3472,7 @@ TkFindMenuReferencesObj(
     Tcl_Obj *objPtr)		/* The path of the menu widget. */
 {
     const char *pathName = Tcl_GetString(objPtr);
+
     return TkFindMenuReferences(interp, pathName);
 }
 

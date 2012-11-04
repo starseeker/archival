@@ -50,10 +50,10 @@ extern "C" {
 #define TK_MAJOR_VERSION	8
 #define TK_MINOR_VERSION	6
 #define TK_RELEASE_LEVEL	TCL_BETA_RELEASE
-#define TK_RELEASE_SERIAL	2
+#define TK_RELEASE_SERIAL	3
 
 #define TK_VERSION		"8.6"
-#define TK_PATCH_LEVEL		"8.6b2"
+#define TK_PATCH_LEVEL		"8.6b3"
 
 /*
  * A special definition used to allow this header file to be included from
@@ -181,7 +181,7 @@ typedef struct Tk_OptionSpec {
 				 * the record. */
     int flags;			/* Any combination of the values defined
 				 * below. */
-    ClientData clientData;	/* An alternate place to put option-specific
+    const void *clientData;	/* An alternate place to put option-specific
 				 * data. Used for the monochrome default value
 				 * for colors, etc. */
     int typeMask;		/* An arbitrary bit mask defined by the class
@@ -1471,7 +1471,7 @@ typedef struct Tk_ElementSpec {
 #define Tk_Release		Tcl_Release
 
 /* Removed Tk_Main, use macro instead */
-#ifdef _WIN32
+#if defined(__WIN32__) || defined(__CYGWIN__)
 #define Tk_Main(argc, argv, proc) Tk_MainEx(argc, argv, proc, \
 	(Tcl_FindExecutable(0), (Tcl_CreateInterp)()))
 #else
