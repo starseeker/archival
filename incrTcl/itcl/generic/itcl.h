@@ -55,9 +55,7 @@
 #ifndef ITCL_H_INCLUDED
 #define ITCL_H_INCLUDED
 
-#include <string.h>
-#include <ctype.h>
-#include "tcl.h"
+#include <tcl.h>
 
 #if (TCL_MAJOR_VERSION != 8) || (TCL_MINOR_VERSION < 6)
 #    error Itcl 4 build requires tcl.h from Tcl 8.6 or later
@@ -91,10 +89,10 @@ extern "C" {
 #define ITCL_MAJOR_VERSION	4
 #define ITCL_MINOR_VERSION	0
 #define ITCL_RELEASE_LEVEL      TCL_BETA_RELEASE
-#define ITCL_RELEASE_SERIAL     7
+#define ITCL_RELEASE_SERIAL     8
 
 #define ITCL_VERSION            "4.0"
-#define ITCL_PATCH_LEVEL        "4.0b7"
+#define ITCL_PATCH_LEVEL        "4.0b8"
 
 
 /*
@@ -120,6 +118,9 @@ extern "C" {
 #       define TCL_STORAGE_CLASS DLLIMPORT
 #   endif
 #endif
+
+EXTERN int		Itcl_Init(Tcl_Interp *interp);
+EXTERN int		Itcl_SafeInit(Tcl_Interp *interp);
 
 /*
  * Protection levels:

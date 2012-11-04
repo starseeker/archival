@@ -10,9 +10,6 @@
  * this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
-#include <string.h>
-#include <ctype.h>
-#include "tcl.h"
 #include "itclInt.h"
 
 static void ItclDeleteStub(ClientData cdata);
@@ -146,7 +143,8 @@ Itcl_StubExistsCmd(
  *  Invoked by Tcl whenever itcl has to handle "stub unknown" command to
  * ------------------------------------------------------------------------
  */
-int
+#if 0
+static int
 ItclStubUnknownCmd(
     ClientData clientData,   /* not used */
     Tcl_Interp *interp,      /* current interpreter */
@@ -160,6 +158,7 @@ ItclStubUnknownCmd(
 	NULL);
     return TCL_ERROR;
 }
+#endif
 
 /*
  * ------------------------------------------------------------------------

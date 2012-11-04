@@ -1,3 +1,105 @@
+2012-09-11  Jan Nijtmans  <nijtmans@users.sf.net>
+
+	* Makefile.in: Make tests runnable from withing Tcl's pkgs,
+	directory, without Itcl being installed.
+
+2012-08-29  Jan Nijtmans  <nijtmans@users.sf.net>
+
+	* generic/*.c: Remove all (deprecated) usage of _ANSI_ARGS_
+
+2012-07-17  Jan Nijtmans  <nijtmans@users.sf.net>
+
+	* win/makefile.vc: [Bug 3544932]: Visual studio compiler check fails
+
+2012-07-12  Arnulf P.Wiedemann  <wiede@users.sourceforge.net>
+	* generic/itclBase.c:   make the info command call in clazzUnknownBody a
+	                        list to avoid problems with class names
+	                        containing spaces. i
+				Fix for [incr Tcl] bug  ID: 3536018
+2012-05-17  Arnulf P.Wiedemann  <wiede@users.sourceforge.net>
+	* generic/itclResolve.c: fixed problem with access to protected class
+	                        variables when not from top level context
+	                        reported from Rene Zaumseil for his itk
+				emulation
+2012-03-25  Arnulf P.Wiedemann  <wiede@users.sourceforge.net>
+	* generic/itclInfo.c: fixed problem with info exists command.
+	                        fossil ticket id: d4ee728817f951d0b2aa8e8f9b030ea854e92c9f
+2012-02-25  Arnulf P.Wiedemann  <wiede@users.sourceforge.net>
+	* generic/itclObject.c: special case: we found the class for the class command,
+				for a relative or absolute class path name
+				but we have no method in that class that fits.
+	        		Problem of Rene Zaumseil when having the object
+				for a class in a child namespace of the class
+				fossil ticket id: 36577626c340ad59615f0a0238d67872c009a8c9
+	* generic/itclCmd.c:	typo fix
+2011-11-07  Jan Nijtmans  <nijtmans@users.sourceforge.net>
+
+	* tools/genStubs.tcl:  Make stub table symbols and pointers const
+	* generic/itcl.decls:  Remove Itcl_(Safe)Init from Stub table
+	* generic/itcl.h:
+	* generic/itcl2TclOO.c: Remove unnecessary includes, and consistent
+	* generic/itclBase.c:   use of include <file> resp include "file"
+	* generic/itclInt.h:
+	* generic/itclMigrate2TclCore.c:
+	* generic/itclParse.c:
+	* generic/itclResolve2.c:
+	* generic/itclStubLib.c:
+	* generic/itclStubs.c:
+	* generic/itclTclIntStubsFcn.c:
+	* generic/itclTestRegisterC.c:
+	* generic/itclVarsAndCmds.c:
+	* generic/itclDecls.h:    (regenerated)
+	* generic/itclIntDecls.h:
+	* generic/itclStubInit.c:
+
+2011-10-28  Don Porter  <dgp@Users.sourceforge.net>
+
+	* generic/itcl.h:
+	* configure, configure.in, Makefile.in: Bump version to 4.0b8
+
+2011-10-20  Jan Nijtmans  <nijtmans@users.sourceforge.net>
+
+	* generic/itclMigrate2TclCore.h: [Bug 3424948]: trunk does not link
+	* generic/itclTclIntStubsFcn.h
+	* generic/itcl2TclOO.h
+	* generic/itcl2TclOO.c
+
+	* generic/itcl.decls: [Frq 3423707]: TIP #27 related signature changes
+	* generic/itclIntDecls.h: (regenerated)
+	* generic/itcl2TclOO.h
+	* generic/itclBase.c
+	* generic/itclBuiltin.c
+	* generic/itclClass.c
+	* generic/itclCmd.c
+	* generic/itclEnsemble.c
+	* generic/itclHelpers.c
+	* generic/itclInfo.c
+	* generic/itclMethod.c
+	* generic/itclObject.c
+	* generic/itclParse.c
+	* generic/itclUtil.c
+
+2011-10-14  Jan Nijtmans  <nijtmans@users.sourceforge.net>
+
+	* generic/itcl2TclOO.h: [Bug 3369931]: unneeded exported functions
+	* generic/itclBase.c
+	* generic/itclBuiltin.c
+	* generic/itclClass.c
+	* generic/itclCmd.c
+	* generic/itclInt.h
+	* generic/itclMigrate2TclCore.h
+	* generic/itclTclIntStubsFcn.h
+	* generic/itclNeededFromTclOO.h (removed)
+	* generic/itclNeededFromTclOO.c (removed)
+	* configure
+	* configure.in
+	* win/makefile.vc
+	* generic/itclEnsemble.c:  Fix various gcc warnings, discovered
+	* generic/itclHelpers.c    with -Wwrite-strings
+	* generic/itclInfo.c
+	* generic/itclParse.c
+	* generic/itclResolve.c
+
 2011-08-03  Don Porter  <dgp@Users.sourceforge.net>
 	* generic/itclInt.h: fix for SF bug #3385041
 

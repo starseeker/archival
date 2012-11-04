@@ -9,34 +9,9 @@
  * this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
-#include <tcl.h>
 #include <tclInt.h>
-#include <tclOO.h>
 #include <tclOOInt.h>
-
-int
-Itcl_NRCallObjProc(
-    ClientData clientData,
-    Tcl_Interp *interp,
-    Tcl_ObjCmdProc *objProc,
-    int objc,
-    Tcl_Obj *const *objv)
-{
-    return Tcl_NRCallObjProc(interp, objProc, clientData, objc, objv);
-}
-
-void
-Itcl_NRAddCallback_(
-    Tcl_Interp *interp,
-    char *procName,
-    Tcl_NRPostProc *procPtr,
-    ClientData data0,
-    ClientData data1,
-    ClientData data2,
-    ClientData data3)
-{
-    Tcl_NRAddCallback(interp, procPtr, data0, data1, data2, data3);
-}
+#include "itclInt.h"
 
 void *
 Itcl_GetCurrentCallbackPtr(
@@ -71,10 +46,7 @@ CallFinalizePMCall(
     return postCallProc(clientData, interp, NULL, nsPtr, result);
 }
 
-extern int ItclAfterCallMethod(ClientData clientData, Tcl_Interp *interp,
-    Tcl_ObjectContext contextPtr, Tcl_Namespace *nsPtr, int call_result);
-
-int
+static int
 Tcl_InvokeClassProcedureMethod(
     Tcl_Interp *interp,
     Tcl_Obj *namePtr,           /* name of the method */
@@ -180,7 +152,7 @@ Itcl_InvokeEnsembleMethod(
     Tcl_Interp *interp,
     Tcl_Namespace *nsPtr,       /* namespace to call the method in */
     Tcl_Obj *namePtr,           /* name of the method */
-    Proc *procPtr,
+    Tcl_Proc *procPtr,
     int objc,			/* Number of arguments. */
     Tcl_Obj *const *objv)	/* Arguments as actually seen. */
 {
@@ -229,7 +201,8 @@ Itcl_PublicObjectCmd(
     return result;
 }
 
-int
+#if 0
+static int
 Itcl_PrivateObjectCmd(
     ClientData clientData,
     Tcl_Interp *interp,
@@ -244,6 +217,7 @@ Itcl_PrivateObjectCmd(
             objc, objv);
     return result;
 }
+#endif
 
 /*
  * ----------------------------------------------------------------------
@@ -259,9 +233,9 @@ Tcl_Method
 Itcl_NewProcClassMethod(
     Tcl_Interp *interp,		/* The interpreter containing the class. */
     Tcl_Class clsPtr,		/* The class to modify. */
-    TclOO_PreCallProc preCallPtr,
-    TclOO_PostCallProc postCallPtr,
-    ProcErrorProc errProc,
+    TclOO_PreCallProc *preCallPtr,
+    TclOO_PostCallProc *postCallPtr,
+    ProcErrorProc *errProc,
     ClientData clientData,
     Tcl_Obj *nameObj,		/* The name of the method, which may be NULL;
 				 * if so, up to caller to manage storage
@@ -296,9 +270,9 @@ Tcl_Method
 Itcl_NewProcMethod(
     Tcl_Interp *interp,		/* The interpreter containing the object. */
     Tcl_Object oPtr,		/* The object to modify. */
-    TclOO_PreCallProc preCallPtr,
-    TclOO_PostCallProc postCallPtr,
-    ProcErrorProc errProc,
+    TclOO_PreCallProc *preCallPtr,
+    TclOO_PostCallProc *postCallPtr,
+    ProcErrorProc *errProc,
     ClientData clientData,
     Tcl_Obj *nameObj,		/* The name of the method, which must not be
 				 * NULL. */
@@ -345,6 +319,7 @@ Itcl_NewForwardClassMethod(
  * ----------------------------------------------------------------------
  */
 
+#if 0
 Tcl_Method
 Itcl_NewForwardMethod(
     Tcl_Interp *interp,
@@ -356,8 +331,9 @@ Itcl_NewForwardMethod(
     return (Tcl_Method)TclOONewForwardInstanceMethod(interp, (Object *)oPtr,
             flags, nameObj, prefixObj);
 }
+#endif
 
-Tcl_Obj *
+static Tcl_Obj *
 Itcl_TclOOObjectName(
     Tcl_Interp *interp,
     Object *oPtr)
@@ -392,7 +368,7 @@ Itcl_SelfCmd(
         return TCL_ERROR;
     }
 
-    contextPtr = framePtr->clientData; 
+    contextPtr = framePtr->clientData;
 
     if (objc == 1) {
         Tcl_SetObjResult(interp, Itcl_TclOOObjectName(interp, contextPtr->oPtr));

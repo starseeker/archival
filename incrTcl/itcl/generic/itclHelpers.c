@@ -52,7 +52,7 @@ ItclShowArgs(
  *  a pointer to this string.
  * ------------------------------------------------------------------------
  */
-char*
+const char*
 Itcl_ProtectionStr(
     int pLevel)     /* protection level */
 {
@@ -438,7 +438,7 @@ ItclCapitalize(
     Tcl_Obj *objPtr;
     char buf[2];
     
-    sprintf(buf, "%c", toupper(*str));
+    sprintf(buf, "%c", toupper(UCHAR(*str)));
     buf[1] = '\0';
     objPtr = Tcl_NewStringObj(buf, -1);
     Tcl_AppendToObj(objPtr, str+1, -1);
@@ -1146,7 +1146,7 @@ ItclAddClassVariableDictInfo(
     Tcl_Obj *valuePtr1;
     Tcl_Obj *valuePtr2;
     Tcl_Obj *listPtr;
-    char *cp;
+    const char *cp;
     int haveFlags;
     int newValue1;
 
@@ -1298,7 +1298,7 @@ ItclAddClassFunctionDictInfo(
     Tcl_Obj *valuePtr1;
     Tcl_Obj *valuePtr2;
     Tcl_Obj *listPtr;
-    char *cp;
+    const char *cp;
     int haveFlags;
     int newValue1;
 

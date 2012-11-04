@@ -197,7 +197,6 @@ SET(ITCL_GENERIC_SRCS
 	generic/itclTclIntStubsFcn.c
 	generic/itclUtil.c
 	generic/itclMigrate2TclCore.c
-	generic/itclNeededFromTclOO.c
 	)
 
 SET(ITCL_WIN_SRCS

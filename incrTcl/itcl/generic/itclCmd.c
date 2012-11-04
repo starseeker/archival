@@ -42,7 +42,7 @@
  * ------------------------------------------------------------------------
  */
 /* ARGSUSED */
-int
+static int
 NRThisCmd(
     ClientData clientData,   /* class info */
     Tcl_Interp *interp,      /* current interpreter */
@@ -148,7 +148,7 @@ ItclShowArgs(1, "EVAL2", objc+1, newObjv);
 	        "\" has no method: \"", Tcl_GetString(objv[1]), "\"", NULL);
         return TCL_ERROR;
     }
-    return Itcl_NRCallObjProc(clientData, interp, NRThisCmd, objc, objv);
+    return Tcl_NRCallObjProc(interp, NRThisCmd, clientData, objc, objv);
 }
 
 
@@ -548,7 +548,7 @@ Itcl_DelClassCmd(
     int objc,
     Tcl_Obj *const *objv)
 {
-    return Itcl_NRCallObjProc(clientData, interp, NRDelClassCmd, objc, objv);
+    return Tcl_NRCallObjProc(interp, NRDelClassCmd, clientData, objc, objv);
 }
 
 
@@ -617,7 +617,7 @@ NRDelObjectCmd(
         }
 
         callbackPtr = Itcl_GetCurrentCallbackPtr(interp);
-        Itcl_NRAddCallback(interp, CallDeleteObject, contextIoPtr,
+        Tcl_NRAddCallback(interp, CallDeleteObject, contextIoPtr,
 	        NULL, NULL, NULL);
         result = Itcl_NRRunCallbacks(interp, callbackPtr);
 	if (result != TCL_OK) {
@@ -635,7 +635,7 @@ Itcl_DelObjectCmd(
     int objc,
     Tcl_Obj *const *objv)
 {
-    return Itcl_NRCallObjProc(clientData, interp, NRDelObjectCmd, objc, objv);
+    return Tcl_NRCallObjProc(interp, NRDelObjectCmd, clientData, objc, objv);
 }
 
 
@@ -919,7 +919,7 @@ Itcl_CodeCmd(
 
     Tcl_Obj *listPtr;
     Tcl_Obj *objPtr;
-    char *token;
+    const char *token;
     int pos;
 
     ItclShowArgs(1, "Itcl_CodeCmd", objc, objv);
@@ -2058,7 +2058,7 @@ Itcl_TypeClassCmd(
     if (result != TCL_OK) {
         return result;
     }
-    /* we handle create by owerselfs !! */
+    /* we handle create by ourself !! */
     objPtr = Tcl_NewStringObj("oo::objdefine ", -1);
     Tcl_AppendToObj(objPtr, iclsPtr->nsPtr->fullName, -1);
     Tcl_AppendToObj(objPtr, " unexport create", -1);
@@ -2199,7 +2199,7 @@ Itcl_ClassWidgetClassCmd(
     }
     if (iclsPtr->flags & ITCL_WIDGET) {
         widgetClassName = Tcl_GetString(objv[1]);
-	if (! isupper(*widgetClassName)) {
+	if (!isupper(UCHAR(*widgetClassName))) {
 	    Tcl_AppendResult(interp, "widgetclass \"", widgetClassName,
 	            "\" does not begin with an uppercase letter", NULL);
             return TCL_ERROR;

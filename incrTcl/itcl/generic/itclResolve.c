@@ -36,7 +36,7 @@ typedef struct ItclResolvedVarInfo {
     ItclVarLookup *vlookup;           /* Pointer to lookup info. */
 } ItclResolvedVarInfo;
 
-static char * special_resolve_vars[] = {
+static const char * special_resolve_vars[] = {
    "this",
    "self",
    "itk_option",
@@ -45,8 +45,8 @@ static char * special_resolve_vars[] = {
    NULL
 };
 
-static Tcl_Var ItclClassRuntimeVarResolver _ANSI_ARGS_((
-    Tcl_Interp *interp, Tcl_ResolvedVarInfo *vinfoPtr));
+static Tcl_Var ItclClassRuntimeVarResolver(
+    Tcl_Interp *interp, Tcl_ResolvedVarInfo *vinfoPtr);
 
 
 /*
@@ -195,7 +195,7 @@ Itcl_ClassCmdResolver(
      *    command, it may not be.  This is just the time to catch
      *    it--as it is being resolved again by the compiler.
      */
-    
+
     /*
      * The following #if is needed so itcl can be compiled with
      * all versions of Tcl.  The integer "deleted" was renamed to
@@ -261,7 +261,7 @@ Itcl_ClassVarResolver(
     int idx;
     int start_idx;
     int found;
-    char **cp;
+    const char **cp;
 
     Tcl_Namespace *upNsPtr;
     upNsPtr = Itcl_GetUplevelNamespace(interp, 1);
@@ -346,7 +346,7 @@ Itcl_ClassVarResolver(
         callContextPtr = Itcl_GetStackValue(&infoPtr->contextStack, idx);
 	idx--;
         /* we first look in the current object, then we look if there is
-	 * perhaps a public variable on the 
+	 * perhaps a public variable on the
 	 * stack from another class object
 	 */
         if (callContextPtr == NULL) {
@@ -387,9 +387,9 @@ Itcl_ClassVarResolver(
         hPtr = Tcl_FindHashEntry(&contextIoPtr->objectVariables,
                 (char *)vlookup->ivPtr);
 	/* check if it is a public variable (must be one) if not top_level */
-	if ((idx != start_idx) && !(vlookup->ivPtr->protection & ITCL_PUBLIC)) {
-	    continue;
-	}
+//	if ((idx != start_idx) && !(vlookup->ivPtr->protection & ITCL_PUBLIC)) {
+//	    continue;
+//	}
 	if (hPtr != NULL) {
 	    break;
 	}

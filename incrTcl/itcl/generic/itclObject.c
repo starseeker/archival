@@ -31,16 +31,6 @@
  */
 #include "itclInt.h"
 
-Tcl_ObjCmdProc Itcl_BiMyTypeMethodCmd;
-Tcl_ObjCmdProc Itcl_BiMyMethodCmd;
-Tcl_ObjCmdProc Itcl_BiMyProcCmd;
-Tcl_ObjCmdProc Itcl_BiMyTypeVarCmd;
-Tcl_ObjCmdProc Itcl_BiMyVarCmd;
-Tcl_ObjCmdProc Itcl_BiItclHullCmd;
-Tcl_ObjCmdProc Itcl_BiCallInstanceCmd;
-Tcl_ObjCmdProc Itcl_BiGetInstanceVarCmd;
-Tcl_ObjCmdProc Itcl_BiInstallComponentCmd;
-
 /*
  *  FORWARD DECLARATIONS
  */
@@ -341,7 +331,7 @@ ItclCreateObject(
 	    Tcl_CmdInfo dummy;
 
             sprintf(unique,"%.200s_%d", name, iclsPtr->unique++);
-            unique[0] = tolower(unique[0]);
+            unique[0] = tolower(UCHAR(unique[0]));
 
             Tcl_DStringTrunc(&buffer, 0);
             Tcl_DStringAppend(&buffer, unique, -1);
@@ -1180,7 +1170,8 @@ ItclInitObjectOptions(
  *  when an object is created.
  * ------------------------------------------------------------------------
  */
-int
+#if 0
+static int
 ItclInitObjectComponents(
    Tcl_Interp *interp,
    ItclObject *ioPtr,
@@ -1250,6 +1241,7 @@ ItclInitObjectComponents(
     Itcl_DeleteHierIter(&hier);
     return TCL_OK;
 }
+#endif
 
 /*
  * ------------------------------------------------------------------------
@@ -1257,7 +1249,7 @@ ItclInitObjectComponents(
  *
  *  Collect all instance methdovariables for the given object instance to allow
  *  faster runtime access to the methdovariables.
- *  This is usually invoked *  automatically by Itcl_CreateObject(),
+ *  This is usually invoked automatically by Itcl_CreateObject(),
  *  when an object is created.
  * ------------------------------------------------------------------------
  */
@@ -1492,9 +1484,9 @@ Itcl_DestructObject(
          *  If all goes well, return the null string as the result.
          */
         callbackPtr = Itcl_GetCurrentCallbackPtr(interp);
-        Itcl_NRAddCallback(interp, FinalizeDeleteObject, contextIoPtr,
+        Tcl_NRAddCallback(interp, FinalizeDeleteObject, contextIoPtr,
 	        NULL, NULL, NULL);
-        Itcl_NRAddCallback(interp, CallDestructBase, contextIoPtr,
+        Tcl_NRAddCallback(interp, CallDestructBase, contextIoPtr,
 	        INT2PTR(flags), NULL, NULL);
         result = Itcl_NRRunCallbacks(interp, callbackPtr);
     }
@@ -2595,9 +2587,6 @@ ItclFreeObject(
  * ------------------------------------------------------------------------
  */
 
-int Itcl_InvokeProcedureMethod(ClientData clientData, Tcl_Interp *interp,
-	int objc, Tcl_Obj *const *objv);
-
 static int
 CallPublicObjectCmd(
     ClientData data[],
@@ -2634,9 +2623,9 @@ ItclObjectCmd(
     Itcl_ListElem *elem;
     ItclClass *basePtr;
     void *callbackPtr;
-    char *className;
-    char *tail;
-    char *cp;
+    const char *className;
+    const char *tail;
+    const char *cp;
     int isDirectCall;
     int incr;
     int result;
@@ -2783,12 +2772,12 @@ ItclObjectCmd(
         newObjv[1] = methodNamePtr;
         memcpy(newObjv+incr+1, objv+1, (sizeof(Tcl_Obj*)*(objc-1)));
 	ItclShowArgs(1, "run CallPublicObjectCmd1", objc+incr, newObjv);
-        Itcl_NRAddCallback(interp, CallPublicObjectCmd, oPtr, clsPtr,
+	Tcl_NRAddCallback(interp, CallPublicObjectCmd, oPtr, clsPtr,
 	        INT2PTR(objc+incr), newObjv);
 
     } else {
 	ItclShowArgs(1, "run CallPublicObjectCmd2", objc, objv);
-        Itcl_NRAddCallback(interp, CallPublicObjectCmd, oPtr, clsPtr,
+	Tcl_NRAddCallback(interp, CallPublicObjectCmd, oPtr, clsPtr,
 	        INT2PTR(objc), (ClientData)objv);
     }
 
@@ -2934,9 +2923,9 @@ ItclMapMethodNameProc(
     ItclClass *iclsPtr;
     ItclClass *iclsPtr2;
     ItclObjectInfo *infoPtr;
-    char *head;
-    char *tail;
-    char *sp;
+    const char *head;
+    const char *tail;
+    const char *sp;
 
     iclsPtr = NULL;
     iclsPtr2 = NULL;
@@ -2988,7 +2977,16 @@ ItclMapMethodNameProc(
         Tcl_DecrRefCount(methodName);
     }
     hPtr = Tcl_FindHashEntry(&iclsPtr->resolveCmds, (char *)methodObj);
-    if (hPtr != NULL) {
+    if (hPtr == NULL) {
+        /* special case: we found the class for the class command,
+	 * for a relative or absolute class path name
+	 * but we have no method in that class that fits.
+	 * Problem of Rene Zaumseil when having the object
+	 * for a class in a child namespace of the class
+	 * fossil ticket id: 36577626c340ad59615f0a0238d67872c009a8c9
+	 */
+        *startClsPtr = NULL;
+    } else {
 	ItclMemberFunc *imPtr;
 	Tcl_Namespace *nsPtr;
 	ItclCmdLookup *clookup;
