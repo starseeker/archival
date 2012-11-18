@@ -225,6 +225,7 @@ proc mainwin_current {} {
 }
 
 
+if {$tcl_platform(winsys) == "aqua"} {
 proc ::tk::mac::ReopenApplication { } {
     set win [mainwin_current]
     if {$win == "." || $win == ""} {
@@ -297,7 +298,7 @@ proc ::tk::mac::OpenDocument {args} {
         }
     }
 }
-
+}
 
 proc mainwin_open {win {filename ""}} {
     if {$win == ""} {

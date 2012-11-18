@@ -1,8 +1,6 @@
 if {[file exists main.tcl]} {
     source lib/profile.tcl
 }
-set ::tk::mac::useCustomMDEF 1
-
 
 proc main {} {
     global argv0 env
@@ -111,7 +109,6 @@ proc main {} {
         "geometry.tcl"
         "bezutils.tcl"
         "xmlutils.tcl"
-        "printing.tcl"
         "cncfont.tcl"
 
         "tools.tcl"

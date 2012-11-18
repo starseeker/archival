@@ -109,10 +109,12 @@ proc layerwin_refresh {base {editlayer ""}} {
         if {[layer_cutbit $canv $layerid] > 0} {
             set cimg $camimg
         }
+if {$::tcl_platform(winsys) == "aqua"} {
         if {$layerid == $currlayerid} {
             set namebg systemHighlight
             set namefg systemHighlightText
         }
+}
         set layername [layer_name $canv $layerid]
         set layerobjs [layer_objects $canv $layerid]
         set layerobjs [cadobjects_grouped_objects $canv $layerobjs]
@@ -343,9 +345,10 @@ proc layerwin_select_layer {base layerid X Y} {
 
     set namebg #7f7fff
     set namefg black
+if {$::tcl_platform(winsys) == "aqua"} {
     set namebg systemHighlight
     set namefg systemHighlightText
-
+}
     set oldlayerid [layer_get_current $canv]
     $lfr.name$oldlayerid configure -background white -foreground black
     $lfr.name$layerid configure -background $namebg -foreground $namefg
