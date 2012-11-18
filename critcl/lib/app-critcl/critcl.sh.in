@@ -1,0 +1,5 @@
+#!/bin/sh
+# -*- tcl -*- \
+exec @CRITCL_BIN_DIR@/tclsh "$0" ${1+"$@"}
+package require critcl::app
+critcl::app::main $argv
