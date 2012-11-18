@@ -64,6 +64,20 @@ add_subdirectory(lib/util84)
 add_subdirectory(lib/md5)
 add_subdirectory(lib/cmdline)
 
+add_custom_target(critcl ALL
+  DEPENDS
+  CRITCL_SRCS_cp
+  CRITCL_APP_SRCS_cp
+  CRITCL_CLASS_SRCS_cp
+  CRITCL_IASSOC_SRCS_cp
+  CRITCL_UTIL_SRCS_cp
+  CRITCL_STUBS_cp
+  CRITCL_UTIL84_SRCS_cp
+  TCL_MD5_SRCS_cp
+  TCL_CMDLINE_SRCS_cp
+  ${TCL_LIBRARY}
+  )
+
 # Local Variables:
 # tab-width: 8
 # mode: cmake
