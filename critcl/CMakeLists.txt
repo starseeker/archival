@@ -75,7 +75,7 @@ add_custom_target(critcl ALL
   CRITCL_UTIL84_SRCS_cp
   TCL_MD5_SRCS_cp
   TCL_CMDLINE_SRCS_cp
-  ${TCL_LIBRARY}
+  ${TCL_TCLSH}
   )
 
 # Local Variables:
