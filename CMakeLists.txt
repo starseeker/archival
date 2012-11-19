@@ -60,6 +60,7 @@ get_directory_property(TK_INCLUDE_PATH DIRECTORY tk DEFINITION TK_INCLUDE_PATH)
 # Extensions
 
 add_subdirectory(critcl)
+add_subdirectory(mlcnc)
 add_subdirectory(tcllib)
 
 ADD_SUBDIRECTORY(incrTcl/itcl)
