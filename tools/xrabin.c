@@ -238,7 +238,7 @@ int main(int ac, char **av) {
 		}
 	}
 	if (degree && (degree < 8 || degree >= XPLYW_BITS)) {
-		fprintf(stderr, "degree (%d) out of bound for the poly word size (8..%u)\n",
+		fprintf(stderr, "degree (%d) out of bound for the poly word size (8..%lu)\n",
 			degree, XPLYW_BITS);
 		return 1;
 	}
@@ -252,15 +252,15 @@ int main(int ac, char **av) {
 	if (xarb_calc_tu(ply, size, t, u) < 0)
 		return 3;
 
-	fprintf(stdout, "#if defined(XRABPLY_TYPE%d)\n\n", XPLYW_BITS);
-	fprintf(stdout, "#if !defined(XV%d)\n", XPLYW_BITS);
-	fprintf(stdout, "#define XV%d(v) ((xply_word) v ## ULL)\n", XPLYW_BITS);
+	fprintf(stdout, "#if defined(XRABPLY_TYPE%ld)\n\n", XPLYW_BITS);
+	fprintf(stdout, "#if !defined(XV%ld)\n", XPLYW_BITS);
+	fprintf(stdout, "#define XV%ld(v) ((xply_word) v ## ULL)\n", XPLYW_BITS);
 	fprintf(stdout, "#endif\n\n");
-	fprintf(stdout, "#define XRAB_ROOTPOLY XV%d(" XRAB_WORD_PFMT ")\n\n",
+	fprintf(stdout, "#define XRAB_ROOTPOLY XV%ld(" XRAB_WORD_PFMT ")\n\n",
 		XPLYW_BITS, ply);
 	fprintf(stdout, "#define XRAB_SHIFT %d\n", shift);
 	fprintf(stdout, "#define XRAB_WNDSIZE %d\n\n", size);
-	fprintf(stdout, "typedef unsigned XRABPLY_TYPE%d xply_word;\n\n", XPLYW_BITS);
+	fprintf(stdout, "typedef unsigned XRABPLY_TYPE%lu xply_word;\n\n", XPLYW_BITS);
 	fprintf(stdout, "static const xply_word T[256] = {\n");
 	for (i = 0; i < 256; i++) {
 		if (i) {
@@ -271,7 +271,7 @@ int main(int ac, char **av) {
 				fputs(" ", stdout);
 		} else
 			fputs("\t", stdout);
-		fprintf(stdout, "XV%d(" XRAB_WORD_PFMT ")", XPLYW_BITS, t[i]);
+		fprintf(stdout, "XV%lu(" XRAB_WORD_PFMT ")", XPLYW_BITS, t[i]);
 	}
 	fprintf(stdout, "\n};\n\n");
 
@@ -285,11 +285,11 @@ int main(int ac, char **av) {
 				fputs(" ", stdout);
 		} else
 			fputs("\t", stdout);
-		fprintf(stdout, "XV%d(" XRAB_WORD_PFMT ")", XPLYW_BITS, u[i]);
+		fprintf(stdout, "XV%lu(" XRAB_WORD_PFMT ")", XPLYW_BITS, u[i]);
 	}
 	fprintf(stdout, "\n};\n\n");
 
-	fprintf(stdout, "#endif /* if defined(XRABPLY_TYPE%d) */\n\n", XPLYW_BITS);
+	fprintf(stdout, "#endif /* if defined(XRABPLY_TYPE%lu) */\n\n", XPLYW_BITS);
 
 	return 0;
 }
