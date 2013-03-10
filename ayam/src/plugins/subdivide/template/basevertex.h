@@ -46,7 +46,7 @@ public:
   BaseVertex(const BaseVertex& ) { die(); }
   BaseVertex& operator=(const BaseVertex& ) { die(); return *this; }
 
-  virtual ~BaseVertex() { delete _pos; }
+  virtual ~BaseVertex() { delete[] _pos; }
   void copyValue(const BaseVertex& v) { setPos(v.getPos()); }
   void copyValue(const BaseVertex& v, int d) { setPos(v.getPos(d)); }
 
