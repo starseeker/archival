@@ -50,19 +50,6 @@
 #define OPENFILENAME_SIZE_VERSION_400 76
 #endif
 
-/*
- * The following structure is used by the new Tk_ChooseDirectoryObjCmd to pass
- * data between it and its callback. Unique to Windows platform.
- */
-
-typedef struct ChooseDirData {
-   TCHAR initDir[MAX_PATH];	/* Initial folder to use */
-   TCHAR retDir[MAX_PATH];	/* Returned folder to use */
-   Tcl_Interp *interp;
-   int mustExist;		/* True if file must exist to return from
-				 * callback */
-} CHOOSEDIRDATA;
-
 typedef struct ThreadSpecificData {
     int debugFlag;		/* Flags whether we should output debugging
 				 * information while displaying a builtin
@@ -153,22 +140,12 @@ static const struct {int type; int btnIds[3];} allowedTypes[] = {
  * chooser function, Tk_ChooseDirectoryObjCmd(), and its dialog hook proc.
  */
 
-typedef struct ChooseDir {
-    Tcl_Interp *interp;		/* Interp, used only if debug is turned on,
-				 * for setting the "tk_dialog" variable. */
-    int lastCtrl;		/* Used by hook proc to keep track of last
-				 * control that had input focus, so when OK is
-				 * pressed we know whether to browse a new
-				 * directory or return. */
-    int lastIdx;		/* Last item that was selected in directory
-				 * browser listbox. */
-    char path[MAX_PATH];	/* On return from choose directory dialog,
-				 * holds the selected path. Cannot return
-				 * selected path in ofnPtr->lpstrFile because
-				 * the default dialog proc stores a '\0' in
-				 * it, since, of course, no _file_ was
-				 * selected. */
-    OPENFILENAME *ofnPtr;	/* pointer to the OFN structure */
+typedef struct {
+   TCHAR initDir[MAX_PATH];	/* Initial folder to use */
+   TCHAR retDir[MAX_PATH];	/* Returned folder to use */
+   Tcl_Interp *interp;
+   int mustExist;		/* True if file must exist to return from
+				 * callback */
 } ChooseDir;
 
 /*
@@ -356,8 +333,8 @@ Tk_ChooseColorObjCmd(
 	optionPtr = objv[i];
 	valuePtr = objv[i + 1];
 
-	if (Tcl_GetIndexFromObj(interp, optionPtr, optionStrings, "option",
-		TCL_EXACT, &index) != TCL_OK) {
+	if (Tcl_GetIndexFromObjStruct(interp, optionPtr, optionStrings,
+		sizeof(char *), "option", TCL_EXACT, &index) != TCL_OK) {
 	    return TCL_ERROR;
 	}
 	if (i + 1 == objc) {
@@ -583,18 +560,37 @@ GetFileName(
     Tcl_DString extString, filterString, dirString, titleString;
     ThreadSpecificData *tsdPtr =
 	    Tcl_GetThreadData(&dataKey, sizeof(ThreadSpecificData));
-    static const char *const saveOptionStrings[] = {
-	"-confirmoverwrite", "-defaultextension", "-filetypes", "-initialdir",
-	"-initialfile", "", "-parent", "-title", "-typevariable", NULL
-    };
-    static const char *const openOptionStrings[] = {
-	"", "-defaultextension", "-filetypes", "-initialdir", "-initialfile",
-	"-multiple", "-parent", "-title", "-typevariable", NULL
-    };
     enum options {
-	FILE_CONFIRMOW,	FILE_DEFAULT, FILE_TYPES, FILE_INITDIR, FILE_INITFILE,
-	FILE_MULTIPLE,	FILE_PARENT,  FILE_TITLE, FILE_TYPEVARIABLE
+	FILE_DEFAULT, FILE_TYPES, FILE_INITDIR, FILE_INITFILE, FILE_PARENT,
+	FILE_TITLE, FILE_TYPEVARIABLE, FILE_MULTIPLE, FILE_CONFIRMOW
     };
+    struct Options {
+	const char *name;
+	enum options value;
+    };
+    static const struct Options saveOptions[] = {
+	{"-confirmoverwrite",	FILE_CONFIRMOW},
+	{"-defaultextension",	FILE_DEFAULT},
+	{"-filetypes",		FILE_TYPES},
+	{"-initialdir",		FILE_INITDIR},
+	{"-initialfile",	FILE_INITFILE},
+	{"-parent",		FILE_PARENT},
+	{"-title",		FILE_TITLE},
+	{"-typevariable",	FILE_TYPEVARIABLE},
+	{NULL,			FILE_DEFAULT/*ignored*/ }
+    };
+    static const struct Options openOptions[] = {
+	{"-defaultextension",	FILE_DEFAULT},
+	{"-filetypes",		FILE_TYPES},
+	{"-initialdir",		FILE_INITDIR},
+	{"-initialfile",	FILE_INITFILE},
+	{"-multiple",		FILE_MULTIPLE},
+	{"-parent",		FILE_PARENT},
+	{"-title",		FILE_TITLE},
+	{"-typevariable",	FILE_TYPEVARIABLE},
+	{NULL,			FILE_DEFAULT/*ignored*/ }
+    };
+    const struct Options *const options = open ? openOptions : saveOptions;
 
     file[0] = '\0';
     ZeroMemory(&ofnData, sizeof(OFNData));
@@ -610,21 +606,18 @@ GetFileName(
 	const char *string;
 	Tcl_Obj *valuePtr = objv[i + 1];
 
-	if (Tcl_GetIndexFromObj(interp, objv[i],
-		open ? openOptionStrings : saveOptionStrings,
-		"option", 0, &index) != TCL_OK) {
+	if (Tcl_GetIndexFromObjStruct(interp, objv[i], options,
+		sizeof(struct Options), "option", 0, &index) != TCL_OK) {
 	    goto end;
-	}
-
-	if (i + 1 == objc) {
+	} else if (i + 1 == objc) {
 	    Tcl_SetObjResult(interp, Tcl_ObjPrintf(
-		    "value for \"%s\" missing", Tcl_GetString(objv[i])));
+		    "value for \"%s\" missing", options[index].name));
 	    Tcl_SetErrorCode(interp, "TK", "FILEDIALOG", "VALUE", NULL);
 	    goto end;
 	}
 
 	string = Tcl_GetString(valuePtr);
-	switch ((enum options) index) {
+	switch (options[index].value) {
 	case FILE_DEFAULT:
 	    if (string[0] == '.') {
 		string++;
@@ -1034,14 +1027,24 @@ OFNHookProc(
 		    }
 		    *tmp = '\0';		/* Second NULL terminator. */
 		} else {
-		    buffer[selsize] = '\0';	/* Second NULL terminator. */
 
-		    /*
-		     * Replace directory terminating NULL with a backslash.
+			/*
+		     * Replace directory terminating NULL with a with a backslash,
+		     * but only if not an absolute path.
 		     */
 
-		    buffer--;
-		    *buffer = '\\';
+		    Tcl_DString tmpfile;
+		    ConvertExternalFilename(buffer, &tmpfile);
+		    if (TCL_PATH_ABSOLUTE ==
+			    Tcl_GetPathType(Tcl_DStringValue(&tmpfile))) {
+			/* re-get the full path to the start of the buffer */
+			buffer = (TCHAR *) ofnData->dynFileBuffer;
+			SendMessage(hdlg, CDM_GETSPEC, selsize, (LPARAM) buffer);
+		    } else {
+			*(buffer-1) = '\\';
+		    }
+		    buffer[selsize] = '\0'; /* Second NULL terminator. */
+		    Tcl_DStringFree(&tmpfile);
 		}
 	    } else {
 		/*
@@ -1108,7 +1111,7 @@ MakeFilter(
     FileFilter *filterPtr;
 
     if (initialPtr) {
-	initial = Tcl_GetStringFromObj(initialPtr, NULL);
+	initial = Tcl_GetString(initialPtr);
     }
     TkInitFileFilters(&flist);
     if (TkGetFileFilters(interp, &flist, valuePtr, 1) != TCL_OK) {
@@ -1135,12 +1138,13 @@ MakeFilter(
 	*p = '\0';
 
     } else {
-	int len;
+	size_t len;
 
 	if (valuePtr == NULL) {
 	    len = 0;
 	} else {
-	    (void) Tcl_GetStringFromObj(valuePtr, &len);
+	    (void) Tcl_GetString(valuePtr);
+	    len = valuePtr->length;
 	}
 
 	/*
@@ -1299,10 +1303,6 @@ MakeFilter(
  * - Not sure how to implement localization of message prompts.
  *
  * - -title is really -message.
- * ToDo:
- * - Fix bugs.
- * - test to see what platforms this really works on. May require v4.71 of
- *   shell32.dll everywhere (what is standard?).
  *
  *----------------------------------------------------------------------
  */
@@ -1318,7 +1318,7 @@ Tk_ChooseDirectoryObjCmd(
     int oldMode, result = TCL_ERROR, i;
     LPCITEMIDLIST pidl;		/* Returned by browser */
     BROWSEINFO bInfo;		/* Used by browser */
-    CHOOSEDIRDATA cdCBData;	/* Structure to pass back and forth */
+    ChooseDir cdCBData;	    /* Structure to pass back and forth */
     LPMALLOC pMalloc;		/* Used by shell */
     Tk_Window tkwin = clientData;
     HWND hWnd;
@@ -1340,7 +1340,7 @@ Tk_ChooseDirectoryObjCmd(
      */
 
     path[0] = '\0';
-    ZeroMemory(&cdCBData, sizeof(CHOOSEDIRDATA));
+    ZeroMemory(&cdCBData, sizeof(ChooseDir));
     cdCBData.interp = interp;
 
     /*
@@ -1356,8 +1356,8 @@ Tk_ChooseDirectoryObjCmd(
 	optionPtr = objv[i];
 	valuePtr = objv[i + 1];
 
-	if (Tcl_GetIndexFromObj(interp, optionPtr, optionStrings, "option", 0,
-		&index) != TCL_OK) {
+	if (Tcl_GetIndexFromObjStruct(interp, optionPtr, optionStrings,
+		sizeof(char *), "option", 0, &index) != TCL_OK) {
 	    goto cleanup;
 	}
 	if (i + 1 == objc) {
@@ -1548,7 +1548,7 @@ ChooseDirectoryValidateProc(
     LPARAM lpData)
 {
     TCHAR selDir[MAX_PATH];
-    CHOOSEDIRDATA *chooseDirSharedData = (CHOOSEDIRDATA *) lpData;
+    ChooseDir *chooseDirSharedData = (ChooseDir *) lpData;
     Tcl_DString tempString;
     Tcl_DString initDirString;
     TCHAR string[MAX_PATH];
@@ -1566,7 +1566,7 @@ ChooseDirectoryValidateProc(
 	 * First save and check to see if it is a valid path name, if so then
 	 * make that path the one shown in the window. Otherwise, it failed
 	 * the check and should be treated as such. Use
-	 * Set/GetCurrentDirectoryA which allows relative path names and names
+	 * Set/GetCurrentDirectory which allows relative path names and names
 	 * with forward slashes. Use Tcl_TranslateFileName to make sure names
 	 * like ~ are converted correctly.
 	 */
@@ -1747,8 +1747,8 @@ Tk_MessageBoxObjCmd(
 	optionPtr = objv[i];
 	valuePtr = objv[i + 1];
 
-	if (Tcl_GetIndexFromObj(interp, optionPtr, optionStrings, "option",
-		TCL_EXACT, &index) != TCL_OK) {
+	if (Tcl_GetIndexFromObjStruct(interp, optionPtr, optionStrings,
+		sizeof(char *), "option", TCL_EXACT, &index) != TCL_OK) {
 	    return TCL_ERROR;
 	}
 	if (i + 1 == objc) {
@@ -1937,7 +1937,7 @@ SetTkDialog(
     char buf[32];
 
     sprintf(buf, "0x%p", (HWND) clientData);
-    Tcl_SetVar(tsdPtr->debugInterp, "tk_dialog", buf, TCL_GLOBAL_ONLY);
+    Tcl_SetVar2(tsdPtr->debugInterp, "tk_dialog", NULL, buf, TCL_GLOBAL_ONLY);
 }
 
 /*
@@ -2232,10 +2232,10 @@ FontchooserConfigureCmd(
     }
 
     for (i = 1; i < objc; i += 2) {
-	int optionIndex, len;
+	int optionIndex;
 
-	if (Tcl_GetIndexFromObj(interp, objv[i], optionStrings,
-		"option", 0, &optionIndex) != TCL_OK) {
+	if (Tcl_GetIndexFromObjStruct(interp, objv[i], optionStrings,
+		sizeof(char *),  "option", 0, &optionIndex) != TCL_OK) {
 	    return TCL_ERROR;
 	}
 	if (objc == 2) {
@@ -2292,8 +2292,8 @@ FontchooserConfigureCmd(
 	    if (hdPtr->fontObj) {
 		Tcl_DecrRefCount(hdPtr->fontObj);
 	    }
-	    Tcl_GetStringFromObj(objv[i+1], &len);
-	    if (len) {
+	    (void)Tcl_GetString(objv[i+1]);
+	    if (objv[i+1]->length) {
 		hdPtr->fontObj = objv[i+1];
 		if (Tcl_IsShared(hdPtr->fontObj)) {
 		    hdPtr->fontObj = Tcl_DuplicateObj(hdPtr->fontObj);
@@ -2307,8 +2307,8 @@ FontchooserConfigureCmd(
 	    if (hdPtr->cmdObj) {
 		Tcl_DecrRefCount(hdPtr->cmdObj);
 	    }
-	    Tcl_GetStringFromObj(objv[i+1], &len);
-	    if (len) {
+	    (void)Tcl_GetString(objv[i+1]);
+	    if (objv[i+1]->length) {
 		hdPtr->cmdObj = objv[i+1];
 		if (Tcl_IsShared(hdPtr->cmdObj)) {
 		    hdPtr->cmdObj = Tcl_DuplicateObj(hdPtr->cmdObj);

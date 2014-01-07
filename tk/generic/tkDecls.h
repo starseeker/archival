@@ -860,12 +860,8 @@ EXTERN void		Tk_CreateOldImageType(const Tk_ImageType *typePtr);
 /* 273 */
 EXTERN void		Tk_CreateOldPhotoImageFormat(
 				const Tk_PhotoImageFormat *formatPtr);
-/* 274 */
-EXTERN void		reserved274(void);
-/* 275 */
-EXTERN void		reserved275(void);
 
-typedef struct TkStubHooks {
+typedef struct {
     const struct TkPlatStubs *tkPlatStubs;
     const struct TkIntStubs *tkIntStubs;
     const struct TkIntPlatStubs *tkIntPlatStubs;
@@ -874,7 +870,7 @@ typedef struct TkStubHooks {
 
 typedef struct TkStubs {
     int magic;
-    const struct TkStubHooks *hooks;
+    const TkStubHooks *hooks;
 
     void (*tk_MainLoop) (void); /* 0 */
     XColor * (*tk_3DBorderColor) (Tk_3DBorder border); /* 1 */
@@ -1150,8 +1146,6 @@ typedef struct TkStubs {
     Tcl_Interp * (*tk_Interp) (Tk_Window tkwin); /* 271 */
     void (*tk_CreateOldImageType) (const Tk_ImageType *typePtr); /* 272 */
     void (*tk_CreateOldPhotoImageFormat) (const Tk_PhotoImageFormat *formatPtr); /* 273 */
-    void (*reserved274) (void); /* 274 */
-    void (*reserved275) (void); /* 275 */
 } TkStubs;
 
 #ifdef __cplusplus
@@ -1714,10 +1708,6 @@ extern const TkStubs *tkStubsPtr;
 	(tkStubsPtr->tk_CreateOldImageType) /* 272 */
 #define Tk_CreateOldPhotoImageFormat \
 	(tkStubsPtr->tk_CreateOldPhotoImageFormat) /* 273 */
-#define reserved274 \
-	(tkStubsPtr->reserved274) /* 274 */
-#define reserved275 \
-	(tkStubsPtr->reserved275) /* 275 */
 
 #endif /* defined(USE_TK_STUBS) */
 
