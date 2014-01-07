@@ -716,6 +716,10 @@ IF(X11_Xscreensaver_INCLUDE_PATH)
   SET(TK_X11_INCLUDE_DIRS ${TK_X11_INCLUDE_DIRS} ${X11_Xscreensaver_INCLUDE_PATH})
 ENDIF(X11_Xscreensaver_INCLUDE_PATH)
 
+#TODO - figure out how to properly test this
+add_definitions(-DHAVE_XKBKEYCODETOKEYSYM=1)
+add_definitions(-DXKEYCODETOKEYSYM_IS_DEPRECATED=1)
+
 include_directories(
   ${TCL_INCLUDE_DIRS}	
   ${TK_INCLUDE_PATH}
@@ -731,6 +735,8 @@ IF(TK_ENABLE_XSS)
 ENDIF(TK_ENABLE_XSS)
 IF(X11_Xft_LIB)
   SET(X11_TK_LIBS ${X11_TK_LIBS} ${X11_Xft_LIB})
+  add_definitions(-DHAVE_LIBXFT=1)
+  add_definitions(-DHAVE_XFT=1)
 ENDIF(X11_Xft_LIB)
 IF(X11_Xrender_LIB)
   SET(X11_TK_LIBS ${X11_TK_LIBS} ${X11_Xrender_LIB})
