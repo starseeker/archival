@@ -1,0 +1,6 @@
+A CMake based building for Tcl/Tk and extensions
+=====
+
+This repository maintains a CMake-based replacement for the traditional
+Autotools/TEA based Tcl/Tk compilation logic for the core Tcl/Tk
+distribution and a number of its packages.
