@@ -51,17 +51,15 @@ extern "C" {
  * win/README		(not patchlevel) (sections 0 and 2)
  * unix/tcl.spec	(1 LOC patch)
  * tools/tcl.hpj.in	(not patchlevel, for windows installer)
- * tools/tcl.wse.in	(for windows installer)
- * tools/tclSplash.bmp	(not patchlevel)
  */
 
 #define TCL_MAJOR_VERSION   8
 #define TCL_MINOR_VERSION   6
-#define TCL_RELEASE_LEVEL   TCL_BETA_RELEASE
-#define TCL_RELEASE_SERIAL  3
+#define TCL_RELEASE_LEVEL   TCL_FINAL_RELEASE
+#define TCL_RELEASE_SERIAL  1
 
 #define TCL_VERSION	    "8.6"
-#define TCL_PATCH_LEVEL	    "8.6b3"
+#define TCL_PATCH_LEVEL	    "8.6.1"
 
 /*
  *----------------------------------------------------------------------------
@@ -331,10 +329,12 @@ typedef long LONG;
  * in ANSI C; maps them to type "char *" in non-ANSI systems.
  */
 
-#ifndef NO_VOID
-#   define VOID void
-#else
-#   define VOID char
+#ifndef __VXWORKS__
+#   ifndef NO_VOID
+#	define VOID void
+#   else
+#	define VOID char
+#   endif
 #endif
 
 /*
@@ -474,7 +474,7 @@ typedef unsigned TCL_WIDE_INT_TYPE	Tcl_WideUInt;
 	struct {long tv_sec;} st_ctim;
 	/* Here is a 4-byte gap */
     } Tcl_StatBuf;
-#elif defined(HAVE_STRUCT_STAT64)
+#elif defined(HAVE_STRUCT_STAT64) && !defined(__APPLE__)
     typedef struct stat64 Tcl_StatBuf;
 #else
     typedef struct stat Tcl_StatBuf;
@@ -500,15 +500,17 @@ typedef unsigned TCL_WIDE_INT_TYPE	Tcl_WideUInt;
  * accessed with Tcl_GetObjResult() and Tcl_SetObjResult().
  */
 
-typedef struct Tcl_Interp {
+typedef struct Tcl_Interp
+#ifndef TCL_NO_DEPRECATED
+{
     /* TIP #330: Strongly discourage extensions from using the string
      * result. */
 #ifdef USE_INTERP_RESULT
-    char *result TCL_DEPRECATED_API("use Tcl_GetResult/Tcl_SetResult");
+    char *result TCL_DEPRECATED_API("use Tcl_GetStringResult/Tcl_SetResult");
 				/* If the last command returned a string
 				 * result, this points to it. */
     void (*freeProc) (char *blockPtr)
-	    TCL_DEPRECATED_API("use Tcl_GetResult/Tcl_SetResult");
+	    TCL_DEPRECATED_API("use Tcl_GetStringResult/Tcl_SetResult");
 				/* Zero means the string result is statically
 				 * allocated. TCL_DYNAMIC means it was
 				 * allocated with ckalloc and should be freed
@@ -517,8 +519,8 @@ typedef struct Tcl_Interp {
 				 * Tcl_Eval must free it before executing next
 				 * command. */
 #else
-    char *unused3 TCL_DEPRECATED_API("bad field access");
-    void (*unused4) (char *) TCL_DEPRECATED_API("bad field access");
+    char *resultDontUse; /* Don't use in extensions! */
+    void (*freeProcDontUse) (char *); /* Don't use in extensions! */
 #endif
 #ifdef USE_INTERP_ERRORLINE
     int errorLine TCL_DEPRECATED_API("use Tcl_GetErrorLine/Tcl_SetErrorLine");
@@ -526,9 +528,11 @@ typedef struct Tcl_Interp {
 				 * line number within the command where the
 				 * error occurred (1 if first line). */
 #else
-    int unused5 TCL_DEPRECATED_API("bad field access");
+    int errorLineDontUse; /* Don't use in extensions! */
 #endif
-} Tcl_Interp;
+}
+#endif /* TCL_NO_DEPRECATED */
+Tcl_Interp;
 
 typedef struct Tcl_AsyncHandler_ *Tcl_AsyncHandler;
 typedef struct Tcl_Channel_ *Tcl_Channel;
@@ -852,10 +856,7 @@ typedef struct Tcl_Obj {
  * whether an object is shared (i.e. has reference count > 1). Note: clients
  * should use Tcl_DecrRefCount() when they are finished using an object, and
  * should never call TclFreeObj() directly. TclFreeObj() is only defined and
- * made public in tcl.h to support Tcl_DecrRefCount's macro definition. Note
- * also that Tcl_DecrRefCount() refers to the parameter "obj" twice. This
- * means that you should avoid calling it with an expression that is expensive
- * to compute or has side effects.
+ * made public in tcl.h to support Tcl_DecrRefCount's macro definition.
  */
 
 void		Tcl_IncrRefCount(Tcl_Obj *objPtr);
@@ -2360,6 +2361,14 @@ typedef int (Tcl_ArgvGenFuncProc)(ClientData clientData, Tcl_Interp *interp,
 
 /*
  *----------------------------------------------------------------------------
+ * Definitions needed for the Tcl_LoadFile function. [TIP #416]
+ */
+
+#define TCL_LOAD_GLOBAL 1
+#define TCL_LOAD_LAZY 2
+
+/*
+ *----------------------------------------------------------------------------
  * Single public declaration for NRE.
  */
 
@@ -2408,7 +2417,7 @@ const char *		TclTomMathInitializeStubs(Tcl_Interp *interp,
  */
 
 #define Tcl_Main(argc, argv, proc) Tcl_MainEx(argc, argv, proc, \
-	    (Tcl_FindExecutable(argv[0]), (Tcl_CreateInterp)()))
+	    ((Tcl_CreateInterp)()))
 EXTERN void		Tcl_MainEx(int argc, char **argv,
 			    Tcl_AppInitProc *appInitProc, Tcl_Interp *interp);
 EXTERN const char *	Tcl_PkgInitStubsCheck(Tcl_Interp *interp,
@@ -2442,15 +2451,15 @@ EXTERN void		Tcl_GetMemoryInfo(Tcl_DString *dsPtr);
 #ifdef TCL_MEM_DEBUG
 
 #   define ckalloc(x) \
-    ((VOID *) Tcl_DbCkalloc((unsigned)(x), __FILE__, __LINE__))
+    ((void *) Tcl_DbCkalloc((unsigned)(x), __FILE__, __LINE__))
 #   define ckfree(x) \
     Tcl_DbCkfree((char *)(x), __FILE__, __LINE__)
 #   define ckrealloc(x,y) \
-    ((VOID *) Tcl_DbCkrealloc((char *)(x), (unsigned)(y), __FILE__, __LINE__))
+    ((void *) Tcl_DbCkrealloc((char *)(x), (unsigned)(y), __FILE__, __LINE__))
 #   define attemptckalloc(x) \
-    ((VOID *) Tcl_AttemptDbCkalloc((unsigned)(x), __FILE__, __LINE__))
+    ((void *) Tcl_AttemptDbCkalloc((unsigned)(x), __FILE__, __LINE__))
 #   define attemptckrealloc(x,y) \
-    ((VOID *) Tcl_AttemptDbCkrealloc((char *)(x), (unsigned)(y), __FILE__, __LINE__))
+    ((void *) Tcl_AttemptDbCkrealloc((char *)(x), (unsigned)(y), __FILE__, __LINE__))
 
 #else /* !TCL_MEM_DEBUG */
 
@@ -2461,15 +2470,15 @@ EXTERN void		Tcl_GetMemoryInfo(Tcl_DString *dsPtr);
  */
 
 #   define ckalloc(x) \
-    ((VOID *) Tcl_Alloc((unsigned)(x)))
+    ((void *) Tcl_Alloc((unsigned)(x)))
 #   define ckfree(x) \
     Tcl_Free((char *)(x))
 #   define ckrealloc(x,y) \
-    ((VOID *) Tcl_Realloc((char *)(x), (unsigned)(y)))
+    ((void *) Tcl_Realloc((char *)(x), (unsigned)(y)))
 #   define attemptckalloc(x) \
-    ((VOID *) Tcl_AttemptAlloc((unsigned)(x)))
+    ((void *) Tcl_AttemptAlloc((unsigned)(x)))
 #   define attemptckrealloc(x,y) \
-    ((VOID *) Tcl_AttemptRealloc((char *)(x), (unsigned)(y)))
+    ((void *) Tcl_AttemptRealloc((char *)(x), (unsigned)(y)))
 #   undef  Tcl_InitMemory
 #   define Tcl_InitMemory(x)
 #   undef  Tcl_DumpActiveMemory
@@ -2494,7 +2503,12 @@ EXTERN void		Tcl_GetMemoryInfo(Tcl_DString *dsPtr);
      * http://c2.com/cgi/wiki?TrivialDoWhileLoop
      */
 #   define Tcl_DecrRefCount(objPtr) \
-	do { if (--(objPtr)->refCount <= 0) TclFreeObj(objPtr); } while(0)
+	do { \
+	    Tcl_Obj *_objPtr = (objPtr); \
+	    if (--(_objPtr)->refCount <= 0) { \
+		TclFreeObj(_objPtr); \
+	    } \
+	} while(0)
 #   define Tcl_IsShared(objPtr) \
 	((objPtr)->refCount > 1)
 #endif
@@ -2590,13 +2604,6 @@ EXTERN void		Tcl_GetMemoryInfo(Tcl_DString *dsPtr);
  */
 
 #ifndef TCL_NO_DEPRECATED
-#   undef  Tcl_EvalObj
-#   define Tcl_EvalObj(interp,objPtr) \
-	Tcl_EvalObjEx((interp),(objPtr),0)
-#   undef  Tcl_GlobalEvalObj
-#   define Tcl_GlobalEvalObj(interp,objPtr) \
-	Tcl_EvalObjEx((interp),(objPtr),TCL_EVAL_GLOBAL)
-
 /*
  * These function have been renamed. The old names are deprecated, but we
  * define these macros for backwards compatibilty.

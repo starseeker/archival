@@ -101,6 +101,10 @@ static TclInitProcessGlobalValueProc	InitializeDefaultLibraryDir;
 static ProcessGlobalValue defaultLibraryDir =
 	{0, 0, NULL, NULL, InitializeDefaultLibraryDir, NULL, NULL};
 
+static TclInitProcessGlobalValueProc	InitializeSourceLibraryDir;
+static ProcessGlobalValue sourceLibraryDir =
+	{0, 0, NULL, NULL, InitializeSourceLibraryDir, NULL, NULL};
+
 static void		AppendEnvironment(Tcl_Obj *listPtr, const char *lib);
 static int		ToUtf(const WCHAR *wSrc, char *dst);
 
@@ -175,7 +179,7 @@ TclpInitLibraryPath(
     int *lengthPtr,
     Tcl_Encoding *encodingPtr)
 {
-#define LIBRARY_SIZE	    32
+#define LIBRARY_SIZE	    64
     Tcl_Obj *pathPtr;
     char installLib[LIBRARY_SIZE];
     const char *bytes;
@@ -205,6 +209,13 @@ TclpInitLibraryPath(
 
     Tcl_ListObjAppendElement(NULL, pathPtr,
 	    TclGetProcessGlobalValue(&defaultLibraryDir));
+
+    /*
+     * Look for the library in its source checkout location.
+     */
+
+    Tcl_ListObjAppendElement(NULL, pathPtr,
+	    TclGetProcessGlobalValue(&sourceLibraryDir));
 
     *encodingPtr = NULL;
     bytes = Tcl_GetStringFromObj(pathPtr, lengthPtr);
@@ -360,6 +371,57 @@ InitializeDefaultLibraryDir(
 /*
  *---------------------------------------------------------------------------
  *
+ * InitializeSourceLibraryDir --
+ *
+ *	Locate the Tcl script library default location relative to the
+ *	location of the Tcl DLL as it exists in the build output directory
+ *	associated with the source checkout.
+ *
+ * Results:
+ *	None.
+ *
+ * Side effects:
+ *	None.
+ *
+ *---------------------------------------------------------------------------
+ */
+
+static void
+InitializeSourceLibraryDir(
+    char **valuePtr,
+    int *lengthPtr,
+    Tcl_Encoding *encodingPtr)
+{
+    HMODULE hModule = TclWinGetTclInstance();
+    WCHAR wName[MAX_PATH + LIBRARY_SIZE];
+    char name[(MAX_PATH + LIBRARY_SIZE) * TCL_UTF_MAX];
+    char *end, *p;
+
+    if (GetModuleFileNameW(hModule, wName, MAX_PATH) == 0) {
+	GetModuleFileNameA(hModule, name, MAX_PATH);
+    } else {
+	ToUtf(wName, name);
+    }
+
+    end = strrchr(name, '\\');
+    *end = '\0';
+    p = strrchr(name, '\\');
+    if (p != NULL) {
+	end = p;
+    }
+    *end = '\\';
+
+    TclWinNoBackslash(name);
+    sprintf(end + 1, "../library");
+    *lengthPtr = strlen(name);
+    *valuePtr = ckalloc(*lengthPtr + 1);
+    *encodingPtr = NULL;
+    memcpy(*valuePtr, name, (size_t) *lengthPtr + 1);
+}
+
+/*
+ *---------------------------------------------------------------------------
+ *
  * ToUtf --
  *
  *	Convert a char string to a UTF string.
@@ -424,13 +486,10 @@ TclpSetInitialEncodings(void)
     Tcl_DStringFree(&encodingName);
 }
 
-void
-TclpSetInterfaces(void)
+void TclWinSetInterfaces(
+    int dummy)			/* Not used. */
 {
-    int useWide;
-
-    useWide = (TclWinGetPlatformId() != VER_PLATFORM_WIN32_WINDOWS);
-    TclWinSetInterfaces(useWide);
+    TclpSetInterfaces();
 }
 
 const char *

@@ -408,13 +408,15 @@ test string-6.35 {string is double, false} {
 test string-6.36 {string is double, false} {
     list [string is double -fail var "\n"] $var
 } {0 0}
-test string-6.37 {string is double, false on int overflow} {
+test string-6.37 {string is double, false on int overflow} -setup {
+    set var priorValue
+} -body {
     # Make it the largest int recognizable, with one more digit for overflow
     # Since bignums arrived in Tcl 8.5, the sense of this test changed.
     # Now integer values that exceed native limits become bignums, and
     # bignums can convert to doubles without error.
     list [string is double -fail var [largest_int]0] $var
-} {1 0}
+} -result {1 priorValue}
 # string-6.38 removed, underflow on input is no longer an error.
 test string-6.39 {string is double, false} {
     # This test is non-portable because IRIX thinks 
@@ -1484,8 +1486,8 @@ test string-18.11 {string trim, unicode} {
     string trim "\xe7\xe8 AB\xe7C \xe8\xe7" \xe7\xe8
 } " AB\xe7C "
 test string-18.12 {string trim, unicode default} {
-    string trim ABC\u1361\u1680\u3000
-} ABC
+    string trim \ufeff\x00\u0085\u00a0\u1680\u180eABC\u1361\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u202f\u205f\u3000
+} ABC\u1361
 
 test string-19.1 {string trimleft} {
     list [catch {string trimleft} msg] $msg
@@ -1494,8 +1496,8 @@ test string-19.2 {string trimleft} {
     string trimleft "    XYZ      "
 } {XYZ      }
 test string-19.3 {string trimleft, unicode default} {
-    string trimleft \u1361\u1680\u3000ABC
-} ABC
+    string trimleft \ufeff\u0085\u00a0\x00\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u202f\u205f\u3000\u1361ABC
+} \u1361ABC
 
 test string-20.1 {string trimright errors} {
     list [catch {string trimright} msg] $msg
@@ -1513,8 +1515,8 @@ test string-20.5 {string trimright} {
     string trimright ""
 } {}
 test string-20.6 {string trimright, unicode default} {
-    string trimright ABC\u1361\u1680\u3000
-} ABC
+    string trimright ABC\u1361\u0085\x00\u00a0\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u202f\u205f\u3000
+} ABC\u1361
 
 test string-21.1 {string wordend} {
     list [catch {string wordend a} msg] $msg
