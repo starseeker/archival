@@ -755,7 +755,7 @@ SET(TCL_GENERIC_SRCS
   generic/regfree.c
   generic/regerror.c
   generic/tclAlloc.c
-	generic/tclAssembly.c
+  generic/tclAssembly.c
   generic/tclAsync.c
   generic/tclBasic.c
   generic/tclBinary.c
@@ -765,14 +765,15 @@ SET(TCL_GENERIC_SRCS
   generic/tclCmdIL.c
   generic/tclCmdMZ.c
   generic/tclCompCmds.c
-	generic/tclCompCmdsSZ.c
+  generic/tclCompCmdsGR.c
+  generic/tclCompCmdsSZ.c
   generic/tclCompExpr.c
   generic/tclCompile.c
   generic/tclConfig.c
   generic/tclDate.c
   generic/tclDictObj.c
   generic/tclEncoding.c
-	generic/tclEnsemble.c
+  generic/tclEnsemble.c
   generic/tclEnv.c
   generic/tclEvent.c
   generic/tclExecute.c
@@ -789,7 +790,7 @@ SET(TCL_GENERIC_SRCS
   generic/tclIOSock.c
   generic/tclIOUtil.c
   generic/tclIORChan.c
-	generic/tclIORTrans.c
+  generic/tclIORTrans.c
   generic/tclLink.c
   generic/tclListObj.c
   generic/tclLiteral.c
@@ -798,6 +799,7 @@ SET(TCL_GENERIC_SRCS
   generic/tclNamesp.c
   generic/tclNotify.c
   generic/tclObj.c
+  generic/tclOptimize.c
   generic/tclPanic.c
   generic/tclParse.c
   generic/tclPathObj.c
@@ -825,7 +827,7 @@ SET(TCL_GENERIC_SRCS
   generic/tclUtf.c
   generic/tclUtil.c
   generic/tclVar.c
-	generic/tclZlib.c
+  generic/tclZlib.c
   generic/tclUniData.c
   )
 
