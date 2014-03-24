@@ -731,7 +731,7 @@ proc Tree::_see { path idn side } {
     if { $y < $yv0 } {
         $path:cmd yview scroll [expr {$y-$yv0}] units
     } elseif { $y >= $yv1 } {
-        $path:cmd yview scroll [expr {$y-$yv1+1}] units
+        $path:cmd yview scroll [expr {$y-$yv1+2}] units
     }
 
     set xmax [lindex $scrl 2]
