@@ -25,9 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <GL/gl.h>
-#include <GL/glut.h>
-#include <GL/glu.h>
+#include <GLFW/glfw3.h>
 #include <iostream>
 #include <strings.h>
 #include <stdlib.h>
@@ -69,14 +67,14 @@ void Usage() {
 }
 
 // OpenGL display function
-void display(void)
+void display(GLFWwindow *window)
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 	
 	actGrid.draw(&fb, sweep, drawType, 10, 20);
 	fb.Draw();
 
-	glutSwapBuffers();
+	glfwSwapBuffers(window);
 	glFlush();
 }
 
@@ -90,46 +88,41 @@ void init(void)
 	glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
 }
 
-void idle(void)
-{
-	//display();
-}
-
-void Keyboard( unsigned char key, int x, int y )
+void Keyboard(GLFWwindow *window, int key, int scancode, int action, int mods )
 {
 	OccGridRLE *ogDst;
 	FILE *fp;
 	char buffer[500];
 
 	switch (key) {
-	case 'm':
+	case GLFW_KEY_M:
 		fp = fopen("movie.list", "wt");
 		for (int i=0; i<nIterations; i++) {
 			actGrid.blur(d1limit, d2limit);
-			display();
+			display(window);
 			sprintf(buffer, "blur.%d.ppm", i+1);
 			fb.Write(buffer);
 			fprintf(fp, "%s\n", buffer);
 		}
 		fclose(fp);
 
-		display();
+		display(window);
 		break;
-	case 'l':
+	case GLFW_KEY_L:
 		for (int i=0; i<nIterations; i++) { 
 			actGrid.blur(d1limit, d2limit);
 			PrintResourceUsage("After an Iteration");
 		}
 
-		display();
+		display(window);
 		break;
-	case 'b':
+	case GLFW_KEY_B:
 		PrintResourceUsage("Before an Iteration");
 		actGrid.blur(d1limit, d2limit);
 		PrintResourceUsage("After an Iteration");
-		display();
+		display(window);
 		break;
-	case 'w':
+	case GLFW_KEY_W:
 		std::cerr << "Writing output...";
 		ogSrc = new OccGridRLE(1,1,1, CHUNK_SIZE);
 		if (!ogSrc->read(inFile)) Usage();
@@ -150,33 +143,33 @@ void Keyboard( unsigned char key, int x, int y )
 		std::cerr << "Done" << std::endl;
 
 		break;
-	case '1':
+	case GLFW_KEY_1:
 		drawType = 0;
-		display();
+		display(window);
 		break;
-	case '2':
+	case GLFW_KEY_2:
 		drawType = 1;
-		display();
+		display(window);
 		break;
-	case '3':
+	case GLFW_KEY_3:
 		drawType = 2;
-		display();
+		display(window);
 		break;
-	case '4':
+	case GLFW_KEY_4:
 		drawType = 3;
-		display();
+		display(window);
 		break;
-	case 'a':
+	case GLFW_KEY_A:
 		sweep++;
 		if (sweep >= sweepMax)
 			sweep = sweepMax - 1;
-		display();
+		display(window);
 		break;
-	case 's':
+	case GLFW_KEY_S:
 		sweep--;
 		if (sweep < 0)
 			sweep = 0;
-		display();
+		display(window);
 		break;
 	}
 }
@@ -243,25 +236,58 @@ int main(int argc, char *argv[]) {
 	PrintResourceUsage("After loading in OccGrid");
 
 	if (useGUI) {		
-		// init glut and the framebuffer
-		glutInit(&argc, argv);
-		glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-		
-		PrintResourceUsage("After initialization and before starting OpenGL/Frame Buffer");
-		
+		// init glfw and the framebuffer
+		GLFWwindow* window;
+		double t, dt, t_old;
+
+		if( !glfwInit() )
+		{
+			fprintf( stderr, "Failed to initialize GLFW\n" );
+			exit( EXIT_FAILURE );
+		}
+
+		glfwWindowHint(GLFW_DEPTH_BITS, 16);
+
+		window = glfwCreateWindow( winInfo.width, winInfo.height, "volfill", NULL, NULL );
+		if (!window) {
+			glfwTerminate();
+			exit (1);
+		}
+		glfwMakeContextCurrent(window);
+		glfwSwapInterval( 1 );
+
 		fb.Init(winInfo.width, winInfo.height);
-		
-		glutInitWindowSize(winInfo.width, winInfo.height);
-		glutInitWindowPosition(100, 100);
-		glutCreateWindow("holeGL");
-		
+
 		init();
-		
-		glutDisplayFunc(display);
-		glutIdleFunc(idle);
-		glutKeyboardFunc(Keyboard);
-		
-		glutMainLoop();
+
+		glfwSetTime( 0.0 );
+
+		glfwSetKeyCallback(window, Keyboard);
+
+
+		/* Main loop */
+		for (;;)
+		{
+			/* Timing */
+			t = glfwGetTime();
+			dt = t - t_old;
+			t_old = t;
+
+			/* Draw one frame */
+			display(window);
+
+			/* Swap buffers */
+			glfwSwapBuffers(window);
+			glfwPollEvents();
+
+			/* Check if we are still running */
+			if (glfwWindowShouldClose(window))
+				break;
+		}
+
+		glfwTerminate();
+		exit( EXIT_SUCCESS );
+
 	} else {
 		OccGridRLE *ogDst;
 

@@ -32,7 +32,7 @@
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/../include
   ${OPENGL_INCLUDE_DIR}
-  ${GLUT_INCLUDE_DIR}
+  ${GLFW3_INCLUDE_DIR}
   )
 
 set(volfill_srcs
@@ -52,7 +52,7 @@ set(volfill_srcs
   )
 
 add_executable(volfill ${volfill_srcs})
-target_link_libraries(volfill ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} ${GLUT_LIBRARIES})
+target_link_libraries(volfill ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} ${GLFW3_LIBRARIES})
 
 # Local Variables:
 # tab-width: 8

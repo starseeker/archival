@@ -68,9 +68,13 @@ include(${VOLFILL_CMAKE_DIR}/Path_Setup.cmake)
 
 include(${VOLFILL_CMAKE_DIR}/RPath_Setup.cmake)
 
+add_definitions(-g)
+
 #---------------------------------------------------------------------
 find_package(OpenGL)
-find_package(GLUT)
+add_subdirectory(src/other/glfw)
+set(GLFW3_LIBRARIES glfw)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/other/glfw/include)
 
 #---------------------------------------------------------------------
 add_subdirectory(src)
