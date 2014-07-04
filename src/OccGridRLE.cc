@@ -27,7 +27,6 @@
 
 #include <limits.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <assert.h>
 
 #ifdef linux

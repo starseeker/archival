@@ -25,6 +25,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include <GL/gl.h>
 #include <string.h>
 

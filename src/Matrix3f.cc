@@ -28,7 +28,6 @@
 #include "defines.h"
 #include "Matrix3f.h"
 #include <math.h>
-#include <unistd.h>
 #include <stdio.h>
 
 /* #include "NR.h" */

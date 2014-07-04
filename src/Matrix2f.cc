@@ -29,7 +29,6 @@
 #include "Matrix2f.h"
 #include <math.h>
 #include <stdio.h>
-#include <unistd.h>
 
 /*#include "NR.h"*/
 

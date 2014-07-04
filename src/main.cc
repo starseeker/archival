@@ -27,7 +27,13 @@
 
 #include <GLFW/glfw3.h>
 #include <iostream>
+#ifdef linux
 #include <strings.h>
+#endif
+#ifdef _WIN32
+#define strcasecmp _stricmp
+#endif
+#include <string.h>
 #include <stdlib.h>
 
 #include "OccGridRLE.h"

@@ -28,12 +28,15 @@
 #include <iostream>
 #include <stdio.h>
 
-#include <sys/time.h>
-#include <sys/resource.h>
-#include <unistd.h>
+#ifdef linux
+# include <sys/time.h>
+# include <sys/resource.h>
+# include <unistd.h>
+#endif
 
 void PrintResourceUsage(const char *msg) {
 
+#ifdef linux   
 	std::cerr << "volfill info: " << msg << ":";
 	
 	struct rusage ru;
@@ -43,7 +46,6 @@ void PrintResourceUsage(const char *msg) {
 					ru.ru_utime.tv_usec / 100000, ru.ru_stime.tv_sec, 
 					ru.ru_stime.tv_usec / 100000);
 	
-#ifdef linux   
 	std::cerr << buf;
 	sprintf(buf, "ps h -o vsize -p %d", getpid());
 	FILE *p = popen(buf, "r");
@@ -51,7 +53,7 @@ void PrintResourceUsage(const char *msg) {
 	fscanf(p, "%d", &vsize);
 	fclose(p);
 	sprintf(buf, " vsize %.2fMB", vsize / 1024.0);
-#endif // linux   
 
 	std::cerr << buf << std::endl;
+#endif // linux   
 }

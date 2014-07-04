@@ -28,7 +28,6 @@
 #include "ChunkLink.h"
 
 #include <stdio.h>
-#include <unistd.h>
 
 ChunkLink::ChunkLink()
 {
