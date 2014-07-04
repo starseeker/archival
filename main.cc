@@ -52,17 +52,19 @@ unsigned char d1limit = 10, d2limit = 20;
 bool propD2 = false;
 
 // structure to hold general information about the window
-struct {
+struct winInfo_t {
 	int width, height;
-} winInfo;
+};
+
+winInfo_t winInfo;
 
 void Usage() {
-	cerr << "Usage: volfill <in.vri> <out.vri> ...  " << endl; 
-	cerr << "-g" << endl;
-	cerr << "-n <number of Iterations>" << endl;
-	cerr << "-d1 <d1 distance>" << endl;
-	cerr << "-d2 <d2 distance>" << endl;
-	cerr << "-p" << endl;
+	std::cerr << "Usage: volfill <in.vri> <out.vri> ...  " << std::endl; 
+	std::cerr << "-g" << std::endl;
+	std::cerr << "-n <number of Iterations>" << std::endl;
+	std::cerr << "-d1 <d1 distance>" << std::endl;
+	std::cerr << "-d2 <d2 distance>" << std::endl;
+	std::cerr << "-p" << std::endl;
 	exit(1);
 }
 
@@ -128,7 +130,7 @@ void Keyboard( unsigned char key, int x, int y )
 		display();
 		break;
 	case 'w':
-		cerr << "Writing output...";
+		std::cerr << "Writing output...";
 		ogSrc = new OccGridRLE(1,1,1, CHUNK_SIZE);
 		if (!ogSrc->read(inFile)) Usage();
 
@@ -145,7 +147,7 @@ void Keyboard( unsigned char key, int x, int y )
 		delete ogSrc;
 		delete ogDst;
 
-		cerr << "Done" << endl;
+		std::cerr << "Done" << std::endl;
 
 		break;
 	case '1':
@@ -265,12 +267,12 @@ int main(int argc, char *argv[]) {
 
 		// non graphical version
 		for (int i=0; i<nIterations; i++) {
-			cout << i+1 << ":";
+			std::cout << i+1 << ":";
 			actGrid.blur(d1limit, d2limit);
 			PrintResourceUsage("After an Iteration");
 		}
 		
-		cerr << "Writing output...";
+		std::cerr << "Writing output...";
 		ogSrc = new OccGridRLE(1,1,1, CHUNK_SIZE);
 		if (!ogSrc->read(inFile)) Usage();
 
@@ -287,7 +289,7 @@ int main(int argc, char *argv[]) {
 		delete ogSrc;
 		delete ogDst;
 
-		cerr << "Done" << endl;
+		std::cerr << "Done" << std::endl;
 	}
 
 	return 0;

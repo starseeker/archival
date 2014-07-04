@@ -1402,7 +1402,7 @@ void OccGridRLE::voxWrite(int x, int y, int z, OccElement &el)
 OccGrid *OccGridRLE::voxExpand()
 {
   puts ("Expanding grid");
-  printf("OccEl size %d\n",sizeof(OccElement));
+  printf("OccEl size %lu\n",sizeof(OccElement));
   printf("About to use MB%d\n " ,(int)(sizeof(OccElement)*(double)xdim*(double)ydim*(double)zdim/(double)(1024*1024)));
   OccGrid *og=new OccGrid(xdim,ydim,zdim);
   for (int y=0;y<ydim;y++)

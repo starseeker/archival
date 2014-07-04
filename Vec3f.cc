@@ -27,7 +27,7 @@
 
 #include "Vec3f.h"
 
-ostream &operator<<(ostream &out, const Vec3f &v)
+std::ostream &operator<<(std::ostream &out, const Vec3f &v)
 {
     out << "(" << v.x << ", " << v.y << ", " << v.z << ")\n";
 

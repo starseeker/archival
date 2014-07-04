@@ -418,7 +418,7 @@ void ActVoxelScanline::getScanlineInRange(ActVoxelElem *scanline, int *range, in
 	}
 	
 	if (elemIndex != elemLength)
-		cerr << "Not getting everything" << endl;
+		std::cerr << "Not getting everything" << std::endl;
 }
 
 void ActVoxelScanline::copy(ActVoxelScanline *copyLine)
@@ -474,7 +474,7 @@ int ActVoxelScanline::getScanlineRuns(int *validRun)
 		}
 	}
 	
-	if (index != length ) cerr << "Error" << endl;
+	if (index != length ) std::cerr << "Error" << std::endl;
 	
 	return runIndex;
 }
@@ -601,8 +601,7 @@ void ActVoxelGrid::draw(FrameBuffer *fb, int sweep, int type, int d1, int d2)
 
 // loads an OccGridRLE into
 // the Active Voxel Grid data structure
-void ActVoxelGrid::loadFromOccGridRLE(OccGridRLE *ogSrc, unsigned char
-																			maxD2Dist, bool conserveMemory = false)
+void ActVoxelGrid::loadFromOccGridRLE(OccGridRLE *ogSrc, unsigned char maxD2Dist, bool conserveMemory)
 {
 	// load the dimensions of the grid
 	xdim = ogSrc->xdim;
@@ -667,7 +666,7 @@ void ActVoxelGrid::saveSpace(unsigned char maxD2Dist)
 	int count = 0;
 	ActVoxelElem *scanline = new ActVoxelElem[xdim];
 
-	cerr << "Emptying out space" << endl;
+	std::cerr << "Emptying out space" << std::endl;
 	
 	for (iz=0; iz<zdim; iz++) {
 		for (iy=0; iy<ydim; iy++) {
@@ -684,7 +683,7 @@ void ActVoxelGrid::saveSpace(unsigned char maxD2Dist)
 		}
 	}
 	
-	cerr << count << endl;
+	std::cerr << count << std::endl;
 	delete [] scanline;
 }
 
@@ -709,7 +708,7 @@ void ActVoxelGrid::blur(unsigned char d1limit, unsigned char d2limit)
 	usedScanline[1] = new bool[ydim];
 	
 	// need to store results in temp, then save this
-	cerr << "Blurring...";
+	std::cerr << "Blurring...";
 	
 	for (iz=0; iz<zdim; iz++) {
 		for (iy=0; iy<ydim; iy++) {
@@ -768,7 +767,7 @@ void ActVoxelGrid::blur(unsigned char d1limit, unsigned char d2limit)
 					
 						// d2 calculations
 						if (voidNeighbor && edge && middle[ix].getType() > EMPTY) {
-							//cerr << "Found one" << endl;
+							//std::cerr << "Found one" << std::endl;
 							temp[ix].d2 = 0;
 						} else {
 							// add one to min unless this causes an overflow
@@ -781,7 +780,7 @@ void ActVoxelGrid::blur(unsigned char d1limit, unsigned char d2limit)
 						// d1 calculations
 						if (!firstPass) {
 							if (middle[ix].getType() == MODIFYABLE && edge) {
-								//cerr << "Found one" << endl;
+								//std::cerr << "Found one" << std::endl;
 								temp[ix].setD1(0);
 							} else {
 								// add one to min unless this causes an overflow
@@ -845,7 +844,7 @@ void ActVoxelGrid::blur(unsigned char d1limit, unsigned char d2limit)
 	
 	firstPass = false;
 
-	cerr << "Done " << endl;
+	std::cerr << "Done " << std::endl;
 }
 
 void ActVoxelGrid::saveToOccGridRLE(OccGridRLE *ogSrc, OccGridRLE *ogDst)
@@ -886,7 +885,7 @@ void ActVoxelGrid::initDistances(unsigned char maxD2Dist, bool propD2)
 	unsigned short value;
 	bool s, edge, voidNeighbor;
 
-	cerr << "Initializing Distances" << endl;
+	std::cerr << "Initializing Distances" << std::endl;
 	
 	for (iz=0; iz<zdim; iz++) {
 		for (iy=0; iy<ydim; iy++) {			
@@ -924,7 +923,7 @@ void ActVoxelGrid::initDistances(unsigned char maxD2Dist, bool propD2)
 					}
 					
 					if (voidNeighbor && edge) {
-						//cerr << "Found one" << endl;
+						//std::cerr << "Found one" << std::endl;
 						middle[ix].d2 = 0;
 					} else {
 						middle[ix].d2 = MAX_DIST;
@@ -944,7 +943,7 @@ void ActVoxelGrid::initDistances(unsigned char maxD2Dist, bool propD2)
 
 void ActVoxelGrid::PropogateD2DistancesTest(unsigned char maxD2Dist)
 {
-	cerr << "Propogating Distances" << endl;
+	std::cerr << "Propogating Distances" << std::endl;
 	int i, ix, iy, iz, j;
 	unsigned short d2;
 	bool valid;
@@ -954,7 +953,7 @@ void ActVoxelGrid::PropogateD2DistancesTest(unsigned char maxD2Dist)
 	
 	ActVoxelElem **values;
 	
-	cerr << "Sweeping in x..." << endl;
+	std::cerr << "Sweeping in x..." << std::endl;
 	for (iz=0; iz<zdim; iz++) {
 		for (iy=0; iy<ydim; iy++) {
 			
@@ -1010,7 +1009,7 @@ void ActVoxelGrid::PropogateD2DistancesTest(unsigned char maxD2Dist)
 		}
 	}
 	
-	cerr << "Sweeping in y..." << endl;
+	std::cerr << "Sweeping in y..." << std::endl;
 	values = new ActVoxelElem *[ydim];
 	for (i=0; i<ydim; i++) {
 		values[i] = new ActVoxelElem [xdim];
@@ -1082,7 +1081,7 @@ void ActVoxelGrid::PropogateD2DistancesTest(unsigned char maxD2Dist)
 	}
 	delete [] values;
 	
-	cerr << "Sweeping in z..." << endl;
+	std::cerr << "Sweeping in z..." << std::endl;
 	values = new ActVoxelElem *[zdim];
 	for (i=0; i<zdim; i++) {
 		values[i] = new ActVoxelElem [xdim];
@@ -1159,7 +1158,7 @@ void ActVoxelGrid::PropogateD2DistancesTest(unsigned char maxD2Dist)
 
 void ActVoxelGrid::PropogateD2Distances(unsigned char maxD2Dist)
 {
-	cerr << "Propogating Distances" << endl;
+	std::cerr << "Propogating Distances" << std::endl;
 	int i, ix, iy, iz;
 	unsigned short d2;
 	ActVoxelElem *scanline = new ActVoxelElem[xdim];
@@ -1168,7 +1167,7 @@ void ActVoxelGrid::PropogateD2Distances(unsigned char maxD2Dist)
 	temp[0] = new ActVoxelElem[xdim];
 	temp[1] = new ActVoxelElem[xdim];
 
-	cerr << "Sweeping in X..." << endl;
+	std::cerr << "Sweeping in X..." << std::endl;
 	for (iz=0; iz<zdim; iz++) {
 		for (iy=0; iy<ydim; iy++) {
 			scanlines[iz][iy].getScanline(scanline);
@@ -1191,7 +1190,7 @@ void ActVoxelGrid::PropogateD2Distances(unsigned char maxD2Dist)
 		}
 	}
 	
-	cerr << "Sweeping in Y..." << endl;
+	std::cerr << "Sweeping in Y..." << std::endl;
 	for (iz=0; iz<zdim; iz++) {
 		scanlines[iz][0].getScanline(temp[0]);
 
@@ -1228,7 +1227,7 @@ void ActVoxelGrid::PropogateD2Distances(unsigned char maxD2Dist)
 		}
 	}
 	
-	cerr << "Sweeping in Z..." << endl;
+	std::cerr << "Sweeping in Z..." << std::endl;
 	for (iy=0; iy<ydim; iy++) {
 		scanlines[0][iy].getScanline(temp[0]);
 		
@@ -1287,7 +1286,7 @@ bool VerifyInRange(int *possD2List, int possD2Length, int *possibleD2, int
 {
 	for (int i=0; i<possibleD2Len-1; i++) {
 		if (possibleD2[i] > possibleD2[i+1]) 
-			cerr << "Could be bad" << endl;
+			std::cerr << "Could be bad" << std::endl;
 	}
 
 	for (int i=0; i<possD2Length; i+=2) {
@@ -1609,7 +1608,7 @@ void GetDifference(int *range, int rangeLen, int *fullRange,
 		}
 	}
 	
-	if (resIndex % 2 == 1) cerr << "odd value - not good" << endl;
+	if (resIndex % 2 == 1) std::cerr << "odd value - not good" << std::endl;
 	
 	*resultLen = resIndex;
 }

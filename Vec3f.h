@@ -30,7 +30,7 @@
 
 #include <math.h>
 #include "defines.h"
-#include "iostream.h"
+#include <iostream>
 #include <stdio.h>
 
 //////////////////////////////////////////////////////////////////////////////
@@ -136,7 +136,7 @@ class Vec3f {
         { return d * v1; }
 };
 
-ostream &operator<<(ostream &, const Vec3f &);
+std::ostream &operator<<(std::ostream &, const Vec3f &);
 
 #endif
 
