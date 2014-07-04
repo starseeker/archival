@@ -63,6 +63,31 @@ When in the graphical mode, the following keys are used to perform actions
 	'3' visualization of the d2 values 
 	'4' visualization of all values 
 
+Note on vri
+===========
+The Stanford web site recommends the following for getting data into vri form:
+
+The easiest way to create a VRI file is to run a triangle mesh, represented as
+a PLY file, through VRIP. Unfortunately, VRIP only accepts range-grid PLY
+files, a special kind of PLY file that encodes a range image as a rectangular
+array of points. If your triangle mesh is a range image, but in some other
+format, it is easy to write a program that will convert it to a range-grid PLY
+file. From there, VRIP will convert it into a VRI file. However, if your data
+is a general triangle mesh (arbitrarily connected 3D vertices), then you cannot
+use VRIP. Currently, we do not have a tool to convert a general PLY file to a
+VRI file. However, Brett Allen, a student of Brian Curless at the University of
+Washington, has developed such a tool, called ply2vri. Another possibility is
+to look at Sean Mauch's closest point transform algorithm. It can also be used
+to convert a general triangle mesh to a volumetric representation, although not
+using our formats.
+
+The license on ply2vri is not (currently - July3, 2014) liberal enough to
+be considered usable, but the combination of VRIP with Sean Mauch's code
+might be possible:
+
+https://bitbucket.org/seanmauch/stlib/src (cpt subdirectory, if I'm not mistaken)
+http://www-graphics.stanford.edu/software/vrip/
+
 Copyright
 ============
 * Copyright (c) 1995-2014, Stanford University
