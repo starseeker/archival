@@ -28,52 +28,31 @@
 # http://www-graphics.stanford.edu/software/volfill/
 # See http://graphics.stanford.edu/software/bsd-license.html for details
 
-# Minimum required version of CMake
-cmake_minimum_required(VERSION 2.8.8)
-if(COMMAND CMAKE_POLICY)
-  CMAKE_POLICY(SET CMP0003 NEW)
-  CMAKE_POLICY(SET CMP0007 OLD)
-  if(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION} VERSION_GREATER 2.8.3)
-    CMAKE_POLICY(SET CMP0017 OLD)
-  endif(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION} VERSION_GREATER 2.8.3)
-endif(COMMAND CMAKE_POLICY)
-
-# Set CMake project name
-project(VOLFILL)
-
 #---------------------------------------------------------------------
-# CMake derives much of its functionality from modules, typically
-# stored in one directory - let CMake know where to find them.  If we
-# are a subbuild, let the parent's CMAKE_MODULE_PATH supply files before
-set(VOLFILL_CMAKE_DIR "${VOLFILL_SOURCE_DIR}/CMake")
-if(VOLFILL_IS_SUBBUILD)
-  set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${VOLFILL_CMAKE_DIR}")
-else(VOLFILL_IS_SUBBUILD)
-  set(CMAKE_MODULE_PATH "${VOLFILL_CMAKE_DIR};${CMAKE_MODULE_PATH}")
-endif(VOLFILL_IS_SUBBUILD)
+include_directories(
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include
+  ${OPENGL_INCLUDE_DIR}
+  ${GLUT_INCLUDE_DIR}
+  )
 
-#---------------------------------------------------------------------
-# Define relative install locations.  Don't set these if they have already
-# been set by some other means (like a higher level CMakeLists.txt file
-# including this one).
+set(volfill_srcs
+  ActiveGrid.cc
+  ChunkAllocator.cc
+  ChunkLink.cc
+  Matrix2f.cc
+  Matrix3f.cc
+  Matrix4f.cc
+  OccGrid.cc
+  OccGridRLE.cc
+  Quaternion.cc
+  Vec3f.cc
+  fb.cc
+  main.cc
+  util.cc
+  )
 
-include(${VOLFILL_CMAKE_DIR}/Path_Setup.cmake)
-
-#---------------------------------------------------------------------
-# The following logic is what allows binaries to run successfully in
-# the build directory AND install directory.  Thanks to plplot for
-# identifying the necessity of setting CMAKE_INSTALL_NAME_DIR on OSX.
-# Documentation of these options is available at
-# http://www.cmake.org/Wiki/CMake_RPATH_handling
-
-include(${VOLFILL_CMAKE_DIR}/RPath_Setup.cmake)
-
-#---------------------------------------------------------------------
-find_package(OpenGL)
-find_package(GLUT)
-
-#---------------------------------------------------------------------
-add_subdirectory(src)
+add_executable(volfill ${volfill_srcs})
+target_link_libraries(volfill ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} ${GLUT_LIBRARIES})
 
 # Local Variables:
 # tab-width: 8
