@@ -45,6 +45,7 @@
 #include <fcntl.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#include <sys/stat.h>
 #endif
 
 #include "jim.h"
@@ -283,16 +284,17 @@ static void JimAioDelProc(Jim_Interp *interp, void *privData)
 
     JIM_NOTUSED(interp);
 
-    if (!(af->openFlags & AIO_KEEPOPEN)) {
-        fclose(af->fp);
-    }
-
     Jim_DecrRefCount(interp, af->filename);
 
 #ifdef jim_ext_eventloop
     /* remove all existing EventHandlers */
     Jim_DeleteFileHandler(interp, af->fp, JIM_EVENT_READABLE | JIM_EVENT_WRITABLE | JIM_EVENT_EXCEPTION);
 #endif
+
+    if (!(af->openFlags & AIO_KEEPOPEN)) {
+        fclose(af->fp);
+    }
+
     Jim_Free(af);
 }
 
@@ -750,7 +752,7 @@ static int aio_cmd_ndelay(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
         else {
             fmode &= ~O_NDELAY;
         }
-        fcntl(af->fd, F_SETFL, fmode);
+        (void)fcntl(af->fd, F_SETFL, fmode);
     }
     Jim_SetResultInt(interp, (fmode & O_NONBLOCK) ? 1 : 0);
     return JIM_OK;
@@ -858,7 +860,7 @@ static int aio_cmd_onexception(Jim_Interp *interp, int argc, Jim_Obj *const *arg
 {
     AioFile *af = Jim_CmdPrivData(interp);
 
-    return aio_eventinfo(interp, af, JIM_EVENT_EXCEPTION, &af->wEvent, argc, argv);
+    return aio_eventinfo(interp, af, JIM_EVENT_EXCEPTION, &af->eEvent, argc, argv);
 }
 #endif
 
@@ -1023,8 +1025,10 @@ static int JimAioOpenCommand(Jim_Interp *interp, int argc,
 {
     const char *mode;
 
-    if (argc != 2 && argc != 3)
+    if (argc != 2 && argc != 3) {
         Jim_WrongNumArgs(interp, 1, argv, "filename ?mode?");
+        return JIM_ERR;
+    }
 
     mode = (argc == 3) ? Jim_String(argv[2]) : "r";
 
@@ -1102,7 +1106,7 @@ static int JimMakeChannel(Jim_Interp *interp, FILE *fh, int fd, Jim_Obj *filenam
     af->filename = filename;
 #ifdef FD_CLOEXEC
     if ((openFlags & AIO_KEEPOPEN) == 0) {
-        fcntl(af->fd, F_SETFD, FD_CLOEXEC);
+        (void)fcntl(af->fd, F_SETFD, FD_CLOEXEC);
     }
 #endif
     af->openFlags = openFlags;
@@ -1407,6 +1411,54 @@ static int JimAioSockCommand(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
     return JimMakeChannel(interp, NULL, sock, argv[1], hdlfmt, family, mode);
 }
 #endif /* JIM_BOOTSTRAP */
+
+/**
+ * Returns the file descriptor of a writable, newly created temp file
+ * or -1 on error.
+ * 
+ * On success, leaves the filename in the interpreter result, otherwise
+ * leaves an error message.
+ */
+int Jim_MakeTempFile(Jim_Interp *interp, const char *template)
+{
+#ifdef HAVE_MKSTEMP
+    int fd;
+    mode_t mask;
+    Jim_Obj *filenameObj;
+
+    if (template == NULL) {
+        const char *tmpdir = getenv("TMPDIR");
+        if (tmpdir == NULL || *tmpdir == '\0' || access(tmpdir, W_OK) != 0) {
+            tmpdir = "/tmp/";
+        }
+        filenameObj = Jim_NewStringObj(interp, tmpdir, -1);
+        if (tmpdir[0] && tmpdir[strlen(tmpdir) - 1] != '/') {
+            Jim_AppendString(interp, filenameObj, "/", 1);
+        }
+        Jim_AppendString(interp, filenameObj, "tcl.tmp.XXXXXX", -1);
+    }
+    else {
+        filenameObj = Jim_NewStringObj(interp, template, -1);
+    }
+
+    mask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
+
+    /* Update the template name directly with the filename */
+    fd = mkstemp(filenameObj->bytes);
+    umask(mask);
+    if (fd < 0) {
+        Jim_SetResultString(interp, "Failed to create tempfile", -1);
+        Jim_FreeNewObj(interp, filenameObj);
+        return -1;
+    }
+
+    Jim_SetResult(interp, filenameObj);
+    return fd;
+#else
+    Jim_SetResultString(interp, "tempfile not supported", -1);
+    return -1;
+#endif
+}
 
 FILE *Jim_AioFilehandle(Jim_Interp *interp, Jim_Obj *command)
 {

@@ -18,10 +18,11 @@ SHOBJ_LDFLAGS ?= @SHOBJ_LDFLAGS@
 @else
 SHOBJ_LDFLAGS ?= @SHOBJ_LDFLAGS_R@
 @endif
-CFLAGS = @CFLAGS@ @CCOPTS@
+CFLAGS = @CFLAGS@ @CCOPTS@ @CPPFLAGS@
 CXXFLAGS = @CXXFLAGS@ @CXXOPTS@
 LDFLAGS = @LDFLAGS@
 LDLIBS += @LDLIBS@
+LIBS += @LIBS@
 exec_prefix ?= @exec_prefix@
 prefix ?= @prefix@
 
@@ -79,7 +80,7 @@ install-docs:
 @endif
 
 $(JIMSH): $(LIBJIM) jimsh.o initjimsh.o
-	$(JIMSH_CC) @SH_LINKFLAGS@ $(LDFLAGS) -o $@ jimsh.o initjimsh.o $(LIBJIM) $(LDLIBS)
+	$(JIMSH_CC) @SH_LINKFLAGS@ $(LDFLAGS) -o $@ jimsh.o initjimsh.o $(LIBJIM) $(LDLIBS) $(LIBS)
 
 @if JIM_INSTALL
 install: all @TCL_EXTS@ install-exec install-docs
@@ -132,7 +133,7 @@ $(LIBJIM): $(OBJS)
 	$(RANLIB) $@
 @else
 $(LIBJIM): $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(SH_LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(SH_LDFLAGS) -o $@ $(OBJS) $(LDLIBS) $(LIBS)
 @endif
 
 # Note that $> $^ is for compatibility with both GNU make and BSD make

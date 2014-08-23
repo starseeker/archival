@@ -446,7 +446,6 @@ static int regpiece(regex_t *preg, int *flagp)
 	char op;
 	int next;
 	int flags;
-	int chain = 0;
 	int min;
 	int max;
 
@@ -529,7 +528,7 @@ static int regpiece(regex_t *preg, int *flagp)
 		return 0;
 	}
 
-	return chain ? chain : ret;
+	return ret;
 }
 
 /**
@@ -654,6 +653,7 @@ static int reg_decode_escape(const char *s, int *ch)
 			if ((n = parse_hex(s, 8, ch)) > 0) {
 				s += n;
 			}
+			break;
 		case 'x':
 			if ((n = parse_hex(s, 2, ch)) > 0) {
 				s += n;

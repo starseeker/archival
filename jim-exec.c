@@ -126,6 +126,7 @@ int Jim_execInit(Jim_Interp *interp)
     #include <unistd.h>
     #include <fcntl.h>
     #include <sys/wait.h>
+    #include <sys/stat.h>
 
     typedef int fdtype;
     typedef int pidtype;
@@ -1575,14 +1576,13 @@ static int JimRewindFd(int fd)
 
 static int JimCreateTemp(Jim_Interp *interp, const char *contents, int len)
 {
-    char inName[] = "/tmp/tcl.tmp.XXXXXX";
+    int fd = Jim_MakeTempFile(interp, NULL);
 
-    int fd = mkstemp(inName);
     if (fd == JIM_BAD_FD) {
         Jim_SetResultErrno(interp, "couldn't create temp file");
         return -1;
     }
-    unlink(inName);
+    unlink(Jim_String(Jim_GetResult(interp)));
     if (contents) {
         if (write(fd, contents, len) != len) {
             Jim_SetResultErrno(interp, "couldn't write temp file");

@@ -233,6 +233,19 @@ proc c {} {}
 catch -eval a
 puts "TEST 32 PASSED"
 
+# REGTEST 33
+# unset array variable which doesn't exist
+array unset blahblah abc
+puts "TEST 33 PASSED"
+
+# REGTEST 34
+# onexception and writable conflict
+set f [open [info nameofexecutable]]
+$f onexception {incr x}
+$f writable {incr y}
+$f close
+puts "TEST 34 PASSED"
+
 # TAKE THE FOLLOWING puts AS LAST LINE
 
 puts "--- ALL TESTS PASSED ---"
