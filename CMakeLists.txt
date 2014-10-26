@@ -205,15 +205,7 @@ update_config_file(version.h)
 include(${GRASS_SOURCE_DIR}/CMake/Manage_Files.cmake)
 add_subdirectory(include)
 add_subdirectory(demolocation)
-add_subdirectory(tools)
-add_subdirectory(lib)
-
-#add_executable(grass grass.c)
-#target_link_libraries(grass ${CMAKE_THREAD_LIBS_INIT})
-#install(TARGETS brlcad
-#  RUNTIME DESTINATION ${BIN_DIR}
-#  LIBRARY DESTINATION ${LIB_DIR}
-#  ARCHIVE DESTINATION ${LIB_DIR})
+add_subdirectory(src)
 
 # Local Variables:
 # tab-width: 8

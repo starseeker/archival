@@ -44,7 +44,7 @@ set(ENV{LC_ALL} "C")
 # when building in parallel, due to a bug/limitation in xsltproc
 get_filename_component(output_dir "@outfile@" PATH)
 execute_process(COMMAND "@CMAKE_COMMAND@" -E make_directory "${output_dir}/")
-execute_process(COMMAND "@PYTHON_EXECUTABLE@" "@GRASS_SOURCE_DIR@/tools/mkhtml.py" "@input_name@" OUTPUT_VARIABLE out_contents WORKING_DIRECTORY "@CMAKE_CURRENT_SOURCE_DIR@" RESULT_VARIABLE CMDRESULT)
+execute_process(COMMAND "@PYTHON_EXECUTABLE@" "@GRASS_SOURCE_DIR@/src/tools/mkhtml.py" "@input_name@" OUTPUT_VARIABLE out_contents WORKING_DIRECTORY "@CMAKE_CURRENT_SOURCE_DIR@" RESULT_VARIABLE CMDRESULT)
 file(WRITE "@outfile@" "${out_contents}")
 
 if(CMDRESULT)
