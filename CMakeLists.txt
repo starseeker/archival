@@ -83,6 +83,9 @@ find_package(FLEX)
 find_package(BISON)
 find_package(X11)
 find_package(ZLIB)
+if(ZLIB_LIBRARY)
+  set(HAVE_ZLIB_H 1)
+endif(ZLIB_LIBRARY)
 find_package(OpenGL)
 find_package(GDAL)
 find_package(FFTW)
@@ -145,6 +148,17 @@ if(HAVE_M_LIB)
   set(M_LIBRARY "m")
 endif(HAVE_M_LIB)
 
+# Check signal handler's return type
+try_compile(sig_ret_void
+  "${CMAKE_BINARY_DIR}/test_funcs"
+  "${CMAKE_SOURCE_DIR}/CMake/test_srcs/sig_ret.c"
+  )
+if(sig_ret_void)
+  set(RETSIGTYPE void)
+else(sig_ret_void)
+  set(RETSIGTYPE int)
+endif(sig_ret_void)
+
 #---------------------------------------------------------------------
 # Note - to avoid unnecessary rebuilding when CMake is re-run, only
 # update the final configured files if they have changed since the
@@ -163,8 +177,10 @@ update_config_file(version.h)
 
 #---------------------------------------------------------------------
 include(${GRASS_SOURCE_DIR}/CMake/Manage_Files.cmake)
+add_subdirectory(include)
 add_subdirectory(demolocation)
 add_subdirectory(tools)
+add_subdirectory(lib)
 
 #add_executable(grass grass.c)
 #target_link_libraries(grass ${CMAKE_THREAD_LIBS_INIT})

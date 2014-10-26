@@ -87,7 +87,7 @@
 #cmakedefine HAVE_LONG_LONG_INT 1
 
 /* Define the return type of signal handlers */
-#define RETSIGTYPE int
+#define RETSIGTYPE @RETSIGTYPE@
 
 /* define if ftime() exists */
 #cmakedefine HAVE_FTIME 1
