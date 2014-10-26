@@ -12,6 +12,7 @@
  * \author USACERL and many others
  */
 
+#include <errno.h>
 #include <rpc/types.h>
 #include <rpc/xdr.h>
 #include <unistd.h>
