@@ -9,8 +9,6 @@ target_link_libraries(grass_htmldriver grass_driver grass_gis ${M_LIBRARY})
 
 MKHTML(htmldriver html "")
 
-#TODO - figure out the process of running mkhtml.py
-
 # Local Variables:
 # tab-width: 8
 # mode: cmake
