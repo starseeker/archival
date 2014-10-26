@@ -41,6 +41,16 @@ endif(COMMAND CMAKE_POLICY)
 # Set CMake project name
 project(GRASS)
 
+file(STRINGS ${GRASS_SOURCE_DIR}/include/VERSION VERSION_NUMBERS)
+list(GET VERSION_NUMBERS 0 GRASS_VERSION_MAJOR)
+list(GET VERSION_NUMBERS 1 GRASS_VERSION_MINOR)
+list(GET VERSION_NUMBERS 2 GRASS_VERSION_RELEASE)
+if("${GRASS_VERSION_RELEASE}" STREQUAL "svn")
+  set(GRASS_VERSION_RELEASE "\"${GRASS_VERSION_RELEASE}\"")
+endif("${GRASS_VERSION_RELEASE}" STREQUAL "svn")
+list(GET VERSION_NUMBERS 3 GRASS_VERSION_DATE)
+set(GRASS_VERSION_NUMBER ${GRASS_VERSION_MAJOR}.${GRASS_VERSION_MINOR}.${GRASS_VERSION_RELEASE})
+
 #---------------------------------------------------------------------
 # CMake derives much of its functionality from modules, typically
 # stored in one directory - let CMake know where to find them.  If we
@@ -68,18 +78,91 @@ include(${GRASS_CMAKE_DIR}/Path_Setup.cmake)
 
 include(${GRASS_CMAKE_DIR}/RPath_Setup.cmake)
 
+#---------------------------------------------------------------------
+find_package(FLEX)
+find_package(BISON)
+find_package(X11)
+find_package(ZLIB)
+find_package(OpenGL)
+find_package(GDAL)
+find_package(FFTW)
+find_package(Cairo)
+find_package(Freetype)
+find_package(OpenMP)
+find_package(PROJ4 REQUIRED)
+find_package(Threads)
+find_package(PNG)
+find_package(Sqlite3)
+
+#---------------------------------------------------------------------
+include(CheckIncludeFiles)
+CHECK_INCLUDE_FILES(limits.h HAVE_LIMITS_H)
+CHECK_INCLUDE_FILES(termio.h HAVE_TERMIO_H)
+CHECK_INCLUDE_FILES(termios.h HAVE_TERMIOS_H)
+CHECK_INCLUDE_FILES(unistd.h HAVE_UNISTD_H)
+CHECK_INCLUDE_FILES(values.h HAVE_VALUES_H)
+CHECK_INCLUDE_FILES(f2c.h HAVE_F2C_H)
+CHECK_INCLUDE_FILES(g2c.h HAVE_G2C_H)
+CHECK_INCLUDE_FILES(sys/ioctl.h HAVE_SYS_IOCTL_H)
+CHECK_INCLUDE_FILES(sys/mtio.h HAVE_SYS_MTIO_H)
+CHECK_INCLUDE_FILES(sys/resource.h HAVE_SYS_RESOURCE_H)
+CHECK_INCLUDE_FILES(sys/time.h HAVE_SYS_TIME_H)
+CHECK_INCLUDE_FILES(sys/timeb.h HAVE_SYS_TIMEB_H)
+CHECK_INCLUDE_FILES(sys/types.h HAVE_SYS_TYPES_H)
+CHECK_INCLUDE_FILES(sys/utsname.h HAVE_SYS_UTSNAME_H)
+CHECK_INCLUDE_FILES(libintl.h HAVE_LIBINTL_H)
+CHECK_INCLUDE_FILES(iconv.h HAVE_ICONV_H)
+CHECK_INCLUDE_FILES(langinfo.h HAVE_LANGINFO_H)
+
+#---------------------------------------------------------------------
+include(CheckFunctionExists)
+CHECK_FUNCTION_EXISTS(ftime HAVE_FTIME)
+CHECK_FUNCTION_EXISTS(gethostname HAVE_GETHOSTNAME)
+CHECK_FUNCTION_EXISTS(gettimeofday HAVE_GETTIMEOFDAY)
+CHECK_FUNCTION_EXISTS(lseek HAVE_LSEEK)
+CHECK_FUNCTION_EXISTS(nice HAVE_NICE)
+CHECK_FUNCTION_EXISTS(time HAVE_TIME)
+CHECK_FUNCTION_EXISTS(uname HAVE_UNAME)
+CHECK_FUNCTION_EXISTS(seteuid HAVE_SETEUID)
+CHECK_FUNCTION_EXISTS(setpriority HAVE_SETPRIORITY)
+CHECK_FUNCTION_EXISTS(setreuid HAVE_SETREUID)
+CHECK_FUNCTION_EXISTS(setruid HAVE_SETRUID)
+CHECK_FUNCTION_EXISTS(drand48 HAVE_DRAND48)
+CHECK_FUNCTION_EXISTS(putenv HAVE_PUTENV)
+CHECK_FUNCTION_EXISTS(setenv HAVE_SETENV)
+CHECK_FUNCTION_EXISTS(nanosleep HAVE_NANOSLEEP)
+CHECK_FUNCTION_EXISTS(connect HAVE_CONNECT)
+CHECK_FUNCTION_EXISTS(remove HAVE_REMOVE)
+CHECK_FUNCTION_EXISTS(shmat HAVE_SHMAT)
+CHECK_FUNCTION_EXISTS(dlsym HAVE_DLSYM)
+CHECK_FUNCTION_EXISTS(iconv HAVE_ICONV)
+CHECK_FUNCTION_EXISTS(socket HAVE_SOCKET)
 
 #---------------------------------------------------------------------
 include(CheckLibraryExists)
-CHECK_LIBRARY_EXISTS(m cos "" HAVE_M_LIB)
+CHECK_LIBRARY_EXISTS(m atan "" HAVE_M_LIB)
 if(HAVE_M_LIB)
   set(M_LIBRARY "m")
 endif(HAVE_M_LIB)
 
 #---------------------------------------------------------------------
-find_package(Threads)
+# Note - to avoid unnecessary rebuilding when CMake is re-run, only
+# update the final configured files if they have changed since the
+# last run (or if it is the first run)
+file(MAKE_DIRECTORY ${GRASS_BINARY_DIR}/include)
+
+macro(update_config_file file_name)
+  configure_file(${GRASS_SOURCE_DIR}/include/${file_name}.in ${GRASS_BINARY_DIR}/include/${file_name}_tmp)
+  execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different ${GRASS_BINARY_DIR}/include/${file_name}_tmp ${GRASS_BINARY_DIR}/include/${file_name})
+  file(REMOVE ${GRASS_BINARY_DIR}/include/${file_name}_tmp)
+endmacro(update_config_file file_name)
+
+update_config_file(config.h)
+update_config_file(version.h)
 
 #---------------------------------------------------------------------
+include(${GRASS_SOURCE_DIR}/CMake/Manage_Files.cmake)
+add_subdirectory(demolocation)
 
 #add_executable(grass grass.c)
 #target_link_libraries(grass ${CMAKE_THREAD_LIBS_INIT})

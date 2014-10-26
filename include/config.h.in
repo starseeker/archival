@@ -9,235 +9,235 @@
 #define GDEBUG 1
 
 /* define _OE_SOCKETS flag (OS/390 sys/socket.h) */
-#undef _OE_SOCKETS
+#cmakedefine _OE_SOCKETS 1
 
 /* define _REENTRANT flag (for SunOS) */
-#undef _REENTRANT
+#cmakedefine _REENTRANT 1
 
 /* define USE_DELTA_FOR_TZ (for AIX) */
-#undef USE_DELTA_FOR_TZ
+#cmakedefine USE_DELTA_FOR_TZ 1
 
 /* define for Windows static build */
-#undef STATIC_BUILD
+#cmakedefine STATIC_BUILD 1
 
 /* define if limits.h exists */
-#undef HAVE_LIMITS_H
+#cmakedefine HAVE_LIMITS_H 1
 
 /* define if termio.h exists */
-#undef HAVE_TERMIO_H
+#cmakedefine HAVE_TERMIO_H 1
 
 /* define if termios.h exists */
-#undef HAVE_TERMIOS_H
+#cmakedefine HAVE_TERMIOS_H 1
 
 /* define if unistd.h exists */
-#undef HAVE_UNISTD_H
+#cmakedefine HAVE_UNISTD_H 1
 
 /* define if values.h exists */
-#undef HAVE_VALUES_H
+#cmakedefine HAVE_VALUES_H 1
 
 /* define if zlib.h exists */
-#undef HAVE_ZLIB_H
+#cmakedefine HAVE_ZLIB_H 1
 
 /* define if sys/ioctl.h exists */
-#undef HAVE_SYS_IOCTL_H
+#cmakedefine HAVE_SYS_IOCTL_H 1
 
 /* define if sys/mtio.h exists */
-#undef HAVE_SYS_MTIO_H
+#cmakedefine HAVE_SYS_MTIO_H 1
 
 /* define if sys/resource.h exists */
-#undef HAVE_SYS_RESOURCE_H
+#cmakedefine HAVE_SYS_RESOURCE_H 1
 
 /* define if sys/time.h exists */
-#undef HAVE_SYS_TIME_H
+#cmakedefine HAVE_SYS_TIME_H 1
 
 /* define if time.h and sys/time.h can be included together */
-#undef TIME_WITH_SYS_TIME
+#cmakedefine TIME_WITH_SYS_TIME
 
 /* define if sys/timeb.h exists */
-#undef HAVE_SYS_TIMEB_H
+#cmakedefine HAVE_SYS_TIMEB_H 1
 
 /* define if sys/types.h exists */
-#undef HAVE_SYS_TYPES_H
+#cmakedefine HAVE_SYS_TYPES_H 1
 
 /* define if sys/utsname.h exists */
-#undef HAVE_SYS_UTSNAME_H
+#cmakedefine HAVE_SYS_UTSNAME_H 1
 
 /* define if g2c.h exists */
-#undef HAVE_G2C_H
+#cmakedefine HAVE_G2C_H 1
 
 /* define if f2c.h exists */
-#undef HAVE_F2C_H
+#cmakedefine HAVE_F2C_H 1
 
 /* define if cblas.h exists */
-#undef HAVE_CBLAS_H
+#cmakedefine HAVE_CBLAS_H 1
 
 /* define if clapack.h exists */
-#undef HAVE_CLAPACK_H
+#cmakedefine HAVE_CLAPACK_H 1
 
 /* define gid_t type */
-#undef gid_t
+#cmakedefine gid_t
 
 /* define off_t type */
-#undef off_t
+#cmakedefine off_t
 
 /* define uid_t type */
-#undef uid_t
+#cmakedefine uid_t
 
 /* define if "long long" is available */
-#undef HAVE_LONG_LONG_INT
+#cmakedefine HAVE_LONG_LONG_INT 1
 
 /* Define the return type of signal handlers */
 #define RETSIGTYPE int
 
 /* define if ftime() exists */
-#undef HAVE_FTIME
+#cmakedefine HAVE_FTIME 1
 
 /* define if gethostname() exists */
-#undef HAVE_GETHOSTNAME
+#cmakedefine HAVE_GETHOSTNAME 1
 
 /* define if gettimeofday() exists */
-#undef HAVE_GETTIMEOFDAY
+#cmakedefine HAVE_GETTIMEOFDAY 1
 
 /* define if lseek() exists */
-#undef HAVE_LSEEK
+#cmakedefine HAVE_LSEEK 1
 
 /* define if time() exists */
-#undef HAVE_TIME
+#cmakedefine HAVE_TIME 1
 
 /* define if uname() exists */
-#undef HAVE_UNAME
+#cmakedefine HAVE_UNAME 1
 
 /* define if seteuid() exists */
-#undef HAVE_SETEUID
+#cmakedefine HAVE_SETEUID 1
 
 /* define if setpriority() exists */
-#undef HAVE_SETPRIORITY
+#cmakedefine HAVE_SETPRIORITY 1
 
 /* define if setreuid() exists */
-#undef HAVE_SETREUID
+#cmakedefine HAVE_SETREUID 1
 
 /* define if setruid() exists */
-#undef HAVE_SETRUID
+#cmakedefine HAVE_SETRUID 1
 
 /* define if setpgrp() takes no argument */
-#undef SETPGRP_VOID
+#cmakedefine SETPGRP_VOID 1
 
 /* define if drand48() exists */
-#undef HAVE_DRAND48
+#cmakedefine HAVE_DRAND48 1
 
 /* define if nanosleep() exists */
-#undef HAVE_NANOSLEEP
+#cmakedefine HAVE_NANOSLEEP 1
 
 /* define if asprintf() exists */
-#undef HAVE_ASPRINTF
+#cmakedefine HAVE_ASPRINTF 1
 
 /* define if postgres is to be used */
-#undef HAVE_POSTGRES
+#cmakedefine HAVE_POSTGRES 1
 
 /* define if SQLite is to be used */
-#undef HAVE_SQLITE
+#cmakedefine HAVE_SQLITE 1
 
 /* define if GDAL is to be used */
-#undef HAVE_GDAL
+#cmakedefine HAVE_GDAL 1
 
 /* define if OGR is to be used */
-#undef HAVE_OGR
+#cmakedefine HAVE_OGR 1
 
 /* define if GEOS is to be used */
-#undef HAVE_GEOS
+#cmakedefine HAVE_GEOS 1
 
 /* define if postgres client header exists */
-#undef HAVE_LIBPQ_FE_H
+#cmakedefine HAVE_LIBPQ_FE_H 1
 
 /* define if PQcmdTuples in lpq */
-#undef HAVE_PQCMDTUPLES
+#cmakedefine HAVE_PQCMDTUPLES 1
 
 /* define if ODBC exists */
-#undef HAVE_SQL_H
+#cmakedefine HAVE_SQL_H 1
 
 /* define if tiffio.h exists */
-#undef HAVE_TIFFIO_H
+#cmakedefine HAVE_TIFFIO_H 1
 
 /* define if png.h exists */
-#undef HAVE_PNG_H
+#cmakedefine HAVE_PNG_H 1
 
 /* define if jpeglib.h exists */
-#undef HAVE_JPEGLIB_H
+#cmakedefine HAVE_JPEGLIB_H 1
 
 /* define if fftw3.h exists */
-#undef HAVE_FFTW3_H
+#cmakedefine HAVE_FFTW3_H 1
 
 /* define if fftw.h exists */
-#undef HAVE_FFTW_H
+#cmakedefine HAVE_FFTW_H 1
 
 /* define if dfftw.h exists */
-#undef HAVE_DFFTW_H
+#cmakedefine HAVE_DFFTW_H 1
 
 /* define if BLAS exists */
-#undef HAVE_LIBBLAS
+#cmakedefine HAVE_LIBBLAS 1
 
 /* define if LAPACK exists */
-#undef HAVE_LIBLAPACK
+#cmakedefine HAVE_LIBLAPACK 1
 
 /* define if ATLAS exists */
-#undef HAVE_LIBATLAS
+#cmakedefine HAVE_LIBATLAS 1
 
 /* define if dbm.h exists */
-#undef HAVE_DBM_H
+#cmakedefine HAVE_DBM_H 1
 
 /* define if readline exists */
-#undef HAVE_READLINE_READLINE_H
+#cmakedefine HAVE_READLINE_READLINE_H 1
 
 /* define if ft2build.h exists */
-#undef HAVE_FT2BUILD_H
+#cmakedefine HAVE_FT2BUILD_H 1
 
 /* Whether or not we are using G_socks for display communications */
-#undef USE_G_SOCKS
+#cmakedefine USE_G_SOCKS 1
 
 /* define if X is disabled or unavailable */
-#undef X_DISPLAY_MISSING
+#cmakedefine X_DISPLAY_MISSING 1
 
 /* define if libintl.h exists */
-#undef HAVE_LIBINTL_H
+#cmakedefine HAVE_LIBINTL_H 1
 
 /* define if iconv.h exists */
-#undef HAVE_ICONV_H
+#cmakedefine HAVE_ICONV_H 1
 
 /* define if NLS requested */
-#undef USE_NLS
+#cmakedefine USE_NLS 1
 
 /* define if putenv() exists */
-#undef HAVE_PUTENV
+#cmakedefine HAVE_PUTENV 1
 
 /* define if setenv() exists */
-#undef HAVE_SETENV
+#cmakedefine HAVE_SETENV 1
 
 /* define if socket() exists */
-#undef HAVE_SOCKET
+#cmakedefine HAVE_SOCKET 1
 
 /* define if glXCreatePbuffer exists */
-#undef HAVE_PBUFFERS
+#cmakedefine HAVE_PBUFFERS 1
 
 /* define if glXCreateGLXPixmap exists */
-#undef HAVE_PIXMAPS
+#cmakedefine HAVE_PIXMAPS 1
 
 /* define if OpenGL uses X11 */
-#undef OPENGL_X11
+#cmakedefine OPENGL_X11 1
 
 /* define if OpenGL uses Aqua (MacOS X) */
-#undef OPENGL_AQUA
+#cmakedefine OPENGL_AQUA 1
 
 /* define if OpenGL uses Windows */
-#undef OPENGL_WINDOWS
+#cmakedefine OPENGL_WINDOWS 1
 
 /* define if regex.h exists */
-#undef HAVE_REGEX_H
+#cmakedefine HAVE_REGEX_H 1
 
 /* define if pthread.h exists */
-#undef HAVE_PTHREAD_H
+#cmakedefine HAVE_PTHREAD_H 1
 
 /* define if fseeko() exists */
-#undef HAVE_FSEEKO
+#cmakedefine HAVE_FSEEKO 1
 
 /*
  * configuration information solely dependent on the above
@@ -257,7 +257,7 @@
 /* MINGW32 LFS */
 
 /* define if we have LFS */
-#undef	HAVE_LARGEFILES
+#cmakedefine	HAVE_LARGEFILES 1
 
 #ifdef	HAVE_LARGEFILES		/* If we have working largefiles at all	   */
 				/* This is not defined with glibc-2.1.3	   */
@@ -266,10 +266,10 @@
 
 /* what to do with these four? configure comments these out */
 
-#undef _LARGEFILE_SOURCE	/* To make ftello() visible (HP-UX 10.20). */
-#undef _LARGE_FILES		/* Large file defined on AIX-style hosts.  */
-#undef _XOPEN_SOURCE		/* To make ftello() visible (glibc 2.1.3). */
-#undef _XOPEN_SOURCE_EXTENDED
+#cmakedefine _LARGEFILE_SOURCE	/* To make ftello() visible (HP-UX 10.20). */
+#cmakedefine _LARGE_FILES		/* Large file defined on AIX-style hosts.  */
+#cmakedefine _XOPEN_SOURCE		/* To make ftello() visible (glibc 2.1.3). */
+#cmakedefine _XOPEN_SOURCE_EXTENDED
 				/* XXX We don't use this because glibc2.1.3*/
 				/* XXX is bad anyway. If we define	   */
 				/* XXX _XOPEN_SOURCE we will loose caddr_t */
@@ -301,6 +301,6 @@
 
 
 /* define if langinfo.h exists */
-#undef HAVE_LANGINFO_H
+#cmakedefine HAVE_LANGINFO_H 1
 
 #endif /* _config_h */
