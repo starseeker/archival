@@ -150,11 +150,12 @@ endif(HAVE_M_LIB)
 # update the final configured files if they have changed since the
 # last run (or if it is the first run)
 file(MAKE_DIRECTORY ${GRASS_BINARY_DIR}/include)
+file(MAKE_DIRECTORY ${GRASS_BINARY_DIR}/include/grass)
 
 macro(update_config_file file_name)
-  configure_file(${GRASS_SOURCE_DIR}/include/${file_name}.in ${GRASS_BINARY_DIR}/include/${file_name}_tmp)
-  execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different ${GRASS_BINARY_DIR}/include/${file_name}_tmp ${GRASS_BINARY_DIR}/include/${file_name})
-  file(REMOVE ${GRASS_BINARY_DIR}/include/${file_name}_tmp)
+  configure_file(${GRASS_SOURCE_DIR}/include/${file_name}.in ${GRASS_BINARY_DIR}/include/grass/${file_name}_tmp)
+  execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different ${GRASS_BINARY_DIR}/include/grass/${file_name}_tmp ${GRASS_BINARY_DIR}/include/grass/${file_name})
+  file(REMOVE ${GRASS_BINARY_DIR}/include/grass/${file_name}_tmp)
 endmacro(update_config_file file_name)
 
 update_config_file(config.h)
@@ -163,6 +164,7 @@ update_config_file(version.h)
 #---------------------------------------------------------------------
 include(${GRASS_SOURCE_DIR}/CMake/Manage_Files.cmake)
 add_subdirectory(demolocation)
+add_subdirectory(tools)
 
 #add_executable(grass grass.c)
 #target_link_libraries(grass ${CMAKE_THREAD_LIBS_INIT})
