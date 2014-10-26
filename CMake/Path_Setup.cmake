@@ -35,39 +35,39 @@
 # been set by some other means (like a higher level CMakeLists.txt file
 # including this one).
 
-# The location in which to install BRL-CAD executables.
+# The location in which to install Project executables.
 if(NOT BIN_DIR)
   set(BIN_DIR bin)
 endif(NOT BIN_DIR)
 
-# The location in which to install BRL-CAD header files.
+# The location in which to install Project header files.
 if(NOT INCLUDE_DIR)
   set(INCLUDE_DIR include)
 endif(NOT INCLUDE_DIR)
 
-# The location in which to install BRL-CAD libraries.
+# The location in which to install Project libraries.
 if(NOT LIB_DIR)
   set(LIB_DIR lib)
 endif(NOT LIB_DIR)
 
-# The location in which to install BRL-CAD configuration files.
+# The location in which to install Project configuration files.
 if(NOT CONF_DIR)
   set(CONF_DIR etc)
 endif(NOT CONF_DIR)
 
-# The location in which to install BRL-CAD data files
+# The location in which to install Project data files
 if(NOT DATA_DIR)
   set(DATA_DIR share)
 endif(NOT DATA_DIR)
 
-# The location in which to install BRL-CAD Manual pages
+# The location in which to install Project Manual pages
 if(NOT MAN_DIR)
   set(MAN_DIR ${DATA_DIR}/man)
 endif(NOT MAN_DIR)
 
-# The location in which to install BRL-CAD documentation files
+# The location in which to install Project documentation files
 if(NOT DOC_DIR)
-  set(DOC_DIR ${DATA_DIR}/doc)
+  set(DOC_DIR doc)
 endif(NOT DOC_DIR)
 
 # Make sure no absolute paths have been supplied to these variables

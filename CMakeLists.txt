@@ -45,11 +45,11 @@ file(STRINGS ${GRASS_SOURCE_DIR}/include/VERSION VERSION_NUMBERS)
 list(GET VERSION_NUMBERS 0 GRASS_VERSION_MAJOR)
 list(GET VERSION_NUMBERS 1 GRASS_VERSION_MINOR)
 list(GET VERSION_NUMBERS 2 GRASS_VERSION_RELEASE)
+set(GRASS_VERSION_NUMBER ${GRASS_VERSION_MAJOR}.${GRASS_VERSION_MINOR}.${GRASS_VERSION_RELEASE})
 if("${GRASS_VERSION_RELEASE}" STREQUAL "svn")
   set(GRASS_VERSION_RELEASE "\"${GRASS_VERSION_RELEASE}\"")
 endif("${GRASS_VERSION_RELEASE}" STREQUAL "svn")
 list(GET VERSION_NUMBERS 3 GRASS_VERSION_DATE)
-set(GRASS_VERSION_NUMBER ${GRASS_VERSION_MAJOR}.${GRASS_VERSION_MINOR}.${GRASS_VERSION_RELEASE})
 
 #---------------------------------------------------------------------
 # CMake derives much of its functionality from modules, typically
@@ -99,6 +99,7 @@ find_package(PROJ4 REQUIRED)
 find_package(Threads)
 find_package(PNG)
 find_package(Sqlite3)
+find_program(PYTHON_EXECUTABLE python)
 
 #---------------------------------------------------------------------
 include(CheckIncludeFiles)
@@ -173,6 +174,15 @@ if(sig_ret_void)
 else(sig_ret_void)
   set(RETSIGTYPE int)
 endif(sig_ret_void)
+
+#---------------------------------------------------------------------
+# Set up variables for environment definitions in scripts
+set(ENV_PYTHON_PATH ENV{PYTHON_PATH})
+set(GRASS_PYTHONPATH "${GRASS_BINARY_DIR}/etc/python:${GRASS_SOURCE_DIR}/gui/wxpython:${ENV_PYTHON_PATH}")
+set(GI_SRC "${GRASS_BINARY_DIR}/demolocation/.grassrc${GRASS_MAJOR_VERSION}${GRASS_MINOR_VERSION}")
+set(GI_BASE "${GRASS_BINARY_DIR}")
+
+include(${GRASS_SOURCE_DIR}/CMake/GRASS_DocMacros.cmake)
 
 #---------------------------------------------------------------------
 # Note - to avoid unnecessary rebuilding when CMake is re-run, only

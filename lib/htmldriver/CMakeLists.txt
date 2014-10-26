@@ -7,6 +7,8 @@ file(GLOB driver_html_srcs RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.c")
 add_library(grass_htmldriver ${driver_html_srcs})
 target_link_libraries(grass_htmldriver grass_driver grass_gis ${M_LIBRARY})
 
+MKHTML(htmldriver html "")
+
 #TODO - figure out the process of running mkhtml.py
 
 # Local Variables:
