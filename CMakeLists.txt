@@ -79,6 +79,9 @@ include(${GRASS_CMAKE_DIR}/Path_Setup.cmake)
 include(${GRASS_CMAKE_DIR}/RPath_Setup.cmake)
 
 #---------------------------------------------------------------------
+set(BUILD_SHARED_LIBS ON)
+
+#---------------------------------------------------------------------
 find_package(FLEX)
 find_package(BISON)
 find_package(X11)
