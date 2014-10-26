@@ -151,6 +151,18 @@ if(HAVE_M_LIB)
   set(M_LIBRARY "m")
 endif(HAVE_M_LIB)
 
+CHECK_LIBRARY_EXISTS(dl dlopen "" HAVE_STD_DLOPEN)
+if(HAVE_STD_DLOPEN)
+  set(DL_LIBRARY "dl")
+  set(HAVE_DLOPEN 1)
+else(HAVE_STD_DLOPEN)
+  CHECK_LIBRARY_EXISTS(c dlopen "" HAVE_C_DLOPEN)
+  if(HAVE_C_DLOPEN)
+    set(DL_LIBRARY "c")
+    set(HAVE_DLOPEN 1)
+  endif(HAVE_C_DLOPEN)
+endif(HAVE_STD_DLOPEN)
+
 # Check signal handler's return type
 try_compile(sig_ret_void
   "${CMAKE_BINARY_DIR}/test_funcs"

@@ -11,7 +11,7 @@ endif(NOT MINGW)
 add_definitions(-DGRASS_VERSION_DATE=\"'${GRASS_VERSION_DATE}'\")
 
 add_library(grass_gis ${gis_srcs})
-target_link_libraries(grass_gis ${ZLIB_LIBRARY})
+target_link_libraries(grass_gis grass_datetime ${ZLIB_LIBRARY} ${M_LIBRARY})
 
 # GIS etc data files
 file(MAKE_DIRECTORY ${GRASS_BINARY_DIR}/etc/proj)

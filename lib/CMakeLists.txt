@@ -6,7 +6,7 @@ include_directories(
 add_subdirectory(datetime)
 add_subdirectory(gis)
 add_subdirectory(raster)
-#add_subdirectory(external)
+add_subdirectory(external)
 #add_subdirectory(gmath)
 #add_subdirectory(linkm)
 #add_subdirectory(driver)
