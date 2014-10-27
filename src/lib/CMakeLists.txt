@@ -1,7 +1,7 @@
 include_directories(
-	${GRASS_BINARY_DIR}/include
-	${GRASS_SOURCE_DIR}/include
-	)
+  ${GRASS_BINARY_DIR}/include
+  ${GRASS_SOURCE_DIR}/include
+  )
 
 add_subdirectory(datetime)
 add_subdirectory(gis)
@@ -14,11 +14,11 @@ add_subdirectory(pngdriver)
 add_subdirectory(psdriver)
 add_subdirectory(htmldriver)
 add_subdirectory(cairodriver)
-#add_subdirectory(bitmap)
-#add_subdirectory(btree)
-#add_subdirectory(btree2)
-#add_subdirectory(display)
-#add_subdirectory(db)
+add_subdirectory(bitmap)
+add_subdirectory(btree)
+add_subdirectory(btree2)
+add_subdirectory(display)
+add_subdirectory(db)
 #add_subdirectory(fonts)
 #add_subdirectory(proj)
 #add_subdirectory(vector)
