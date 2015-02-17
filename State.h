@@ -12,7 +12,8 @@
 
 #include "../container/MultiArray.h"
 
-namespace cpt {
+namespace cpt
+{
 
 // Hold the state for a closest point transform.
 template < std::size_t N, typename T = double >

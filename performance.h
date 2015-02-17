@@ -5,10 +5,12 @@
 
 #include <iostream>
 
-namespace cpt {
+namespace cpt
+{
 
 #ifdef CPT_PERFORMANCE
-namespace performance {
+namespace performance
+{
 
 extern std::size_t countFaceScanConverted;
 extern std::size_t countEdgeScanConverted;

@@ -16,7 +16,8 @@
 
 #include <cmath>
 
-namespace cpt {
+namespace cpt
+{
 
 
 template < std::size_t N, typename T = double >
@@ -35,8 +36,9 @@ operator==(const Vertex<N, T>& a, const Vertex<N, T>& b);
 template<std::size_t N, typename T>
 inline
 bool
-operator!=(const Vertex<N, T>& a, const Vertex<N, T>& b) {
-   return !(a == b);
+operator!=(const Vertex<N, T>& a, const Vertex<N, T>& b)
+{
+  return !(a == b);
 }
 
 

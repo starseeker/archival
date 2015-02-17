@@ -13,7 +13,8 @@
 #include "Vertex.h"
 #include "Face.h"
 
-namespace cpt {
+namespace cpt
+{
 
 
 //! A class to hold the grid data.
@@ -31,9 +32,10 @@ class Grid;
 template<std::size_t N, typename T>
 inline
 std::ostream&
-operator<<(std::ostream& out, const Grid<N, T>& g) {
-   g.put(out);
-   return out;
+operator<<(std::ostream& out, const Grid<N, T>& g)
+{
+  g.put(out);
+  return out;
 }
 
 
@@ -47,9 +49,10 @@ operator<<(std::ostream& out, const Grid<N, T>& g) {
 template<std::size_t N, typename T>
 inline
 bool
-operator==(const Grid<N, T>& a, const Grid<N, T>& b) {
-   return (static_cast<const GridBase<N, T>&>(a) ==
-           static_cast<const GridBase<N, T>&>(b));
+operator==(const Grid<N, T>& a, const Grid<N, T>& b)
+{
+  return (static_cast<const GridBase<N, T>&>(a) ==
+          static_cast<const GridBase<N, T>&>(b));
 }
 
 
@@ -58,8 +61,9 @@ operator==(const Grid<N, T>& a, const Grid<N, T>& b) {
 template<std::size_t N, typename T>
 inline
 bool
-operator!=(const Grid<N, T>& a, const Grid<N, T>& b) {
-   return !(a == b);
+operator!=(const Grid<N, T>& a, const Grid<N, T>& b)
+{
+  return !(a == b);
 }
 
 

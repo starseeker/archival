@@ -21,7 +21,8 @@
 
 #include <cmath>
 
-namespace cpt {
+namespace cpt
+{
 
 template < std::size_t N, typename T = double >
 class Face;
@@ -37,8 +38,9 @@ operator==(const Face<N, T>& a, const Face<N, T>& b);
 template<std::size_t N, typename T>
 inline
 bool
-operator!=(const Face<N, T>& a, const Face<N, T>& b) {
-   return !(a == b);
+operator!=(const Face<N, T>& a, const Face<N, T>& b)
+{
+  return !(a == b);
 }
 
 } // namespace cpt
