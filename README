@@ -1,0 +1,10 @@
+This is a quasi-fork of the CMake boost work at https://github.com/pocb/boost but
+the structure is somewhat different.
+
+The latest boost CMake work (i.e. the newest boost) will be in master.  There
+will be an "original" branch which will contain the vanilla Boost sources, and
+that branch will be updated with each new version of Boost that is considered
+for CMake work.
+
+Since the pocb cmake-trunk branch appears to have left off at 1.53, that will
+be our starting point.
