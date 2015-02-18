@@ -1,0 +1,16 @@
+libs/static_assert/test/CMakeLists.txt
+libs/filesystem/v3/test/CMakeLists.txt
+libs/filesystem/v2/test/CMakeLists.txt
+libs/concept_check/test/CMakeLists.txt
+libs/spirit/example/qi/calc7/CMakeLists.txt
+libs/spirit/example/qi/calc6/CMakeLists.txt
+libs/spirit/example/qi/mini_c/CMakeLists.txt
+libs/spirit/example/scheme/test/qi/CMakeLists.txt
+libs/spirit/example/scheme/test/utree/CMakeLists.txt
+libs/spirit/example/scheme/test/scheme/CMakeLists.txt
+libs/spirit/example/scheme/example/generate_qiexpr/CMakeLists.txt
+libs/spirit/example/scheme/example/parse_qiexpr/CMakeLists.txt
+libs/spirit/example/scheme/example/sexpr/CMakeLists.txt
+libs/spirit/example/scheme/example/scheme/CMakeLists.txt
+libs/disjoint_sets/test/CMakeLists.txt
+libs/dynamic_bitset/test/CMakeLists.txt
