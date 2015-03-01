@@ -1,0 +1,9 @@
+Function:       QuickDraw 3D Metafile Read/Write API
+
+Version:        Metafile:       Version 1.0 3DMF files
+                        Package:        Release #3 of this code
+
+Author(s):      Rick Wong (RWW), Duet Development Corp.
+                        John Kelly (JRK), Duet Development Corp.
+
+Copyright:      (c) 1995 by Apple Computer, Inc., all rights reserved.
