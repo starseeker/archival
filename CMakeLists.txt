@@ -87,9 +87,10 @@ include(${AYAM_CMAKE_DIR}/RPath_Setup.cmake)
 
 #---------------------------------------------------------------------
 
-set(BUILD_SHARED_LIBS ON)
+set(BUILD_SHARED_LIBS OFF)
 
 find_package(OpenGL)
+find_package(TCL)
 
 include(CheckLibraryExists)
 CHECK_LIBRARY_EXISTS(m cos "" HAVE_M_LIB)
@@ -106,13 +107,6 @@ if(MSVC)
 endif(MSVC)
 
 add_subdirectory(src)
-
-add_executable(fontstash example/example.c)
-target_link_libraries(fontstash ${GLFW3_LIBRARIES} ${OPENGL_LIBRARIES} ${M_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
-#install(TARGETS brlcad
-#  RUNTIME DESTINATION ${BIN_DIR}
-#  LIBRARY DESTINATION ${LIB_DIR}
-#  ARCHIVE DESTINATION ${LIB_DIR})
 
 # Local Variables:
 # tab-width: 8
