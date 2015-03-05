@@ -151,13 +151,13 @@ set(AYAM_SRCS
   plugins/csphere.c
   plugins/sfcurve.c
   plugins/idr.c
-  plugins/rrib.c
+  #plugins/rrib.c
   togl/togl.c
   ayam.c
   )
 
 add_executable(ayam ${AYAM_SRCS})
-target_link_libraries(ayam ${X11_LIBRARIES} ${OPENGL_LIBRARIES} ${TCL_LIBRARY} ${TK_LIBRARY} ${M_LIBRARY})
+target_link_libraries(ayam ${TIFF_LIBRARY} ${X11_LIBRARIES} ${X11_Xmu_LIB} ${X11_Xext_LIB} ${OPENGL_glu_LIBRARY} ${OPENGL_gl_LIBRARY} ${TCL_LIBRARY} ${TK_LIBRARY} ${M_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
 
 
 #install(TARGETS ayam

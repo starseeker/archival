@@ -89,8 +89,10 @@ include(${AYAM_CMAKE_DIR}/RPath_Setup.cmake)
 
 set(BUILD_SHARED_LIBS OFF)
 
+find_package(Threads)
 find_package(OpenGL)
 find_package(TCL)
+find_package(TIFF)
 
 include(CheckLibraryExists)
 CHECK_LIBRARY_EXISTS(m cos "" HAVE_M_LIB)
