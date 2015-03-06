@@ -421,6 +421,7 @@ ay_box_writecb(FILE *fileptr, ay_object *o)
 int
 ay_box_wribcb(char *file, ay_object *o)
 {
+#ifdef HAVE_RIB
  ay_box_object *box;
  RtPoint rect[4];
 
@@ -466,6 +467,9 @@ ay_box_wribcb(char *file, ay_object *o)
    RiTransformEnd();
 
  return AY_OK;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_box_wribcb */
 
 

@@ -743,6 +743,7 @@ metaobj_writecb (FILE * fileptr, ay_object * o)
 int
 metaobj_wribcb (char *file, ay_object * o)
 {
+#ifdef HAVE_RIB
  meta_world *w;
  RtPoint points[3];
  RtPoint normals[3];
@@ -779,6 +780,9 @@ metaobj_wribcb (char *file, ay_object * o)
   RiSolidEnd ();
 
  return AY_OK;
+#else
+ return AY_ERROR;
+#endif
 } /* metaobj_wribcb */
 
 

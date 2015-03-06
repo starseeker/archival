@@ -395,15 +395,18 @@ ay_riproc_writecb(FILE *fileptr, ay_object *o)
  return AY_OK;
 } /* ay_riproc_writecb */
 
+#ifdef HAVE_RIB
 RtVoid
 ay_free(RtPointer data)
 {
   free(data);
 }
+#endif
 
 int
 ay_riproc_wribcb(char *file, ay_object *o)
 {
+#ifdef HAVE_RIB
  char fname[] = "riproc_wribcb";
  ay_riproc_object *riproc = NULL;
  RtBound bound;
@@ -463,6 +466,9 @@ ay_riproc_wribcb(char *file, ay_object *o)
     } /* switch */
 
  return AY_OK;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_riproc_wribcb */
 
 

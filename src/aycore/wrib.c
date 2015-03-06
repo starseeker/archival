@@ -1184,6 +1184,7 @@ ay_wrib_hidertags(void)
 void
 ay_wrib_rootsh(int imager)
 {
+#ifdef HAVE_RIB
  ay_root_object *root = NULL;
 
   root = (ay_root_object *)ay_root->refine;
@@ -1196,7 +1197,7 @@ ay_wrib_rootsh(int imager)
     { /* write the imager shader */
       ay_shader_wrib(root->imager, AY_STIMAGER, NULL);
     } /* if */
-
+#endif
  return;
 } /* ay_wrib_rootsh */
 
@@ -2097,6 +2098,7 @@ int
 ay_wrib_tcmd(ClientData clientData, Tcl_Interp *interp,
 	     int argc, char *argv[])
 {
+#ifdef HAVE_RIB
  int ay_status = AY_OK;
  ay_object *o = NULL;
  ay_list_object *sel = ay_selection;
@@ -2259,6 +2261,9 @@ ay_wrib_tcmd(ClientData clientData, Tcl_Interp *interp,
     }
 
  return TCL_OK;
+#else
+ return TCL_ERROR;
+#endif
 } /* ay_wrib_tcmd */
 
 

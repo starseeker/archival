@@ -1075,6 +1075,7 @@ ay_pamesh_writecb(FILE *fileptr, ay_object *o)
 int
 ay_pamesh_wribcb(char *file, ay_object *o)
 {
+#ifdef HAVE_RIB
  int ay_status = AY_OK;
  ay_pamesh_object *patch = NULL;
  RtInt nu, nv;
@@ -1253,6 +1254,9 @@ ay_pamesh_wribcb(char *file, ay_object *o)
   free(controls);
 
  return ay_status;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_pamesh_wribcb */
 
 

@@ -32,12 +32,14 @@ int ay_npatch_shadeglu(ay_view_object *view, ay_object *o);
 
 int ay_npatch_shadech(ay_nurbpatch_object *npatch);
 
+#ifdef HAVE_RIB
 /* Export trim curves to RIB. */
 void ay_npatch_wribtrimcurve(ay_object *o,
 			     RtFloat *min, RtFloat *max, RtFloat *knot,
 			     RtFloat *u, RtFloat *v, RtFloat *w,
 			     RtInt *n, RtInt *order,
 			     int *a, int *b, int *c);
+#endif
 
 int ay_npatch_wribtrimcurves(ay_object *o);
 
@@ -2334,6 +2336,7 @@ ay_npatch_writecb(FILE *fileptr, ay_object *o)
  *  internal helper function
  *  for ay_npatch_wribtrimcurves() below
  */
+#ifdef HAVE_RIB
 void
 ay_npatch_wribtrimcurve(ay_object *o,
 			RtFloat *min, RtFloat *max, RtFloat *knot,
@@ -2383,6 +2386,7 @@ ay_npatch_wribtrimcurve(ay_object *o,
 
  return;
 } /* ay_npatch_wribtrimcurve */
+#endif
 
 
 /* ay_npatch_wribtrimcurves
@@ -2392,6 +2396,7 @@ ay_npatch_wribtrimcurve(ay_object *o,
 int
 ay_npatch_wribtrimcurves(ay_object *o)
 {
+#ifdef HAVE_RIB
  int ay_status = AY_OK;
  int a, b, c, totalcurves, totalcontrol, totalknots;
  RtInt nloops = 0, *ncurves = NULL, *order = NULL, *n = NULL;
@@ -2667,6 +2672,9 @@ cleanup:
     free(w);
 
  return ay_status;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_npatch_wribtrimcurves */
 
 
@@ -2676,6 +2684,7 @@ cleanup:
 int
 ay_npatch_wribcb(char *file, ay_object *o)
 {
+#ifdef HAVE_RIB
  int ay_status = AY_OK;
  ay_nurbpatch_object *patch = NULL;
  ay_object *cb;
@@ -2845,6 +2854,9 @@ cleanup:
     free(controls);
 
  return ay_status;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_npatch_wribcb */
 
 

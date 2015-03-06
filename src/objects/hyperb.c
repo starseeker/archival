@@ -613,6 +613,7 @@ ay_hyperb_writecb(FILE *fileptr, ay_object *o)
 int
 ay_hyperb_wribcb(char *file, ay_object *o)
 {
+#ifdef HAVE_RIB
  ay_hyperboloid_object *hyperb = NULL;
  RtPoint p1, p2;
  RtPoint patch[4];
@@ -703,6 +704,9 @@ ay_hyperb_wribcb(char *file, ay_object *o)
 
 
  return AY_OK;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_hyperb_wribcb */
 
 

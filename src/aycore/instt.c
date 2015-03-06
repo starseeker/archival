@@ -343,6 +343,7 @@ ay_instt_createinstanceids(ay_object *o)
 int
 ay_instt_wribiarchives(char *file, ay_object *o)
 {
+#ifdef HAVE_RIB
  int ay_status = AY_OK;
  int found = AY_FALSE;
  int down_is_prim = AY_FALSE;
@@ -588,6 +589,9 @@ ay_instt_wribiarchives(char *file, ay_object *o)
     } /* while */
 
  return ay_status;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_instt_wribiarchives */
 
 

@@ -859,6 +859,7 @@ ay_root_writecb(FILE *fileptr, ay_object *o)
 int
 ay_root_wribcb(char *file, ay_object *o)
 {
+#ifdef HAVE_RIB
  ay_root_object *root = NULL;
  ay_riopt *riopt = NULL;
  RtFloat fw = 0, fh = 0;
@@ -976,6 +977,9 @@ ay_root_wribcb(char *file, ay_object *o)
   } /* if */
 
  return AY_OK;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_root_wribcb */
 
 

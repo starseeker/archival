@@ -590,6 +590,7 @@ ay_torus_writecb(FILE *fileptr, ay_object *o)
 int
 ay_torus_wribcb(char *file, ay_object *o)
 {
+#ifdef HAVE_RIB
  ay_torus_object *torus;
  RtPoint p1, p2;
  double phidiff;
@@ -667,6 +668,9 @@ ay_torus_wribcb(char *file, ay_object *o)
     } /* if */
 
  return AY_OK;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_torus_wribcb */
 
 

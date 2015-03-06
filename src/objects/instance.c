@@ -410,6 +410,7 @@ ay_instance_writecb(FILE *fileptr, ay_object *o)
 int
 ay_instance_wribcb(char *file, ay_object *o)
 {
+#ifdef HAVE_RIB
  int ay_status = AY_OK;
  char *iafilename = NULL;
  int found = AY_FALSE;
@@ -559,6 +560,9 @@ ay_instance_wribcb(char *file, ay_object *o)
      ay_status = ay_wrib_lights(o, file, AY_FALSE);*/
 
  return ay_status;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_instance_wribcb */
 
 

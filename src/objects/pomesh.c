@@ -1164,6 +1164,7 @@ ay_pomesh_writecb(FILE *fileptr, ay_object *o)
 int
 ay_pomesh_wribcb(char *file, ay_object *o)
 {
+#ifdef HAVE_RIB
  int ay_status = AY_OK;
  ay_pomesh_object *pomesh = NULL;
  RtInt *nloops = NULL, *nverts = NULL, *verts = NULL;
@@ -1318,6 +1319,9 @@ cleanup:
     free(verts);
 
  return ay_status;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_pomesh_wribcb */
 
 

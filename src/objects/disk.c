@@ -443,6 +443,7 @@ ay_disk_writecb(FILE *fileptr, ay_object *o)
 int
 ay_disk_wribcb(char *file, ay_object *o)
 {
+#if HAVE_RIB
  ay_disk_object *disk;
 
   if(!o)
@@ -459,6 +460,9 @@ ay_disk_wribcb(char *file, ay_object *o)
 	 NULL);
 
  return AY_OK;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_disk_wribcb */
 
 

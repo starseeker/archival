@@ -712,6 +712,7 @@ ay_sphere_writecb(FILE *fileptr, ay_object *o)
 int
 ay_sphere_wribcb(char *file, ay_object *o)
 {
+#ifdef HAVE_RIB
  ay_sphere_object *sphere;
  RtPoint P1[16];
  RtPoint P2[16];
@@ -882,6 +883,9 @@ ay_sphere_wribcb(char *file, ay_object *o)
 #undef UNITCIRCLE
 
  return AY_OK;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_sphere_wribcb */
 
 

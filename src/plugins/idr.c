@@ -137,10 +137,10 @@ int idr_wrib_scene(char *file, char *image, double importance, int exclude,
 		   double nearp, double farp,
 		   int width, int height, int type,
 		   int left, int bottom, int right, int top);
-
+#ifdef HAVE_RIB
 int idr_translate_points(RtPoint position, RtPoint direction, double roll,
 			 double *src, double *dst, int num);
-
+#endif
 int idr_get2dbbc(ay_object *o, int *left, int *right,
 		 int *bottom, int *top);
 
@@ -1329,6 +1329,7 @@ int
 idr_wrib_object(ay_object *o, char *file, double importance, int exclude,
 		double pimportance)
 {
+#ifdef HAVE_RIB
  int ay_status = AY_OK;
  ay_object *down = NULL;
  ay_voidfp *arr = NULL;
@@ -1592,6 +1593,9 @@ idr_wrib_object(ay_object *o, char *file, double importance, int exclude,
     }
 
  return ay_status;
+#else
+ return AY_ERROR;
+#endif
 } /* idr_wrib_object */
 
 #if 0
@@ -1796,6 +1800,7 @@ idr_wrib_scene(char *file, char *image, double importance, int exclude,
 	       int width, int height, int type,
 	       int left, int bottom, int right, int top)
 {
+#ifdef HAVE_RIB
  int ay_status = AY_OK;
  ay_object *o = ay_root;
  RtPoint f, t, d;
@@ -1986,6 +1991,9 @@ idr_wrib_scene(char *file, char *image, double importance, int exclude,
   RiEnd();
 
  return ay_status;
+#else
+ return AY_ERROR;
+#endif
 } /* idr_wrib_scene */
 
 
@@ -1999,6 +2007,7 @@ idr_wrib_scene(char *file, char *image, double importance, int exclude,
  *  Out:
  *  dst: pointer to resulting camera points
  */
+#ifdef HAVE_RIB
 int
 idr_translate_points(RtPoint position, RtPoint direction, double roll,
 		     double *src, double *dst, int num)
@@ -2035,6 +2044,7 @@ idr_translate_points(RtPoint position, RtPoint direction, double roll,
     }
  return AY_OK;
 } /* idr_translate_points */
+#endif
 
 
 /*

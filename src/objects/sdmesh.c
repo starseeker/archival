@@ -1275,6 +1275,7 @@ ay_sdmesh_writecb(FILE *fileptr, ay_object *o)
 int
 ay_sdmesh_wribcb(char *file, ay_object *o)
 {
+#ifdef HAVE_RIB
  int ay_status = AY_OK;
  ay_sdmesh_object *sdmesh = NULL;
  RtToken scheme = NULL, ccscheme = "catmull-clark", lscheme = "loop";
@@ -1512,6 +1513,9 @@ cleanup:
     }
 
  return ay_status;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_sdmesh_wribcb */
 
 

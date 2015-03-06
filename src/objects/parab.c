@@ -613,6 +613,7 @@ ay_parab_writecb(FILE *fileptr, ay_object *o)
 int
 ay_parab_wribcb(char *file, ay_object *o)
 {
+#ifdef HAVE_RIB
  ay_paraboloid_object *paraboloid = NULL;
  RtFloat rmin = (RtFloat)0.0;
  RtPoint patch[16];
@@ -705,6 +706,9 @@ ay_parab_wribcb(char *file, ay_object *o)
     } /* if */
 
  return AY_OK;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_parab_wribcb */
 
 

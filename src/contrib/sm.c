@@ -89,7 +89,7 @@ ay_sm_aimz(double *direction)
     {
       xrot = 0.0;
     }
-
+#ifdef HAVE_RIB
   if(direction[1] > 0.0)
     {
       if(fabs(xrot) > AY_EPSILON)
@@ -111,7 +111,7 @@ ay_sm_aimz(double *direction)
       if(fabs(yrot) > AY_EPSILON)
 	RiRotate((RtFloat)-yrot, (RtFloat)0.0,(RtFloat)1.0,(RtFloat)0.0);
     }
-
+#endif
  return;
 } /* ay_sm_aimz */
 
@@ -122,6 +122,7 @@ ay_sm_aimz(double *direction)
 void
 ay_sm_placecamera(double *position, double *direction, double roll)
 {
+#ifdef HAVE_RIB
   /* XXXX RiIdentity(); */
   if(fabs(roll) > AY_EPSILON)
     RiRotate((RtFloat)-roll, (RtFloat)0.0, (RtFloat)0.0, (RtFloat)1.0);
@@ -136,7 +137,7 @@ ay_sm_placecamera(double *position, double *direction, double roll)
 		 0.0),
 		(RtFloat) ((fabs(position[2]) > AY_EPSILON) ? -position[2] :
 		0.0));
-
+#endif
  return;
 } /* ay_sm_placecamera */
 
@@ -218,6 +219,7 @@ ay_sm_dotrafosinv(ay_sm_trafostack *trafo, double *px, double *py, double *pz)
 void
 ay_sm_wribsm(char *file, ay_sm_trafostack *trafo, ay_object *light)
 {
+#ifdef HAVE_RIB
  /* ay_object *o = ay_root->next;*/
  ay_light_object *l = NULL;
  double euler[3], d[3];
@@ -286,7 +288,7 @@ ay_sm_wribsm(char *file, ay_sm_trafostack *trafo, ay_object *light)
 
   /* was: */
   /* RiFrameEnd();*/
-
+#endif
  return;
 } /* ay_sm_wribsm */
 
@@ -461,6 +463,7 @@ ay_sm_wriballsm(char *file, char *objfile, ay_object *o,
 		int rwidth, int rheight,
 		int selonly)
 {
+#ifdef HAVE_RIB
  ay_light_object *light = NULL;
  ay_sm_trafostack *newtrafo;
  RtFloat fov;
@@ -811,6 +814,6 @@ ay_sm_wriballsm(char *file, char *objfile, ay_object *o,
   free(newtrafo);
   free(shdname);
   free(zname);
-
+#endif
  return;
 } /* ay_sm_wriballsm */

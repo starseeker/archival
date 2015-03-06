@@ -343,6 +343,7 @@ ay_riinc_writecb(FILE *fileptr, ay_object *o)
 int
 ay_riinc_wribcb(char *file, ay_object *o)
 {
+#ifdef HAVE_RIB
  ay_riinc_object *riinc = NULL;
 
   if(!o)
@@ -357,6 +358,9 @@ ay_riinc_wribcb(char *file, ay_object *o)
     RiReadArchive(riinc->file,(RtVoid*)RI_NULL,RI_NULL);
 
  return AY_OK;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_riinc_wribcb */
 
 

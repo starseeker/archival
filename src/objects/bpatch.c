@@ -786,6 +786,7 @@ ay_bpatch_writecb(FILE *fileptr, ay_object *o)
 int
 ay_bpatch_wribcb(char *file, ay_object *o)
 {
+#ifdef HAVE_RIB
  ay_bpatch_object *bpatch;
  RtPoint rect[4];
  RtToken *tokens = NULL;
@@ -851,6 +852,9 @@ ay_bpatch_wribcb(char *file, ay_object *o)
     } /* if */
 
  return AY_OK;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_bpatch_wribcb */
 
 
