@@ -815,6 +815,7 @@ ay_tags_deletetcmd(ClientData clientData, Tcl_Interp *interp,
  *  if declare is AY_TRUE this routine also makes the necessary
  *  calls to RiDeclare()!
  */
+#ifdef HAVE_RIB
 int
 ay_tags_parseplist(char *str, int declare, RtInt *argc, RtToken **tokensr,
 		   RtPointer **valuesr)
@@ -1049,7 +1050,7 @@ cleanup:
 
  return ay_status;
 } /* ay_tags_parseplist */
-
+#endif
 
 /** ay_tags_reconnect:
  * reconnect already existing tags after late tag type registration

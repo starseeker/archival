@@ -420,9 +420,11 @@ ay_instt_wribiarchives(char *file, ay_object *o)
 			    {
 			      if(!ay_prefs.ristandard)
 				{
+#ifdef HAVE_RIB
 				  RiDeclare(parname, "string");
 				  RiAttribute("identifier", parname,
 					      (RtPointer)&o->name, RI_NULL);
+#endif
 
 				} /* if */
 			    } /* if */
@@ -431,7 +433,9 @@ ay_instt_wribiarchives(char *file, ay_object *o)
 			{
 			  if(o->name)
 			    {
+#ifdef HAVE_RIB
 			      RiArchiveRecord(RI_COMMENT, o->name);
+#endif
 			    } /* if */
 			} /* if */
 
@@ -450,18 +454,26 @@ ay_instt_wribiarchives(char *file, ay_object *o)
 			  switch(l->type)
 			    {
 			    case AY_LTUNION:
+#ifdef HAVE_RIB
 			      RiSolidBegin(RI_UNION);
+#endif
 			      break;
 			    case AY_LTDIFF:
+#ifdef HAVE_RIB
 			      RiSolidBegin(RI_DIFFERENCE);
+#endif
 			      break;
 			    case AY_LTINT:
+#ifdef HAVE_RIB
 			      RiSolidBegin(RI_INTERSECTION);
+#endif
 			      break;
 			    case AY_LTPRIM:
 			      if(!ay_current_primlevel)
 				{
+#ifdef HAVE_RIB
 				  RiSolidBegin(RI_PRIMITIVE);
+#endif
 				}
 			      ay_current_primlevel++;
 			      break;
@@ -483,7 +495,9 @@ ay_instt_wribiarchives(char *file, ay_object *o)
 				{
 				  if(!ay_current_primlevel)
 				    {
+#ifdef HAVE_RIB
 				      RiSolidBegin(RI_PRIMITIVE);
+#endif
 				    }
 				  ay_current_primlevel++;
 				} /* if */

@@ -930,10 +930,12 @@ int ay_provide_nptoolobj(ay_object *o, unsigned int type,
 
 /* pv.c */
 
+#ifdef HAVE_RIB
 /** parse all PV tags to RtToken/RtPointer arrays
  */
 int ay_pv_filltokpar(ay_object *o, int declare, int start,
 		     int *added, RtToken tokens[], RtPointer parms[]);
+#endif
 
 /** add PV tag to an object
  */
@@ -1246,9 +1248,11 @@ int ay_shader_copyarg(ay_shader_arg *source, ay_shader_arg **dest);
  */
 int ay_shader_copy(ay_shader *source, ay_shader **dest);
 
+#ifdef HAVE_RIB
 /** RIB export of a shader
  */
 int ay_shader_wrib(ay_shader *shader, int type, RtLightHandle *light_handle);
+#endif
 
 /** Tcl command to get a shader property
  */
@@ -1328,10 +1332,12 @@ int ay_tags_hastcmd(ClientData clientData, Tcl_Interp *interp,
 int ay_tags_deletetcmd(ClientData clientData, Tcl_Interp *interp,
 		       int argc, char *argv[]);
 
+#ifdef HAVE_RIB
 /** parse PV tags for RIB export
  */
 int ay_tags_parseplist(char *str, int declare, RtInt *argc, RtToken **tokensr,
 		       RtPointer **valuesr);
+#endif
 
 /** reconnect already existing tags after late tag type registration
  */
@@ -1814,6 +1820,7 @@ int ay_wrib_isprimitive(ay_object *o);
  */
 int ay_wrib_noexport(ay_object *o);
 
+#ifdef HAVE_RIB
 /** set up camera for RIB export
  */
 void ay_wrib_aimz(RtPoint direction);
@@ -1821,6 +1828,7 @@ void ay_wrib_aimz(RtPoint direction);
 /** set up camera for RIB export
  */
 void ay_wrib_placecamera(RtPoint position, RtPoint direction, double roll);
+#endif
 
 /** export the RiOptions to a RIB file
  */

@@ -392,6 +392,7 @@ ay_matt_clearmaterialids(ay_object *o)
 int
 ay_matt_wrib(char *file, ay_mat_object *m)
 {
+#ifdef HAVE_RIB
  int ay_status = AY_OK;
  RtColor color = {0.0f,0.0f,0.0f};
  RtFloat dbound;
@@ -530,6 +531,9 @@ ay_matt_wrib(char *file, ay_mat_object *m)
     }
 
  return AY_OK;
+#else
+ return AY_ENULL;
+#endif
 } /* ay_matt_wrib */
 
 

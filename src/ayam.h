@@ -50,6 +50,8 @@
 #endif*/
 /* AYUSEORIGTOGL */
 
+/*#define HAVE_RIB */
+
 #ifdef AYUSEAFFINE
 #include <ributil.h>
 #endif /* AYUSEAFFINE */
@@ -685,7 +687,9 @@ typedef struct ay_light_object_s
   int type; /**< light type: custom, point, spot, or distant (AY_LT*) */
   int on; /**< light state: 0 off, 1 on */
   int local; /**< light only local objects (same level and below)? */
+#ifdef HAVE_RI
   RtLightHandle light_handle; /**< RI handle of local lights */
+#endif
   int shadows; /**< light casts shadows? */
   int samples; /**< number of samples (for area lights), default: 1 */
   /*@{*//** light color */

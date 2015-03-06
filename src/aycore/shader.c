@@ -13,9 +13,9 @@
 #include "ayam.h"
 
 /* shader.c - functions for shader handling */
-
+#ifdef HAVE_RIB
 RtLightHandle ay_light_handle;
-
+#endif
 
 #ifdef AYUSESLCARGS
 /* ay_shader_scanslcsarg:
@@ -649,6 +649,7 @@ ay_shader_copy(ay_shader *source, ay_shader **dest)
 /* ay_shader_wrib:
  *  write shader to RIB
  */
+#ifdef HAVE_RIB
 int
 ay_shader_wrib(ay_shader *shader, int type, RtLightHandle *light_handle)
 {
@@ -770,7 +771,7 @@ ay_shader_wrib(ay_shader *shader, int type, RtLightHandle *light_handle)
 
  return ay_status;
 } /* ay_shader_wrib */
-
+#endif
 
 /* ay_shader_gettcmd:
  *  C -> Tcl

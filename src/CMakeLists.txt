@@ -4,30 +4,9 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/other/tcl8.4.20/generic
   ${CMAKE_CURRENT_SOURCE_DIR}/other/tk8.4.20/generic
   ${CMAKE_CURRENT_SOURCE_DIR}/togl
-  ${CMAKE_CURRENT_SOURCE_DIR}/affine/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/MF3D
   ${CMAKE_CURRENT_SOURCE_DIR}/contrib
   ${CMAKE_CURRENT_SOURCE_DIR}
   )
-
-add_definitions(-DAYUSEAFFINE)
-
-set(MF3D_SRCS
-  MF3D/mf3d.c
-  MF3D/mfbinrd.c
-  MF3D/mffile.c
-  MF3D/mfgroups.c
-  MF3D/mflabels.c
-  MF3D/mfmemory.c
-  MF3D/mfobject.c
-  MF3D/mfobjtyp.c
-  MF3D/mfprimtv.c
-  MF3D/mfrslntn.c
-  MF3D/mfstdchk.c
-  MF3D/mftextrd.c
-  MF3D/mftextut.c
-  MF3D/mftextwr.c
-)
 
 set(AYAM_SRCS
   aycore/bbc.c
@@ -146,8 +125,8 @@ set(AYAM_SRCS
   contrib/meta/move.c
   contrib/meta/marching.c
   contrib/meta/adaptive.c
-  affine/src/write.c
-  affine/src/constant.c
+  #affine/src/write.c
+  #affine/src/constant.c
   plugins/csphere.c
   plugins/sfcurve.c
   plugins/idr.c

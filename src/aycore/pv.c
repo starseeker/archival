@@ -23,6 +23,7 @@
  *  processed
  *  <tokens>,<parms>: have to be of the right size and allocated outside!
  */
+#ifdef HAVE_RIB
 int
 ay_pv_filltokpar(ay_object *o, int declare, int start,
 		 int *added, RtToken tokens[], RtPointer parms[])
@@ -350,7 +351,7 @@ cleanup:
 
  return ay_status;
 } /* ay_pv_filltokpar */
-
+#endif
 
 /* ay_pv_add:
  *  add a PV tag to object <o>

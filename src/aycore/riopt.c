@@ -20,6 +20,7 @@
 int
 ay_riopt_wrib(ay_object *o)
 {
+#ifdef HAVE_RIB
  ay_tag *tag = NULL;
  RtColor color = {0.0f,0.0f,0.0f};
  char *tagvaltmp = NULL, *attrname = NULL, *parname = NULL,
@@ -195,6 +196,9 @@ ay_riopt_wrib(ay_object *o)
     }
 
  return AY_OK;
+#else
+ return AY_ENULL;
+#endif
 } /* ay_riopt_wrib */
 
 

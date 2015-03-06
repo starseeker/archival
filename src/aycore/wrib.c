@@ -117,6 +117,7 @@ else
 /* ay_wrib_aimz:
  *
  */
+#if HAVE_RIB
 void
 ay_wrib_aimz(RtPoint direction)
 {
@@ -204,6 +205,7 @@ ay_wrib_placecamera(RtPoint position, RtPoint direction, double roll)
 
  return;
 } /* ay_wrib_placecamera */
+#endif
 
 
 /* ay_wrib_getup:
@@ -316,6 +318,7 @@ FrameCamera(double zoom, double framewidth, double frameheight)
 int
 ay_wrib_rioptions(void)
 {
+#ifdef HAVE_RIB
  int ay_status = AY_OK;
  ay_riopt *riopt = NULL;
  ay_root_object *root = NULL;
@@ -448,6 +451,9 @@ ay_wrib_rioptions(void)
 
 
  return ay_status;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_wrib_rioptions */
 
 
@@ -457,6 +463,7 @@ ay_wrib_rioptions(void)
 int
 ay_wrib_trafos(ay_object *o)
 {
+#ifdef HAVE_RIB
  int ay_status = AY_OK;
  double euler[3];
 
@@ -486,6 +493,9 @@ ay_wrib_trafos(ay_object *o)
     }
 
  return ay_status;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_wrib_trafos */
 
 
@@ -528,6 +538,7 @@ ay_wrib_geniafilename(char *base, char *oi)
 int
 ay_wrib_refobject(char *file, ay_object *o)
 {
+#ifdef HAVE_RIB
  int ay_status = AY_OK;
  char *iafilename = NULL;
  int found = AY_FALSE;
@@ -566,6 +577,9 @@ ay_wrib_refobject(char *file, ay_object *o)
     return AY_ERROR; /* This should never happen! */
 
  return ay_status;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_wrib_refobject */
 
 
@@ -575,6 +589,7 @@ ay_wrib_refobject(char *file, ay_object *o)
 int
 ay_wrib_object(char *file, ay_object *o)
 {
+#ifdef HAVE_RIB
  int ay_status = AY_OK;
  ay_object *down = NULL;
  ay_voidfp *arr = NULL;
@@ -812,6 +827,9 @@ ay_wrib_object(char *file, ay_object *o)
     } /* if */
 
  return ay_status;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_wrib_object */
 
 
@@ -890,6 +908,7 @@ ay_wrib_toolobject(char *file, ay_object *o, ay_object *t)
 void
 ay_wrib_displaytags(void)
 {
+#ifdef HAVE_RIB
  char fname[] = "wrib_displaytags";
  ay_object *root = NULL;
  ay_tag *tag = NULL;
@@ -1041,7 +1060,7 @@ ay_wrib_displaytags(void)
 
       tag = tag->next;
     } /* while */
-
+#endif
  return;
 } /* ay_wrib_displaytags */
 
@@ -1052,6 +1071,7 @@ ay_wrib_displaytags(void)
 void
 ay_wrib_hidertags(void)
 {
+#ifdef HAVE_RIB
  char fname[] = "wrib_hidertags";
  ay_object *root = NULL;
  ay_tag *tag = NULL;
@@ -1151,7 +1171,7 @@ ay_wrib_hidertags(void)
 
       tag = tag->next;
     } /* while */
-
+#endif
  return;
 } /* ay_wrib_hidertags */
 
@@ -1187,6 +1207,7 @@ ay_wrib_rootsh(int imager)
 void
 ay_wrib_defmat(char *file)
 {
+#ifdef HAVE_RIB
  int ay_status = AY_OK;
  ay_mat_object *m = NULL;
  char fname[] = "wrib_defmat";
@@ -1214,7 +1235,7 @@ ay_wrib_defmat(char *file)
     default:
       break;
     } /* switch */
-
+#endif
  return;
 } /* ay_wrib_defmat */
 
@@ -1282,6 +1303,7 @@ ay_wrib_checklights(ay_object *o)
 int
 ay_wrib_lights(char *file, ay_object *o)
 {
+#ifdef HAVE_RIB
  int ay_status = AY_OK;
  ay_light_object *light = NULL;
  char *onstr = "on", *offstr = "off";
@@ -1610,6 +1632,9 @@ cleanup:
     }
 
  return ay_status;
+#else
+ return AY_ENULL;
+#endif
 } /* ay_wrib_lights */
 
 
@@ -1622,6 +1647,7 @@ ay_wrib_scene(char *file, char *image, int temp, int rtf,
 	      double roll, double zoom, double nearp, double farp,
 	      int width, int height, int type)
 {
+#ifdef HAVE_RIB
  int ay_status = AY_OK;
  ay_object *o = ay_root;
  ay_root_object *root = NULL;
@@ -1874,6 +1900,9 @@ ay_wrib_scene(char *file, char *image, int temp, int rtf,
     }
 
  return ay_status;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_wrib_scene */
 
 
@@ -1883,6 +1912,7 @@ ay_wrib_scene(char *file, char *image, int temp, int rtf,
 int
 ay_wrib_sm(char *file, char *image, int width, int height, int selonly)
 {
+#ifdef HAVE_RIB
  int ay_status = AY_OK;
  ay_object *o = ay_root;
  char *objfile = NULL, *pos = NULL;
@@ -1961,6 +1991,9 @@ ay_wrib_sm(char *file, char *image, int width, int height, int selonly)
   free(objfile);
 
  return ay_status;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_wrib_sm */
 
 
@@ -2236,6 +2269,7 @@ ay_wrib_tcmd(ClientData clientData, Tcl_Interp *interp,
 int
 ay_wrib_pprevdraw(ay_view_object *view)
 {
+#ifdef HAVE_RIB
  int ay_status = AY_OK;
  ay_object *o = ay_root;
  int old_resinstances = ay_prefs.resolveinstances;
@@ -2396,6 +2430,9 @@ ay_wrib_pprevdraw(ay_view_object *view)
   ay_prefs.resolveinstances = old_resinstances;
 
  return ay_status;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_wrib_pprevdraw */
 
 
@@ -2405,6 +2442,7 @@ ay_wrib_pprevdraw(ay_view_object *view)
 int
 ay_wrib_pprevopen(ay_view_object *view)
 {
+#ifdef HAVE_RIB
  int ay_status = AY_OK;
  char *pprender = "rgl";
 
@@ -2428,6 +2466,9 @@ ay_wrib_pprevopen(ay_view_object *view)
   ay_prefs.pprev_open = AY_TRUE;
 
  return ay_status;
+#else
+ return AY_ERROR;
+#endif
 } /* ay_wrib_pprevopen */
 
 
