@@ -21,6 +21,8 @@ set(TCL_VERSION_MINOR "${TCL_VERSION_MINOR}" CACHE STRING "Tcl MINOR version" FO
 
 add_subdirectory(tk8.4.20)
 
+set(TK_LIBRARY tk CACHE STRING "TK_LIBRARY" FORCE)
+
 # Local Variables:
 # tab-width: 8
 # mode: cmake

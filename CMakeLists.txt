@@ -91,7 +91,6 @@ set(BUILD_SHARED_LIBS OFF)
 
 find_package(Threads)
 find_package(OpenGL)
-find_package(TCL)
 find_package(TIFF)
 
 include(CheckLibraryExists)
@@ -107,6 +106,10 @@ endif(HAVE_M_LIB)
 if(MSVC)
   include(InstallRequiredSystemLibraries)
 endif(MSVC)
+
+add_definitions(-g)
+
+add_subdirectory(src/other)
 
 add_subdirectory(src)
 
