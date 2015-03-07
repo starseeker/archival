@@ -820,20 +820,16 @@ SET(TCL_GENERIC_SRCS
   generic/tclResolve.c
   generic/tclResult.c
   generic/tclScan.c
-  generic/tclStubInit.c
   generic/tclStringObj.c
-  generic/tclTest.c
-  generic/tclTestObj.c
-  generic/tclTestProcBodyObj.c
   generic/tclThread.c
   generic/tclThreadAlloc.c
   generic/tclThreadJoin.c
-  generic/tclThreadTest.c
+  generic/tclStubInit.c
   generic/tclTimer.c
   generic/tclUtf.c
   generic/tclUtil.c
   generic/tclVar.c
-  generic/tclUniData.c
+  generic/tclParseExpr.c
   )
 
 SET(TCL_STUB_SRCS
@@ -886,9 +882,8 @@ SET(TCL_UNIX_SRCS
   unix/tclUnixFile.c
   unix/tclUnixPipe.c
   unix/tclUnixSock.c
-  unix/tclUnixTest.c
-  unix/tclUnixThrd.c
   unix/tclUnixTime.c
+  unix/tclUnixThrd.c
   unix/tclUnixInit.c
   unix/tclUnixCompat.c
   )
@@ -898,15 +893,6 @@ SET_PROPERTY(SOURCE unix/tclUnixInit.c APPEND PROPERTY COMPILE_DEFINITIONS TCL_P
 
 SET(TCL_NOTIFY_SRCS
   unix/tclUnixNotfy.c
-  )
-
-SET(TCL_DL_SRCS
-  unix/tclLoadAix.c
-  unix/tclLoadDl.c
-  unix/tclLoadDyld.c
-  generic/tclLoadNone.c
-  unix/tclLoadOSF.c
-  unix/tclLoadShl.c
   )
 
 SET(TCL_SRCS ${TCL_GENERIC_SRCS} ${TCL_STUB_SRCS}) 
