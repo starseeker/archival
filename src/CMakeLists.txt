@@ -8,6 +8,8 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   )
 
+add_subdirectory(tcl)
+
 set(AYAM_SRCS
   aycore/bbc.c
   aycore/clear.c
@@ -139,10 +141,10 @@ add_executable(ayam ${AYAM_SRCS})
 target_link_libraries(ayam ${TIFF_LIBRARY} ${X11_LIBRARIES} ${X11_Xmu_LIB} ${X11_Xext_LIB} ${OPENGL_glu_LIBRARY} ${OPENGL_gl_LIBRARY} ${TCL_LIBRARY} ${TK_LIBRARY} ${M_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
 
 
-#install(TARGETS ayam
-#  RUNTIME DESTINATION ${BIN_DIR}
-#  LIBRARY DESTINATION ${LIB_DIR}
-#  ARCHIVE DESTINATION ${LIB_DIR})
+install(TARGETS ayam
+  RUNTIME DESTINATION ${BIN_DIR}
+  LIBRARY DESTINATION ${LIB_DIR}
+  ARCHIVE DESTINATION ${LIB_DIR})
 
 # Local Variables:
 # tab-width: 8

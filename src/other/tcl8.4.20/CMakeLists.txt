@@ -237,15 +237,6 @@ IF(APPLE)
 ENDIF(APPLE)
 
 #----------------------------------------------------------------------------
-# Tom's math library - should MP_PREC be an option?
-#----------------------------------------------------------------------------
-OPTION(TCL_TOMMATH "Enable Tom's Math Library" ON)
-IF(TCL_TOMMATH)
-  ADD_TCL_CFLAG(TCL_TOMMATH)
-  add_definitions(-DMP_PREC=4)
-ENDIF(TCL_TOMMATH)
-
-#----------------------------------------------------------------------------
 # 64-bit support - unlike TEA, we enable by default if the platform looks
 # like it's 64-bit.  Can be overridden by specifying CMAKE_WORD_SIZE=32BIT
 #----------------------------------------------------------------------------
@@ -961,8 +952,6 @@ SET(TCL_HDRS
   generic/tcl.h
   generic/tclDecls.h
   generic/tclPlatDecls.h
-  generic/tclTomMath.h
-  generic/tclTomMathDecls.h
   )
 install(FILES ${TCL_HDRS} DESTINATION include)
 

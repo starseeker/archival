@@ -87,6 +87,8 @@ include(${AYAM_CMAKE_DIR}/RPath_Setup.cmake)
 
 #---------------------------------------------------------------------
 
+set(CMAKE_INSTALL_PREFIX /usr/local/ayam)
+
 set(BUILD_SHARED_LIBS OFF)
 
 find_package(Threads)
