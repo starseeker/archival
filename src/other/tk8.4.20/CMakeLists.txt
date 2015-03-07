@@ -165,7 +165,7 @@ INCLUDE(${TK_SOURCE_DIR}/CMake/tcl.cmake)
 
 #-----------------------------------------------------------------------------
 # Our replacement for SC_CONFIG_MANPAGES
-ADD_SUBDIRECTORY(doc)
+#ADD_SUBDIRECTORY(doc)
 
 #----------------------------------------------------------------------------
 # First, get some standard options out of the way - things that are constant
