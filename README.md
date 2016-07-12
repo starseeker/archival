@@ -5,6 +5,8 @@ Adaptagrams is a library of tools and reusable code for adaptive diagramming
 applications, for example: drawing tools, automated document and diagram
 layout, smart presentation software, graph drawing, chart layout, etc.
 
+This fork defines a CMake build for the adaptagrams libraries.
+
 Currently, the [Adaptagrams repository][repo] includes four cross-platform C++ 
 libraries:
 
