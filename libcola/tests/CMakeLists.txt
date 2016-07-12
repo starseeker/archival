@@ -7,8 +7,8 @@ endfunction()
 
 # Disabled tests:
 #      unconstrained constrained containment shortest_paths connected_components
-#      large_graph convex_hull scale_free trees random_graph large_graph topology
-#      boundary planar resize problem
+#      large_graph convex_hull scale_free trees random_graph large_graph
+#      boundary planar resize problem invalid unsatisfiable page_bounds
 #
 #      topology boundary planar resize resizealignment
 
@@ -22,11 +22,7 @@ set(test_cpps
   StillOverlap02.cpp
   FixedRelativeConstraint01.cpp
   rectclustershapecontainment.cpp
-  random_graph.cpp
-  page_bounds.cpp
   constrained.cpp
-  unsatisfiable.cpp
-  invalid.cpp
   makefeasible02.cpp
   shortest_paths.cpp
   )
