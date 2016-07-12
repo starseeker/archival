@@ -26,7 +26,7 @@ set(TOPO_HDRS
 
 if(BUILD_SHARED_LIBS)
   add_library(topology SHARED ${TOPO_SRCS})
-  target_link_libraries(topology avoid vpsc cola)
+  target_link_libraries(topology cola avoid vpsc)
   install(TARGETS topology
     RUNTIME DESTINATION ${BIN_DIR}
     LIBRARY DESTINATION ${LIB_DIR}
@@ -42,7 +42,7 @@ endif(MSVC)
 
 if(BUILD_STATIC_LIBS)
   add_library(topology-static STATIC ${TOPO_SRCS})
-  target_link_libraries(topology-static avoid vpsc cola)
+  target_link_libraries(topology-static cola avoid vpsc)
   if(NOT WIN32)
     set_target_properties(topology-static PROPERTIES OUTPUT_NAME "topology")
   endif(NOT WIN32)
@@ -52,8 +52,9 @@ if(BUILD_STATIC_LIBS)
     ARCHIVE DESTINATION ${LIB_DIR})
 endif(BUILD_STATIC_LIBS)
 
-
-#add_subdirectory(tests)
+if(COLA_ENABLE_TESTING AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+  add_subdirectory(tests)
+endif(COLA_ENABLE_TESTING AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 # Local Variables:
 # tab-width: 8

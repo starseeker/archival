@@ -84,6 +84,12 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   )
 
+option(COLA_ENABLE_TESTING "Enable testing of COLA libraries." OFF)
+
+if(COLA_ENABLE_TESTING)
+  include(CTest)
+endif(COLA_ENABLE_TESTING)
+
 add_subdirectory(libavoid)
 add_subdirectory(libvpsc)
 add_subdirectory(libcola)

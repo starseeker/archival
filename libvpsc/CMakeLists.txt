@@ -55,8 +55,9 @@ if(BUILD_STATIC_LIBS)
     ARCHIVE DESTINATION ${LIB_DIR})
 endif(BUILD_STATIC_LIBS)
 
-
-#add_subdirectory(tests)
+if(COLA_ENABLE_TESTING AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+  add_subdirectory(tests)
+endif(COLA_ENABLE_TESTING AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 # Local Variables:
 # tab-width: 8
