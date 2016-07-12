@@ -12,7 +12,7 @@ set(test_cpps
   simple_bend.cpp
   nooverlap.cpp
   nodedragging.cpp
-  beautify.cpp
+  #beautify.cpp TODO - Need to figure out "right" way to run this...
   orthogonalOpt.cpp
   )
 
