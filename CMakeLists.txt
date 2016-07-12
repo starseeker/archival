@@ -85,9 +85,9 @@ include_directories(
   )
 
 add_subdirectory(libavoid)
-#add_subdirectory(libvpsc)
-#add_subdirectory(libcola)
-#add_subdirectory(libtopology)
+add_subdirectory(libvpsc)
+add_subdirectory(libcola)
+add_subdirectory(libtopology)
 
 # Local Variables:
 # tab-width: 8
