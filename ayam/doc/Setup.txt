@@ -1,0 +1,232 @@
+[Setup.txt, 22. Sep 2009]
+
+Setup instructions for Ayam on UNIX (e.g. Linux/IRIX/MacOSX)
+------------------------------------------------------------
+
+These instructions contain just general information that may be
+outdated; additional (more specific and current) information can be
+obtained from the download page of the Ayam project, see:
+http://www.ayam3d.org/download.html
+or the "File Release Notes" document on the SourceForge download page
+of the Ayam project, see:
+http://sourceforge.net/project/showfiles.php?group_id=28460
+
+In addition, there are frequently asked questions that may be of
+some help, if something does not work as advertised:
+http://www.ayam3d.org/faq.html
+.
+
+Before you start modelling with Ayam, you should set it up
+properly. The following things have to be done:
+
+  0. Installing and Running Ayam
+  1. Determine where to save the preferences
+  2. Set up the GUI
+  3. Set up the renderer
+  4. Set up the shaders
+  5. Set up the plugins
+  6. Create a working environment scene file
+
+
+0. Installing and Running Ayam
+------------------------------
+
+The executable of Ayam is located in the directory named "bin".
+You can use Ayam directly from where you unpacked, or install it
+into your system. If you want to install, just follow the
+instructions in the file "bin/INSTALL" first.
+
+On MacOSX/Aqua, the installation is done by simply dragging the
+application bundle to the applications directory, as suggested by
+the disk image.
+
+
+1. Determine where to save the preferences
+------------------------------------------
+
+By default, the preference settings are automatically saved to the file:
+"~/.ayamrc" ("~/Library/Preferences/.ayamrc" on MacOSX/Aqua) whenever
+you quit Ayam.
+The next steps only need to be performed if you need to adapt this
+filename to your system.
+
+Ayam derives location and name of the preference file from the
+environment variable "AYAMRC". How do you set this environment variable?
+
+To set the AYAMRC environment variable, add to your profile file:
+ csh/tcsh: setenv AYAMRC /home/user/.myayamrc
+ bash/ksh/zsh: export AYAMRC=/home/user/.myayamrc
+replacing "/home/user/.myayamrc" with a more sensible setting.
+
+You have to restart the shell and Ayam in order for these changes to
+take effect.
+
+On MacOSX/Aqua environment variables may be defined using
+the file "~/.MacOSX/environment.plist".
+See also:
+http://developer.apple.com/qa/qa2001/qa1067.html
+
+
+2. Set up the GUI
+-----------------
+
+Since version 1.14, Ayam may be run in two major GUI modes, "floating
+windows" or "single window".
+The corresponding preferences setting is named "SingleWindow" and the
+new single window GUI mode is enabled by default.
+
+The next step does not need to be performed, if you plan to run Ayam in
+single window GUI mode (and thus in a single zoomed or full screen window).
+
+Determine the type of the window manager:
+-----------------------------------------
+If you fail to correctly determine the type of your window
+manager, Ayam will not be able to properly remember the geometry
+of the main window and the toolbox. Furthermore, the main
+window may jump, each time a new property is selected.
+This is because, unfortunately, different X window managers
+report different values for the geometries of top level windows,
+some include the decoration, some other do not.
+
+If the main window jumps, when you select the first property
+of the "Root" object, your WM is "twm-compatible".
+To check this, just start Ayam, click on "Root" in the tree view
+then on "RiOptions" in the listbox to the right and watch
+your main window.
+If it jumps downward, you should set "Main/TwmCompat" to "on" in the
+preferences!
+
+On MacOSX/Aqua the default setting ("on") does not need to be changed.
+
+
+3. Set up the renderer
+----------------------
+
+Download and install a preferred RenderMan compatible renderer.
+
+Open the Ayam main menu "Special/Select Renderer" then choose
+the RenderMan renderer you want to work with. Do not use the
+"ScanShaders" option as the shaders are not set up properly yet.
+
+
+4. Set up the shaders
+---------------------
+
+What are shaders? For the moment, we can safely assume that
+shaders are small files that carry material descriptions.
+Some example shaders already come with your RenderMan compatible
+renderer, but you may also create your own.
+
+After the installation of the preferred RenderMan renderer you need
+to point Ayam to the directories where the compiled shaders of this
+renderer are stored in order to use them with the material objects
+in Ayam.
+This is done using the preference setting "Main/Shaders".
+Just open the preferences (main menu: "Edit/Preferences") and enter the
+appropriate paths (separated by ":") into the string entry labeled
+"Shaders".
+If you installed BMRT before your first start of Ayam, the preference
+setting "Main/Shaders" probably already contains the right path setting
+(it will be fetched from the SHADERS environment variable, that has been
+set while installing BMRT, if the Ayam "Main/Shaders" preference setting
+is unconfigured).
+
+Example:
+If you installed BMRT2.6 into "/usr/local/BMRT2.6" you will want
+to add "/usr/local/BMRT2.6/shaders/" to your "Shaders" preference
+setting.
+
+Press the "Scan Shaders" button right below the "Shaders"
+entry field and watch the console for error messages.
+
+If Ayam fails to scan the shaders, probably a shader parsing plugin
+must be loaded first. See below.
+
+5. Set up the plugins
+---------------------
+
+The distribution of Ayam contains some plugins:
+RRIB: RIB Import
+ONIO: 3DM (Rhino) Import/Export
+MFIO: 3DMF (Apple) Import/Export
+DXFIO: AutoCAD DXF Import/Export
+X3DIO: X3D (Web3D) Import/Export
+IDR: Importance Driven Rendering
+AyCSG: CSG preview
+MetaObj: the MetaBalls custom object
+SDNPatch: Subdivision NURBS custom object
+ayslx, ayslb, ayso, ayslo, ayslo3d, aysdr, aygso: shader parsing plugins
+
+All distributed plugins are stored in the "ayam/bin/plugins" directory
+(on MacOSX/Aqua they are located in the application bundle itself:
+"Ayam.app/Contents/MacOS/plugins").
+
+You may load a plugin
+a) manually if you need it (using the main menu "File/Load Plugin") or
+b) automatically on startup of Ayam.
+
+If manual loading of a plugin fails, please consult the FAQ:
+http://ayam.sourceforge.net/faq.html#q1.10
+.
+
+Add "<path>/load<pluginname>.tcl" to the preference setting
+"Main/Scripts" if you want the plugin to load automatically on
+startup. Use ":" to separate different entries.
+
+Add the path to "metaobj.so" to the preference setting "Main/Plugins"
+if you want the MetaBalls custom object to be automatically loaded
+when a scene containing this type of object is being read.
+
+Be sure to add the path to the respective shared object (file with
+the file name extension ".so") _or_ "." to your LD_LIBRARY_PATH
+environment variable, otherwise loading of the plugin will fail.
+
+Note that only one of the shader parsing plugins may be loaded
+at a time. If you load more than one, the plugin loaded last will
+take over shader parsing.
+
+Furthermore, on IRIX, you probably have to modify LD_LIBRARYN32_PATH
+instead of LD_LIBRARY_PATH.
+
+On MacOSX you may have to modify the DYLD_LIBRARY_PATH instead
+of the LD_LIBRARY_PATH variable.
+
+
+6. Create and save a working environment
+----------------------------------------
+
+The working environment is simply an almost empty Ayam scene file.
+This file just contains the specification of some view windows.
+It is loaded automatically on every start of Ayam and presents you
+with a standard working environment, consisting of e.g. a traditional
+3-view layout (Front-, Side-, and Perspective-View).
+
+How do you create such a file?
+
+o Start Ayam.
+o Open and arrange as many views as you like using the
+  menu entry "Create/View".
+  [If Ayam crashes or blocks during opening of a view
+   something with your OpenGL setup is seriously broken.
+   Fix this, then return here.]
+o Save the environment using the main menu entry
+  "Special/Save Environment". This will save the environment
+  to the file given in the preference setting "Main/EnvFile".
+  The default setting is "~/.ayam2view.ay"
+  ("~/Library/Preferences/.ayam2view.ay" on MacOSX/Aqua).
+  The next dialog will ask you, whether you want to make the new
+  environment the default, answer with "Ok".
+  Do not switch off the preference setting "Main/LoadEnv",
+  as this would inhibit automatic loading of the working
+  environment on startup.
+  If the preference setting "Main/NewLoadsEnv" is enabled, the
+  working environment will also be read if you clear the scene
+  using the main menu entry "File/New".
+
+Quit the application and start it again; then
+download "Tutorial #1" and do it.
+
+End of setup instructions.
+
+-- 
+http://www.ayam3d.org/    Reconstruct the World!

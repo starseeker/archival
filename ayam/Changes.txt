@@ -1,0 +1,2623 @@
+[25. Feb 2015] CVS-Head:
+========================
+Bug Fixes:
+none
+
+Modelling:
+o added option to display rational points in homogeneous style
+  (new preference option "Modelling/RationalPoints")
+
+GUI:
+o the Shaders preference setting now supports path globbing
+
+
+
+[7. Feb 2015] Ayam-1.21:
+========================
+Bug Fixes:
+o "Reset Transformation" does not clear the Quaternion display (SF 3514199)
+o crash when removing wrong trim curves from patches (SF 3514206)
+o some ConcatNP fillet patches are missing (SF 3514939)
+o pick candidates dialog disappears after resize (SF 3522093)
+o file dialogs freeze Ayam on Aqua when called from other dialog (SF 3527583)
+o getProperty/setProperty when listbox is active (SF 3559398)
+o deleting the copy of a material de-registers original material (SF 3568001)
+o shaders searchpath RiOption is not set in exported RIBs (SF 3568003)
+o clamping a periodic curve does not reset the curve type (SF 3579550)
+o crash when computing the curvature of a linear curve (SF 3588209)
+o read only points of quadrics after thetamax changes (SF 3601813)
+o X3D export of fieldOfView viewpoint attribute (SF 3604133)
+o X3D export of PolyMesh normals (SF 3604132)
+o X3D element misses mandatory profile specification (SF 3604137)
+o X3D export of tool objects caps and bevels (SF 3604907)
+o getPnt/setPnt for IPatch (SF 488)
+o elevating periodic NURBS surfaces with knot type Chordal or
+  Centripetal (SF 490)
+o crash when tesselating complex hierarchies with instances (SF 492)
+o new views do not inherit the global mark (SF 493)
+o crash when reading PatchMesh objects with custom basis (SF 494)
+o crash when importing RIB with RiIlluminate (SF 495)
+o ConcatNC fails to create custom knots (SF 496)
+o curve type after knot refinement (SF 497)
+o export of Mirror objects (SF 498)
+
+Modelling:
+o added "Compatible" option to ConcatNP objects, to prevent unwanted
+  modifications by clamping for already compatible parameter surfaces
+o Cap and Bevel options are now controlled via own property GUIs
+o added cap types "Simple" and "Simple3D" that both create a simple
+  surface that runs towards the center point of the surface
+o added bevel option "Integrate" to combine the bevel with the surface
+  to be beveled
+o added cap option "Integrate" to combine the cap with the surface
+  to be capped (or the respective bevel, if there is one in between)
+o Caps and Bevels are now available for many more object types,
+  e.g. IPatch, NPatch, ConcatNP, Birail1, Birail2, Skin...
+o added 3D bevel mode controlled via normals and tangents e.g. extracted
+  from a surface by an ExtrNC object
+o added bevel mode that rounds to the cap also using tangent information
+o added bevel mode that rounds to the normal also using tangent information
+o Bevel orientations are now consistent (independent from curve winding)
+o Bevels from simple closed or periodic curves are now guaranteed to be
+  closed or periodic also
+o added C1 fillets based on global interpolation with end derivatives to
+  the ConcatNC object (C1 mode is activated by setting the FTLength parameter
+  to 0.0)
+o negative ConcatNC FTLength parameters values are now interpreted in absolute
+  coordinates
+o improved offset curves of closed curves in section mode
+o Skin objects no longer modify (e.g. clamp) the parameter curves when
+  the curves are already compatible
+o creating Sweep and Swing objects now automatically rotates parameter curves
+  defined in the XY plane (the default) to the appropriate plane
+o new objects will now be created at the mark, if the new preference
+  option "CreateAtMark" is enabled (default: yes) and if the objects
+  are not potential parent objects
+o the mark may now be set by double-clicking with the right mouse button
+o if the mark is set by clicking into a view, the respective z coordinate of
+  the mark is no longer set to zero (when the preference option "GlobalMark"
+  is activated); this allows to set a 3D mark using two clicks in two views
+o the mark can now be set directly onto picked points of objects
+o improved face normal generation for PolyMesh and SDMesh objects through
+  application of the Newell normal calculation algorithm
+o caching the face normals for PolyMesh and SDMesh objects leads to much
+  faster redraw of these objects
+o added smooth normal generation for PolyMesh objects
+o added view action to zoom out to the whole scene, the action is bound
+  to the backspace-key
+o improved the "zoom to object" view action to properly adjust the clipping
+  planes, light positions, and the camera position for perspective views,
+  therefore, modelling with very small or very large objects gets a bit easier
+o improved clone placement on open trajectory curves (the trajectory is
+  now completely filled)
+o added unclamping facility for NURBS curves and surfaces
+o added curve extension (to a point) modelling tool
+o NURBS curve/surface type detection is now faster and more robust
+o skinning curves that touch at their endpoints with custom knots now works
+o many NURBS curve/surface tools no longer unconditionally set the
+  respective knot type to "Custom" but rather infer a proper new type
+o improved picking of points for very large or very small objects
+o improved closing of surfaces
+o added a second set of drawing/display parameters that is in effect
+  when interactive modelling or view actions are active
+o added support for Trim objects to view type Trim
+o improved robustness of Gordon caps
+o added modelling action to reset the weight of selected control points;
+  the shortcut to start this action is <W>, the shortcut for the action
+  to reset all weights at once is now <Ctrl+W>
+o deleting objects is now more robust for complex hierarchies with
+  master and instance objects
+o creating Instance objects now silently creates instances of the original
+  master when an Instance is selected (instead of raising an error)
+o the refine curve tool now also supports ICurve and ACurve objects
+o patch meshes now also maintain an "IsRat" attribute
+o patch meshes now also support the "Power" basis type
+o patch meshes now always convert to a single NURBS patch (are therefore
+  easier to post process using Script or Trim objects) and the conversion
+  now also supports arbitrary basis types
+o added object flashing facility to the object picking (activated
+  via new preference option "FlashObjects")
+o added support for ACurve objects and NCurve providing objects to Gordon
+  objects WatchCorners feature
+o added "ScaleMode" option to Trim object controlling how to scale the
+  trim to the parametric space of the NURBS surface
+o improved transformation attribute support of Script objects
+o improved notification and conversion of Script objects that create
+  Instances or objects with materials
+o improved STESS tesselation of trimmed NURBS in terms of robustness,
+  tesselation speed, drawing speed, and memory requirements
+o improved STESS shading of trimmed NURBS
+o improved display of trimmed NURBS using GLU by introduction of the
+  hidden preference setting "AvoidPwlCurve" (enabled by default)
+o refining the knots of periodic curves now inserts knots into all knot
+  sections (not maintaining the periodic ends, but this can still be
+  achieved by using the new refineknNC command option "-m")
+o scaling trim curves to new knot ranges now also works with object
+  types different from NCurve (e.g. ICurve and ACurve)
+o added tesselation GUI option and TP tag parameter "RefineTrims" that
+  controls how many times the trim curves are to be refined prior to
+  tesselation for improved tesselation fidelity along trim edges
+o added specialized polygon based tesselator for planar trimmed patches
+  to STESS tesselation
+o added "ConvertTags" preference option that controls which tags are to
+  be copied during conversion and provide
+o concatenating NURBS surfaces via ConcatNP objects now supports trim curves
+o offset surfaces (OffsetNP) and normal extraction (in the ExtrNC object)
+  now support degenerate surfaces
+o rotate and scale about interactive modelling actions now round the
+  resulting transformation attributes or modified points to a specified
+  number of digits to avoid displaying unreadable numbers in the respective
+  property GUI or building up larger rounding errors in longer sequences of
+  modelling operations
+
+GUI:
+o the default value menu buttons of property GUI elements now display a
+  triangle instead of the text label "Def"
+o revamped design of parameter property GUI user interface element
+  (triangles are now used for the value manipulation buttons instead of
+   the text labels "/2" and "*2" respectively)
+o added internal resize widget to script text editor of Script object
+o improved dialog box appearance on X11
+o the "CloneAttr" property now also displays the quaternion in abbreviated
+  fashion
+o the shaders preference setting GUI element now allows to directly
+  choose directories
+o the Tags property GUI now issues a proper notification when applied
+o there is now a dialog for the management of property GUIs via NP/RP tags
+  (new main menu entries: "Special/Tags/Add Property" and "Remove Property")
+o objects can now be moved easily in the current level using the new
+  keyboard shortcuts <Alt-Up>/<Alt-Down>
+o added keyboard shortcuts to switch all views to point/object modelling
+  (<pp> and <oo> respectively)
+o when loading scenes, material objects are now automatically renamed when
+  the initial attempt to register the material fails (this happens when
+  the material is already present in the scene under this name)
+o removed the highlight material feature
+o added a search facility that allows to search for objects given criteria
+  like e.g. names, types, materials, property values;
+  the found objects can just be highlighted in the object tree, or arbitrary
+  commands can be executed on them
+o in property GUIs and dialogs, <F10> now opens the default value
+  option menu of the current element
+o the help keyboard binding (<F1>) now also works in all property GUI
+  and dialog entry fields and other user interface elements
+o added mnemonic handling to internal view menus and grid menu
+o walking up in the object hierarchy via the object listbox now selects
+  the proper object (the former parent)
+o the UI of the tesselation tool has been improved (the "SaveToTag" option
+  is now a major "Save" button)
+o <Ctrl+h> now toggles the hide attribute (instead of just setting it)
+o the standard console prompt now also displays the name of the modelling
+  action that can be repeated (via menu "Tools/Repeat", <Ctrl-t>)
+o improved drawing quality of antialiased NURBS
+o added preference option "SaveDialogGeom" that controls saving the geometry
+  of various dialog windows
+o removed preference option "SavePrefsGeom" in favor of "SaveDialogGeom" above
+o added hidden preference option "PanDist" that controls the amount of
+  view window panning for keyboard presses
+o "Special/Instances/Resolve all Instances" now resolves even nested instances
+o added a "Scope" option to the automatic instancing and resolve instances
+  dialogs
+o improved rendering GUI geometry management
+o rendering GUIs can now also parse the progress from the stderr channel
+o improved closing of the rendering GUI, it is more robust now
+o the numeric point edit dialog now has a context menu that allows to
+  clear or reset all entries, as well as to fetch the mark coordinates
+o added keyboard shortcuts to recursively open/close whole sub-trees (<+>/<->)
+o added drawing mode "HiddenWire" (with silhouettes)
+o menu browsing now manages the action state of all views to allow faster
+  redraws
+o added hidden options to ayamrc that control whether the standard file
+  dialog (on Unix) shows hidden files ("FDShowHidden" and "FDShowHiddenBtn")
+o added a patched version of the standard Tk file dialog that now has an
+  additional keyboard shortcut (<Alt-Up>) to change to the parent directory
+o improved drawing of the parametric domain in views of type "Trim"
+o improved visibility of the mark by using double-width lines and deriving
+  the mark size from the handle size
+o improved visibility of the curve/surface direction annotation likewise
+o added a "Reset All!" command entry to the tesselation dialog
+o improved initial and default parameters of the tesselation dialog
+o improved focus management of the Alt-Rotate view action on Win32 so that
+  e.g. the mouse wheel keeps working after usage of the Alt key all the time
+o zooming of view windows with the mouse wheel is no longer clogging the
+  undo system
+o simple clicks into the view window no longer generate unnecessary entries
+  in the undo buffer for view actions
+o the UndoLevels preference setting now uses more natural values for
+  "off" (0) and "one state to undo" (1)
+o added keyboard shortcuts to cycle/modify the grid size (<Insert>/<Delete>)
+o added some tool object creating tools to Create menu
+
+Scripts/Scripting Interface:
+o added luainterp plugin to support the Lua scripting language
+o the "applyTrafo" command now applies the transformations to all points by
+  default and is more robust wrt. non-editable points and objects without points
+o the "estlenNC" command now supports an optional parameter "-trafo" that
+  controls whether the transformation attributes should be applied to the curve
+o the "apnt.tcl" script now also binds to the select all/no points shortcuts
+  to enable/disable the point modelling mode
+o "getProperty"/"setProperty" no longer need a correctly updated current level
+  in the Tcl GUI context (object listbox or tree)
+o "getProperty"/"setProperty" now also work with multiple selected objects
+o added script "rc.tcl" that swaps cursor key bindings in parallel views
+o the "getSel" command no longer unconditionally writes to global variables
+o added command "clearClip" to clear the clipboard
+o added option "-add" to "copOb" and "cutOb" commands to allow collecting
+  objects in the clipboard
+o the "aytest.tcl" script now allows more fine grained test selection per GUI
+o Material objects can no longer be renamed via "nameOb" (as this command
+  does not update the material registry)
+o the "makeCompNC" command no longer unconditionally clamps the parameter
+  curves (unless the new option "-force" is given)
+o added command "isCompNC" to check curves for compatibility
+o added command "hasTag" to quickly check for the existence of a tag
+o renamed "splitNP" command to "breakNP" to avoid confusion with the real
+  surface splitting commands "splituNP" and "splitvNP"
+o the "breakNP" command options now need a "-" and the command now supports
+  "-a" for "apply transformations"
+o added options to "buildNP" that allow to control order, knot type, and
+  surface type
+o added support for another PV tag data type ('d'), that stores RGBA
+  colors and is expanded properly to Cs _and_ Os upon RIB export
+o added commands to generate face and smooth PolyMesh normals:
+  "genfnPo" and "gensnPo"
+o the "getPnt" command now supports NURBS evaluation for objects that provide
+  NURBS curves/surfaces
+o added example Script object script "tcone.tcl" that creates truncated cones
+o improved the notification mechanism for Script object scripts
+o added "-check" option to "convOb" allowing to test beforehand whether a
+  conversion to a given type would be successful
+o improved options of "forAll" procedure, they are now more easy to
+  recognize
+o "forAll" can now also recurse after the command has been called
+o removed "forAllT" procedure, use "forAll" with "-type" option instead
+o the "tonpatch.tcl" and "topoly.tcl" scripts now work with more object
+  types (e.g. Script, Mirror)
+o scripts now have access to the mark through the global array "aymark"
+o added script "myicons.tcl" that allows the user to load an own set of
+  icons into the application
+o added "crtTrimRect" command, now supporting multiple selected NPatch
+  objects and always linking the rectangle as first object
+o "crtNRect" now always creates centered rectangles of given width/height
+o "crtClosedBS" command options are now more legible
+o "estlenNC" now works for multiple selected objects
+o "extrNP" command now supports NPatch providing objects
+o added support for trim boundary extraction to ExtrNC object
+o added a stripped down version of "notifyOb" to the safe interpreter
+o added support for true booleans and Tcl wide ints to jsinterp (JavaScript)
+  data conversion
+o improved jsinterp error reporting
+o "aac" and "aapnt" scripts now appear and convey their keyboard shortcut in
+  the Custom menu
+o added "getTag" command to get a specific tag
+o added "-get" subcommand to "selPnts" command
+o the "delTags" command now also supports calling without parameters to
+  remove all tags
+o added helper script "ssp.tcl" that introduces saving of the point selection
+  to a tag
+
+Import/Export:
+o X3D export now has a special mode to inject the exported X3D scene
+  into a XHTML template file (new export option "WriteX3dom")
+o X3D export of NURBS surfaces and PolyMesh objects now support the export
+  of a wireframe (via new export control tag "AsWire")
+o X3D export of PolyMesh objects with face normals
+o X3D export now creates simple material nodes
+  (new export option "WriteMaterials")
+o X3D export of NURBS curves of order 2 now creates Polyline primitives
+o X3D import of viewpoints now creates correct camera attributes
+o X3D import now supports "StaticGroup" nodes
+o improved temporary and archive RIB file names for direct rendering with Gelato
+o added progress parsing template for Gelato
+o Rhino 3DM export of PolyMesh objects now supports face normals and colors
+o improved import of closed polylines from DXF
+o improved import of patches and patch meshes with arbitrary basis types
+  from RIB files
+o improved trim curve attribute handling for RIB import
+
+Plugins:
+o added plugin "sfcurve" that creates superformula curves
+o added plugin "printps" that creates EPS/PDF/SVG files from drawings
+  in Ayam view windows
+
+Documentation/Example Files:
+o added an overview to the table of contents
+o improved modelling tools and objects chapter structures by inserting
+  intermediate tool/object category sections
+
+
+[20. Mar 2012] Ayam-1.20:
+=========================
+Bug Fixes:
+o the weights of the Cobb NURBS sphere are wrong (SF 3287828)
+o Tcl error when applying the ViewAttrib property (SF 3295757)
+o property reset does not work after object selection change (SF 3295758)
+o last element of dynamic property GUIs not visible (SF 3301967)
+o extracting the boundary of patches with differing orders (SF 3312039)
+o conversion of quadrics to NURBS (SF 3322311)
+o setting the display mode/tolerance of PatchMesh objects (SF 3360488)
+o reverting interpolating curves with custom derivatives (SF 3366276)
+o merging transformed PolyMeshes with normals (SF 3374188)
+o crash in surface knot insertion (SF 3376414)
+o views getting the wrong type temporarily (SF 3382382)
+o saving of the environment scene file (SF 3410856)
+o resize menu entries of external views are deactivated (SF 3414694)
+o caps of transformed outlines/holes (SF 3439485)
+o view camera changing inadvertently when another view is changed (SF 3442122)
+o OffsetNP objects are missing from exported RIB files (SF 3445410)
+o Gordon objects with transformed intersection patches (SF 3448526)
+o conversion of torii with phimin/phimax not on default fails (SF 3481314)
+o conversion of transformed quadrics with non-standard parameters (SF 3484008)
+o toXYNC resetting the scale attributes if an error occurs (SF 3485090)
+o operations on rational NURBS modify shapes (SF 3496743)
+o the application of static and dynamic code checking tools (splint, cppcheck,
+  clang, valgrind, mudflap, drmemory) lead to the discovery and fix of
+  numerous smaller bugs (mostly memory leaks in error cases)
+
+Modelling:
+o knot rescaling of NURBS curves/surfaces no longer requires custom knots
+o added support for periodic surfaces to be created by Birail1
+o added object type "IPatch" for interpolating surfaces
+o added centripetal parameterization to surface interpolation
+o the surface interpolation (e.g. in Sweep and Skin objects) is more robust,
+  (can now cope with degenerate rows/columns in the input data)
+o added uniform parameterization to ICurve
+o improved flashing of editable points for multiple selected objects
+o added object type "Mirror" (essentially a Clone in disguise)
+o Instance object points are not editable anymore due to currently
+  unsolvable notification problems
+o moving the mouse pointer across the origin when scaling no longer
+  leads to broken (i.e. very small) scale attributes
+o added setting the mark to selected points bounding box center
+  (shortcut <ab>)
+o closed cubic interpolating curves now also use the "EDLen" parameter properly
+o improved initial derivatives when switching from automatic to manual
+  derivatives for ICurves
+o improved snapping points from half grid coordinates to the grid by
+  introduction of a mouse pointer warping facility (not available on
+  MacOSX Aqua)
+o OffsetNP objects can now be associated with a material
+o added modelling actions to increase/decrease the multiplicity of
+  selected NURBS curve control points, new keyboard shortcuts: <*>/</>
+o added hidden preference option "TagResetTagged" that controls whether
+  invoking the tag (select) points action should clear the current point
+  selection
+o improved curve splitting for curves with multiple knots
+o improved focus handling of direct point edit action
+o added "UVSelect" option to ConcatNP object, this allows to determine
+  in which direction a single parameter patch should be split before
+  the concatenation
+o ConcatNP objects now allow curve and curve providing objects to be
+  used as parameter objects, also in a mix with patches
+o added "Order" parameter to ConcatNP, that allows to specify the
+  desired U order of the concatenated surface
+o added "FillGaps" and "FTLength" parameters to ConcatNP that
+  control the creation of fillets (similiar to ConcatNC)
+o added custom knots to ConcatNP so that the shapes of parameter surfaces
+  can now be preserved exactly (similar to ConcatNC)
+o improved drawing of torii with "PhiMin"/"PhiMax" not on defaults
+o "toXYNC" can now work with ACurve and ICurve objects and is thus
+  renamed to "toXYC" (old command name still available but deprecated)
+o improved fillet creation of ConcatNC for parameter curve orders
+  different from 4
+o converted Sphere patches now have the same direction as other quadrics
+  to make it easier to combine them with ConcatNP
+o added tool (and corresponding scripting interface commands "refineuNP"/
+  "refinevNP") to refine NURBS surfaces
+o improved refinement of periodic curves (they are refined on their
+  complete length now)
+o added region support to refine curve tool: a region to refine can be
+  specified by selected points
+o improved handling of custom knots for the insert/delete point actions
+
+GUI:
+o the property GUIs of Birail1, Birail2, Extrude, Gordon, Skin, Sweep,
+  and Text objects are now properly saved (the data is not applied) for
+  "AddBevel"/"RemoveBevel"
+o renamed direct point edit action to numeric point edit
+o empty fields are now allowed in the numeric point edit dialog to allow
+  "no change" for the respective coordinate
+o the "Transformations" property now displays the Quaternion in a single
+  non-editable info element
+o "Tools/Surface" and "Tools/Curve" menus have been cleaned up by
+  introduction of more sub-menus
+o the numeric point edit dialog now supports scripts and variable accesses
+  in the entry fields
+o the ViewAttrib property GUI no longer unconditionally sets the mark,
+  this is now controlled by the new entry "SetMark" instead
+o zooming views via the keyboard is now reversible
+o the amounts of rotation and zooming per keyboard are now configurable
+  via the ayamrc file
+o ICurve property GUI now only displays "SDLen"/"EDLen" entries when actually
+  used and the "Derivatives" entry is now, as for the IPatch object, a menu
+o reset layout is more robust now
+o improved tooltip and dialog window placement and management especially
+  on multi monitor setups
+o removed "RGTrans" GUI preference option, all rendering GUI windows
+  are now always transient
+
+Import/Export:
+o RIB export of tool objects now supports PV tags
+
+Scripts/Scripting Interface:
+o added "concatS" scripting command to concatenate surfaces
+o added "interpuNP"/"interpvNP" scripting commands to interpolate surfaces
+o added script "apnt.tcl" to automatically switch a view (or all views)
+  to point modelling, after the point selection action was used
+o added "remknuNP"/"remknvNP" commands to remove knots from surfaces
+o added "-i" option to all knot removal commands to specify a knot by
+  index (not by value)
+o renamed "shiftClosedBS" to "shiftC" command, "shiftC" can now also
+  shift/cycle normal closed NURBS curves, ICurve, and ACurve objects
+o improved range error reporting (now printing the valid range)
+o "getPnt"/"setPnt" now support writing to/reading from lists of double
+  values (without double-string conversion i.e. without loss of precision)
+o "getPnt"/"setPnt" now allow to get/set all control points of an object
+o "getPnt" no longer unconditionally writes to global variables
+o "getPnt" no longer requests a variable for w to be provided in "-eval" mode
+o scripts and plugins can now create their own view window keyboard shortcuts
+o renamed "forceNot" command to more recognizable "notifyOb"; for
+  compatibility with existing scripts, the old name still works
+o added "-parent" option to "notifyOb" command
+
+Documentation/Example Files:
+o historic information (i.e. when did a feature appear) are now presented
+  in a less obtrusive way (as footnotes)
+o improved layout of index, object trees, and code examples
+
+Installation:
+o there are now Makefile targets to integrate Ayam with a Unix desktop
+  environment (e.g. Gnome and KDE) via desktop shortcut, menu entry,
+  and file type
+
+
+[16. Mar 2011] Ayam-1.19:
+=========================
+Bug Fixes:
+o fixed setting the FilterWidth for RIB export (SF 3148250)
+o fixed read only points of ExtrNC/ExtrNP/OffsetNC/OffsetNP objects
+  appearing in wrong places (SF 3154051, 3154053)
+o fixed is_rat attribute of revolve object (SF 3159003)
+o fixed revolve for curves that touch the axis of revolution (SF 3159009)
+o fixed RIB export of SDMesh objects with tags in Affines simple
+  RIB writer (distributed with Ayam, no SF bug item created)
+o fixed "Add Bevel" command entries in various tool object property
+  GUIs (SF 3164571)
+o fixed boundary curve extraction for surfaces with unclamped knot
+  vectors (SF 3194851)
+o fixed small memory leak in ExtrNC object (in Boundary mode) (SF 3194853)
+o fixed provide of script for multiple objects (SF 3210473)
+o fixed provide of clone for multiple objects (SF 3210478)
+
+Modelling:
+o added plugin "subdiv" that, with the help of "Subdivide2.0", can be used
+  to improve the display of sdmesh objects by real subdivided surfaces
+o added options to control subdivision level and drawing to sdmesh objects
+o NURBS modelling tools now only delete the selected points from objects
+  where the modelling operation succeeded
+o added "-createmp" option to the creation of NCurve/NPatch objects
+o offset surfaces now work for closed/periodic surfaces (in all possible
+  combinations of open/closed/periodic for U and V)
+o added chordal and centripetal knot types to NURBS patches
+o added new curve offset algorithm "Hybrid"
+o renamed "Bevel" curve offset algorithm to "Point"
+o removed curve offset algorithm "Bevel3D"
+o added cross section shape defining parameter curve to Bevel object
+  (allows to create arbitrarily shaped bevels)
+o rational coordinates are no longer stored with the weights pre-multiplied
+  internally (homogenous => euclidean)
+
+GUI:
+o main menu "Edit/Material" now works with multiple selected objects
+  when creating materials
+o added "ErrorLevel" preference setting that controls how many messages
+  appear in the Ayam console
+o removed the "ErrorLevel" preference setting from all import/export
+  parameter dialogs, all plugins use the global preference setting now
+o added access to advanced (command line) arguments to the creation of
+  curve/npatch objects via new create dialog entry field "AddArgs"
+o added View attribute "EnableUndo" that allows to determine whether view
+  actions should be recorded in the undo system
+o parameter dialogs of knot manipulating tools now display the original
+  knot vector as reference
+
+Scripts/Scripting Interface:
+o added script ("autorot.tcl") that automatically rotates a view
+o the create callback of the SDMesh object now supports much more options
+  to control the initially created object
+
+
+[23. Dec 2010] Ayam-1.18.2:
+===========================
+Bug Fixes:
+o fixed STESS drawing of certain trimmed NURBS (SF 3119442)
+o fixed Apply-keyboard shortcut not working in all properties (SF 3119439)
+o fixed security hole in addCommand property GUI element (SF 3140745)
+
+Modelling:
+o there is now a second local modelling mode: "level"; here, the view can
+  be aligned to the space of the current parent object
+o cycling through the modelling modes now automatically realigns and
+  redraws the view
+o cycling view types of local views now also automatically realigns the view
+o when zooming, grid drawing now stops automatically just before the grid
+  lines would fill the entire background of the view
+
+GUI:
+o view type and modelling mode are now displayed in the modelling mode
+  menu icon as letter in the upper left and lower right corner, respectively
+o instances in the clipboard are automatically cleared upon "File/New" now
+  (if their respective master object is in the scene, not the clipboard)
+o added menu entry to restore the pane layout to a "natural preset"
+  ("Special/Reset Layout")
+
+Scripts/Scripting Interface:
+o added script ("aac.tcl") that switches the rotate and scale transformation
+  modelling actions to their "about center" variants automatically
+o the "polyhedron.js" example script object script property GUI now displays
+  notation info items and has a button that creates a random polyhedron
+o the "rV" command is now available in the safe interpreter, to allow command
+  entries in script object controlled property GUIs to update all views
+
+
+[15. Nov 2010] Ayam-1.18.1:
+===========================
+Bug Fixes:
+o fixed set mark not setting the correct location (SF 3105801)
+o fixed <Esc> not resetting binding for set mark (SF 3105793)
+o fixed <Esc> not resetting handle drawing (SF 3105791)
+o fixed Script objects in JavaScript fail to save SP params (SF 3105790)
+o fixed undo of rotate about action (SF 3107141)
+
+Modelling:
+o if a mark is already set in a view, the intermediate set mark action is
+  now omitted automatically
+o the current directory is now set before scenes are replaced, this allows
+  them to load assets (e.g. fonts, background images) from the current
+  directory (i.e. with relative path) more easily
+o the filename is now reset if scenes load with errors to protect the
+  previously loaded scene file
+o Script objects now fully support the NP/Transformations tag
+
+
+[28. Oct 2010] Ayam 1.18:
+=========================
+Bug Fixes:
+o fixed direct point editing not setting the mark (SF 2993441)
+o fixed continuous complete notification for Script objects (SF 3001239)
+o fixed find u action failing for transformed curves (SF 3006822)
+o fixed find u action not setting the mark corectly (SF 3006824)
+o fixed Revolve caps in B-Spline mode (Sections != 0) (SF 3012391)
+o fixed potential crash in NURBS patch clamp V tool (SF 3012393)
+o fixed setting the BGImage via view menu (SF 3023248)
+o fixed BGImage drawing on Win32 (SF 3023249)
+o fixed skins with periodic chordal/centripetal curves (SF 3030062)
+o fixed false positives and crashes of instance DnD/C&P (SF 3031448)
+o fixed in-place conversion leading to broken scenes (SF 3032589)
+o fixed drag and drop with multiple objects selected by keyboard (SF 3036465)
+o fixed current level after tree reset/rebuild (via <Ctrl-l>) (SF 3044564)
+o fixed drawing/shading of sphere objects (SF 3054130)
+o fixed single point editing of PolyMesh and SDMesh objects (SF 3094086)
+
+Modelling:
+o the default zoom view (<o>) and direct point edit (<p>) keyboard
+  shortcuts are now (<V>) and (<E>) respectively to make way for two
+  very important new shortcuts:
+o modelling actions like move, scale, or rotate no longer decide
+  what to transform (objects or selected points) based on the point
+  selection; now always objects are transformed, until the user
+  switches explicitly to points using <p> (while <o> can be used to switch
+  back to objects)
+o the point transformation state is displayed in the modelling mode icon
+  by a little red dot
+o the mark is now reset on double <Esc>
+o direct point editing now uses the point selection instead of an own pointer;
+  thus, it now works with multiple selected objects, and one may apply
+  coordinate values to multiple (selected) points
+o the Revolve tool object now supports arbitrary ThetaMax values in
+  B-Spline mode (Sections != 0)
+o added Arc and Radius parameters to create closed B-Spline curve tool
+o added Radius, TMin, and TMax parameters to NCircle object creation dialog
+o added modelling action to snap the selected points to the mark
+  (new shortcut <M>)
+o added modelling action to snap the selected objects to the mark
+  (new shortcut <K>)
+o added view action to pan the view to the mark (new shortcut <.>)
+o to avoid clashes, collapse and explode actions have new default
+  keyboard shortcuts: <q> and <Q>
+o the find u modelling action now works with provided objects, and
+  is more exact
+o added find uv modelling action that finds the u and v parameters for a
+  picked point on a NURBS surface; invoke via new view shortcut: <U>
+o added preference setting and facility to manage a global mark,
+  if enabled, all views share a single mark; thus, one can set it in
+  one view and use it in another
+o improved order changes for periodic NURBS curves via the property GUI
+o added "3DPVN" curve offset mode that offsets a curve along normals
+  supplied via a primitive variable tag
+o creating ExtrNC/ExtrNP objects via the main menu now automatically adds a
+  remove property tag ("RP Transformations") to the created instance child
+  so that the instance always follows the transformations of the surface
+  the curve/sub-surface is extracted from
+o NURBS curve clamping now works with half clamped curves and also with
+  curves where there are multiple knots in the end region(s)
+o NURBS curve clamping can now also clamp only one end of the curve
+o NURBS patch clamping now works with half clamped patches and also with
+  patches where there are multiple knots in the end region(s)
+o NURBS patch clamping can now also clamp only one end of the patch
+o the point insert/delete modelling actions now work with multiple
+  selected objects
+o several objects now support read only points, which can be selected and
+  their coordinates inquired (for snapping/aligning or transformation purposes)
+  but they can not be modified; the supporting objects are:
+  Box, Sphere, Cylinder, Disk, Cone, Torus, Hyperboloid, Paraboloid,
+  Extrude, Revolve, Sweep, Swing, Skin, Birail1, Birail2, Gordon, Cap,
+  Bevel, ExtrNC, ExtrNP, OffsetNC, OffsetNP, ConcatNC, ConcatNP, Clone,
+  Script, Instance, Text
+
+GUI:
+o AutoFocus is now available (again) for single window GUI mode; here it
+  manages the focus of internal widgets (views, tree, properties, console)
+o Tool dialogs now display a more descriptive window name
+o tree drag and drop now keeps the object selection intact and opens
+  the target level
+o starting modelling actions from the toolbox now also considers the
+  AutoFocus preference setting, if enabled, the action is started in all
+  view windows
+o added keyboard shortcuts to manage the current level and the object
+  selection directly in a view window: (<Ctrl+4>, <Ctrl+6>: go up/down,
+  <Ctrl+2>, <Ctrl+8>: select next/previous object, <Ctrl+Shift+2>,
+  <Ctrl+Shift+8>: extend selection to next/previous object, all numbers
+  on the numeric keypad!
+
+Scripts/Scripting Interface:
+o number conversion errors are now correctly detected and reported in all
+  scripting interface commands
+o added "-world" option to setPnt/getPnt commands (to transform coordinates
+  from/to world space)
+o renamed "-p" option to "-eval" for getPnt
+o getPnt can now work with arbitrary object types (even from plugins) as
+  long as they support single point editing; i.e. it now works with PolyMesh,
+  SDMesh, and SDNPatch objects
+o the "hSL" command has been removed from safe interpreters, use "sL" instead
+o added a JavaScript interpreter plugin
+o Script objects can now use arbitrary languages provided by plugins
+  (e.g. JavaScript)
+o added a example Script object script (written in JavaScript) that creates
+  a Polyhedron from a Conway notation ("polyhedron.js")
+
+Documentation/Example Files:
+o documentation of modelling actions enhanced with tables containing
+  keyboard shortcuts and icons
+
+
+[20. Apr 2010] Ayam-1.17:
+=========================
+Bug Fixes:
+o Tcl errors when Ayam is started with object listbox activated (SF 2872817)
+o <Tab> key now works after <Ctrl+l> (SF 2869550)
+o the FaceConnect modelling operation of the SDNPatch plugin is now
+  more robust (works with perpendicular faces) (SF 2872818)
+o PLY export of SDNPatch objects is now working (SF 2886961)
+o the KnotEditor of the SDNPatch plugin now fetches old knot values
+  and sets the new value for the correct edge (SF 2971502)
+o Script objects with own, script controlled, property GUIs fail to load
+  properly from scene files (initial parameters are not set), and it is
+  not possible to have multiple copies of them (SF 2971501)
+o crash when first object in a Trim object hierarchy is not a NPatch
+  (and does not provide an NPatch either) (SF 2876536)
+o reading of Select objects written on Unix using Ayam on Win32 (SF 2881570)
+o crash when ExtrNP object is used to cut in v parametric dimension
+  (SF 2882634)
+o tesselation omitting transformation attributes (SF 2889510)
+o crash in Paraboloid to NURBS conversion (SF 2899377)
+o wrong patches generated by Sphere to NURBS conversion (SF 2899379)
+o ACurve approximation failing in symmetric mode (SF 2936133)
+o rotate about for selected points (SF 2971477)
+o scale 1D with grids may lead to broken transformation (SF 2981861)
+
+Modelling:
+o added object type "OffsetNP" for the creation of offset surfaces
+o default mouse drag point de-selection modifier is now <Control>
+  (used to be <Shift>) to avoid the clash with region zooming
+o MetaObj user controlled expressions now also run in the safe interpreter
+o View objects now accept a NURB patch object as child and map the
+  background image on that (instead of fitting the image to the window)
+o the tesselation GUI can now work with complex levels of objects,
+  e.g. the cactus from the example scenes (which is a complex hierarchy
+  of Levels, Cones, Spheres, and a Skin) can now be tesselated easily
+  into one PolyMesh object with just one application of the tesselation GUI
+o added support for new data types (g for float[2], n for normal, and
+  p for point) to PV tags
+o enhanced NURBS and PolyMesh tesselation supports for PV tags (e.g. added
+  support for vertex colors and normals)
+o the tesselation GUI now also has an option to directly control continuous
+  updates
+o ACurve objects knots for closed curves are now more balanced delivering
+  symmetric curves for symmetric data point configurations automatically
+o improved section mode offset curves for internal multiple points
+o added modelling actions for scaling/stretching about a marked point
+o keyboard shortcuts for rotate/scale about follow a new scheme, where
+  first the basic operation has to be selected (e.g. <r> for rotate),
+  then, with a second keypress (<a>), rotate about mark is enabled
+o the marked point for the "about the mark" modelling actions now survives
+  much more view attribute changes, e.g. zooming; in addition, the mark,
+  once set, may be re-used in following actions by pressing <Return>
+  in the intermediate mark setting action
+o added setting the mark to the center of gravity of all selected
+  objects or selected points in the intermediate mark setting action
+  (shortcuts <c> and <C>, respectively)
+o added way to constrain the move object/points action to one axis;
+  new keyboard shortcuts: <mx>, <my>, and <mz>
+o scale 1D actions are now invoked in a similar scheme as the constrained
+  move actions, the old shortcuts <x>, <y>, and <z> are gone, new shortcuts
+  are <sx>, <sy>, and <sz>
+
+GUI:
+o improved speed of focus changes between internal view 3 and the tree view
+o improved initial pane layout (also in use after switching from
+  (floating windows to single window GUI mode)
+o added mnemonics to tree and object listbox context menus
+o fixed main menu mnemonics clashes
+o the property GUIs of many objects are now initialized on demand, not
+  already on application startup, to increase startup speed and decrease
+  initial memory footprint
+o if scene files without root/views are loaded (via File/Open, but not via
+  File/Insert), saving of this scene now automatically omits the root/views
+  of the current scene
+o added keyboard shortcuts to manipulate the selection and walk the object
+  hierarchy from view windows (by default using a modifier key in conjunction
+  with the numeric keypad cursor keys; the modifier key depends on the
+  platform: defaults are "Control" (on UNIX/X11), "Command" (on Aqua) and
+  "Windows" (on Win32)
+o added keyboard shortcut to reset a views camera (by default using a
+  modifier (as above) plus numeric keypad "5")
+o added a second set of zoom hotkeys to views (for those without numeric
+  keypad) by default using "+"/"-"
+o added plugin defined modelling actions
+o added keyboard shortcut to repeat a modelling tool with parameters set
+  (<Ctrl+T>)
+
+Plugins:
+o switched AyCSG plugin to OpenCSG 1.3.0 for important multi view fixes
+o added AyCSG preference option "OffscreenType" to switch between
+  PBuffer and FBO offscreen rendering types
+o the AyCSG continuous CSG rendering state is now conveyed to the
+  user using the view menu icon with a red frame
+o SDNPatch operations (e.g. FaceMerge) are now more robust
+o added Length and Scale options to SDNPatch FaceExtrude operation
+o added SDNPatch revert operation (that reverts all edges)
+o added SDNPatch merge operation
+o added script to create a tiled cube to SDNPatch plugin
+
+Import/Export:
+o X3D import of IndexedFaceSet and similar elements now fully supports
+  vertex and face colors, normals, and texture coordinates
+o Wavefront OBJ import now supports polyline elements (l)
+o Wavefront OBJ import now supports line continuation ("\" characters)
+o import and export of texture coordinates now uses one PV tag of
+  default name "st" and type "g" (float[2])
+
+Scripts/Scripting Interface:
+o aytest script tests can now be stopped
+o the create callbacks of NCurve, NCircle, ICurve, ACurve, NPatch, and
+  PolyMesh objects now allow much more parameters to control the initially
+  created object (e.g. one may now specify control points and knot vectors
+  directly on object creation); for the first time it is also possible to
+  create non empty PolyMesh objects this way
+
+Documentation/Example Files:
+o added Doxygen documentation for main Ayam headers
+
+
+[22. Sep 2009] Ayam-1.16:
+=========================
+Bug Fixes:
+o closing all view windows (for File/New, File/Open) Tcl error (SF 2404512)
+o AutoResize option (multi window GUI mode) Tcl error (SF 2404523)
+o mouse wheel view zoom binding (external views/Win32) Tcl error (SF 2404503)
+o Clone object update after undo/redo (SF 2418119)
+o re-generating caps/bevels after undo/redo (SF 2418121)
+o X3D export of instances (SF 2418150)
+o X3D export of cones and cylinders (SF 2418152)
+o X3D import of spheres, clones, and cylinders (SF 2418155)
+o improved robustness of skin creation (making curves compatible)
+o pick binding fires in any modeling action when Control key
+  is held down (SF 2552310)
+o Tcl error in property GUI when text is entered in a numeric entry and
+  the "/2" "*2" buttons are used (SF 2565110)
+o automatic instancing with ACurve objects (SF 2619643)
+o direct point edit dialog displaying <Enter> keys in entry (SF 2636606)
+o lost focus when <Enter> key is used in dynamic property GUI (SF 2637980)
+o caps of asymmetrically scaled sweeps (SF 2637630)
+o transformation attributes of objects provided through Level objects
+  (SF 2658507)
+o transformations of mirrored clones (that are transformed themselves)
+  (SF 2658523)
+o <Enter> keypresses appearing in direct point editing GUI entries
+  on Win32 (SF 2726259)
+o Tcl error when applying Camera property of Camera object (SF 2779315)
+o crash when Sweep notification fails (SF 2793037)
+o Swung surfaces with rational trajectory curves (SF 2793039)
+o tesselation GUI destroying tags (SF 2807895)
+o PolyMesh optimization crashing for very simple PolyMesh objects (SF 2808825)
+o "estlenNC" crashing for illegal parameters and curves (SF 2818974)
+o "estlenNC" crashing for curves of order 2 (SF 2819090)
+o preferences dialog now also warns after "ToolBoxTrans" setting changes,
+  that a restart is necessary
+o undo/redo do not maintain view mode icons (SF 2860778)
+o tesselation GUI crashing for empty text objects (SF 2876598)
+
+GUI:
+o switching the current level in the object tree via cursor keys now
+  always scrolls the widget accordingly
+o the tree widget is now also scrolled properly when the tree is rebuilt
+o added keyboard shortcuts to pan view windows (<Shift>+<Cursor> keys)
+o added keyboard shortcuts to escape from console (<Esc> key)
+o improved error reporting of RenderMan renderers directly called from Ayam
+o improved keyboard navigation in select shader, add RiOption/RiAttribute,
+  and ambiguous select dialogs
+o improved focus handling of view windows and various dialog windows
+o added hotkeys for view drawing mode cycling (<Ctrl+PgUp>, <Ctrl+PgDown>)
+o fixed many clashes of shortcuts; e.g. using <Ctrl+s> in internal views now
+  does the expected (saving the scene, not switching to scale modelling action)
+o add pinstripe background to show shortcuts dialog window
+o zooming views (and also panning) via keyboard do not fill up the
+  undo buffer
+o added mnemonics for various main menu entries
+
+Modelling:
+o added object type "Trim" (to directly trim tool objects like e.g. a sweep)
+o ConcatNC objects now accepts lists of provided curves
+o Gordon objects now accepts lists of provided curves
+o Select objects now support selection of lists and ranges of indices as
+  well as multiple parameter objects
+o ICurves are completely revamped: "Mode" parameter is gone (now auto-
+  selected by "Order"), "IParam" is replaced by "SDLen" and "EDLen",
+  "Closed" is replaced by "Type"; new parameter "Derivatives" allows to
+  specify own end derivatives; new parameter "ParamType" allows to select
+  a parameterisation (chordal or centripetal), knot averaging now used
+  for all modes, robustness wrt. double data points improved
+o NURBS curves now support two new knot types ("Chordal" and "Centripetal")
+o added "ConcatNP" object type to concatenate NURBS patches
+o "Extrude" objects dimensions swapped to improve tesselation quality
+  when bevels are present
+o "Instance" objects now support the "RP" tag type, and, if the
+  "Transformations" property is removed, do not provide objects with
+  an own set of transformation attributes (to ease hierarchy building
+  with e.g. "ExtrNC"/"ExtrNP" objects)
+o STESS can now shade trimmed NURBS patches
+o selected points of NCurve and NPatch objects now survive undo/redo
+o added experimental support for Subdivision NURBS via SDNPatch plugin
+
+Import/Export:
+o X3D export of spheres is now more forgiving wrt. simple vs. non simple
+  spheres
+
+Scripts/Scripting Interface:
+o added example script "useaqsisapp.tcl" that prepares Ayam to use Aqsis
+  from the application directory structure on Mac OS X
+o added example script "usepixie.tcl" that prepares Ayam to use Pixie
+  from the /Library/pixie directory structure on Mac OS X
+o added helper script "colfocus.tcl" that switches the focus ring of
+  important widgets to a more visible color (for single window GUI mode)
+o scripts in "Script" objects and BNS/ANS tags now run in a safe interpreter
+o "Script" object script execution environment has been improved to allow
+  more complex scripts (that traverse the scene or use the clipboard)
+o many scripting interface commands have been renamed to fit in a general
+  naming scheme "verbObject", e.g. "revert" has been renamed to "revertC",
+  "swapUV" to "swapuvS" etc.; the new "oldnames.tcl" script provides an
+  exhaustive list of the renamed commands, and if run, establishes aliases
+  to make scripts using the old names work again
+o added script "aytest.tcl" to test some aspects of Ayam
+o startup scripts may now be specified without full (absolute) path
+  (e.g. Preferences/Scripts may now look like this "colfocus;loadayslx")
+
+Build Support:
+o improved some error checking/messages in the "ayamConf.tcl" Makefile
+  configuration GUI
+
+Renderer Support:
+o updated the "ayslo3d" shader parsing plugin for incompatible changes
+  in 3Delight 8.5
+
+Documentation/Example Files:
+o improved layout and updated the content of the reference card, in addition,
+  the document is now available as PDF
+
+Platform Support:
+IRIX:
+o there is now a official build for the IRIX platform again
+
+
+[4. Dec 2008] Ayam-1.15.1:
+==========================
+Bug Fixes:
+o tool box list can not be configured via ayamrc file (SF 2316995)
+o X3D export of Clone objects (SF 2340057)
+o converted/provided ExtrNP object transformations (SF 2340322)
+o X3D export of rational NURBS patches (SF 2351988)
+o X3D import of rational NURBS curves (SF 2354967)
+o X3D import of swept/swung surfaces (SF 2354970)
+o continuous CSG drawing (SF 2377466)
+o add tags dialog error (tag type not registered) (SF 2377512)
+o creating objects does not always select last object (SF 2389926)
+
+
+[12. Nov 2008] Ayam-1.15:
+=========================
+Bug Fixes:
+o aycsg plugin GUI code for internal views (SF 1943164)
+o RIB export of Instances in CSG hierarchies (SF 1953633)
+o X3D export of trim curves crashes (SF 1945924)
+o Esc key binding of About requester (SF 1964809)
+o Hide/Show keyboard shortcuts in view windows (SF 1964807)
+o reset of property GUIs when opened via keyboard (SF 1988972)
+o view mode icons when settings are changed via property GUI (SF 1989149)
+o using compressed TIFF image files as view background (SF 1991716)
+o <Shift-Home> Tcl error if first object is selected (SF 2022397)
+o <Shift-Home> omitting the first object in sub-levels (SF 2022398)
+o ExtrNP objects missing in exported RIB files (SF 2021241)
+o crash when complete notify is enabled (SF 2022393)
+o Tcl errors when keyboard shortcuts are used to display unavailable
+  properties (SF 2023854)
+o Script objects adding newline characters upon apply (SF 2027027)
+o Memory leak in ExtrNP notification (SF 2135504)
+o broken complete notification for center points action (SF 2135494)
+o menus with images do not open on certain X11 servers (SF 2144110)
+o setting drawing mode icon when mode is changed via menu (SF 2268296)
+
+GUI:
+o added plugin "aydnd.tcl" that enables inter-application drag-and-drop
+  on Win32 and Unix/X11 with the help of tkdnd
+o using the "Esc" key (break action) in view windows now also resets
+  the keyboard focus to the main window, if the Esc key is held down longer
+  or pressed twice
+o pressing <Esc> twice in the tree view clears the object selection (and
+  property GUI) and switches the current level to the top level
+o improved key bindings for property GUI elements used in dialogs
+o improved focus management for property GUI updates
+o established keyboard menu traversal
+
+Modelling:
+o added object type "ACurve" (for approximating curves)
+o improved bevels and offset curves (in bevel mode) of open curves
+o improved offset curve fidelity (in section mode)
+o added parameter "Relative" to ExtrNP/ExtrNC objects
+o NCircle objects now accept reverse parameters to create reverted circles
+o added 3D offset mode ("Bevel3D") to offset curve creation
+o improved robustness of curve splitting (also essential for Gordon caps)
+o view type cycling (via PageUp/Down) now keeps the camera aim point
+o the GLU NURBS tesselation now preserves texture coordinates and vertex
+  colors delivered by PV tags
+o ExtrNC objects can now also extract a middle axis curve (for re-engineering
+  purposes, e.g. extracting a spine from a former sweep)
+o the creation of ExtrNC, ExtrNP, and OffsetNC objects now automatically
+  creates an instance of the currently selected object first
+
+Import/Export:
+o added support for true instances (via USE/DEF) to X3D export
+o improved robustness of Wavefront OBJ import
+
+Scripts/Scripting Interface:
+o added example script "zdialog.tcl" that switches all internal file dialogs
+  to use zenity (from the Gnome project)
+o added example script "kdialog.tcl" that switches all internal file dialogs
+  to use kdialog (from the KDE project)
+o added script "bgconvert.tcl" that allows to use Ayam as a background
+  3D file format converter from a UNIX shell
+o script objects now support saving of individual sets of parameters
+o improved error reporting for Script objects
+o add helper command to estimate the length of NURBS curves "estlenNC"
+o replaced "NS" tag type by "BNS" (before notify) and "ANS" (after notify)
+  tag types
+
+Platform Support:
+Win32:
+o the official build now uses Tcl/Tk in version 8.4.19
+
+Documentation/Example Files:
+o added example scene "multicolcsg.ay" that demonstrates how "Primitive"
+  level objects are to be used
+
+
+[4. Apr 2008] Ayam 1.14:
+========================
+Bug Fixes:
+ - X3D export of NURBS patches (row/column major order) (SF 1804056)
+ - X3D export of NURBS patches (trimmed state) (SF 1804054)
+ - X3D transformations of NurbsSweptSurface child nodes (SF 1813320)
+ - STESS drawing mode crashing for patches with trim loops (SF 1808296)
+ - saved ExtrNC objects failing to load (SF 1814644)
+ - redo missing states with selection changes (SF 1828494)
+ - sweeps with first section -1,0,0 (SF 1837720)
+ - direct rendering of scenes with spaces in filename or path (SF 1840995)
+ - autofocus after preferences window was closed (SF 1846422)
+ - autofocus after implicit import/export (SF 1847870)
+ - keyboard shortcut to switch drawing/shading (SF 1894024)
+ - RIB export of Clones with and in CSG hierarchies (SF 1925224)
+
+GUI:
+o added option to keep the current selection when creating new objects, by
+  simply holding down the <Control> key
+o added hidden preference setting to control the zoom factor of the
+  mouse wheel ("WheelZoom")
+o added hidden preference settings to control the polygon offset parameters
+  for the "Shade&Draw" display mode ("PolyOffset0" and "PolyOffset1")
+o avoid stealing the focus from the console on application startup
+o added "Select All"/"Select None" entries to edit menu (mainly to teach the
+  corresponding keyboard shortcuts)
+o all dialogs may now be cancelled with the <Escape> key
+o closing dialogs using the window decoration is now safer wrt. AutoFocus
+o improved focus handling of property canvas
+o added context sensitive help launcher (<F1> key) to all import and
+  export option windows and the preferences dialog
+o added preference option to switch Ayam to a single toplevel window
+  application; in single window mode, there are internal views and an
+  internal toolbar, more floating view windows can be created as usual
+o added icon based modelling action display to view window menu bar
+o added saving of main window state normal/zoomed (maximized) to the
+  ayamrc file
+o the iconification state of view windows is now saved with scene files
+o several main preference settings are not displayed in the preferences
+  editor on platforms/in configurations where they would not be used
+  anyway, e.g. "TwmCompat" on Win32
+o added "SavePaneLayout" tag type to store the pane configuration of the
+  main window in scene files
+o added hidden preference setting "PaneMargins" that controls individual
+  safety margins for all panes (lest they obscure other vital parts of
+  the GUI as e.g. the main menu bar)
+o the main preference settings "ListTypes", "MarkHidden", "LoadEnv",
+  and "NewLoadsEnv" are now hidden preference settings
+o renamed hidden preference settings "PrepDiaCap" to "FixDialogTitles" and
+  "Wpcliptosel" to "WarnPropPasteToSel"
+o added hidden preference setting "ShiftTab" that let users define the
+  keysym created by pressing shift and tab
+o added hidden preference setting "FixImageButtons" that enables a
+  work-around for "stuck" image buttons in the toolbox
+o the operations that can be undone/redone are now also displayed in the
+  corresponding main menu entries
+o the about dialog has now a "CopyClipboard" button that makes it more
+  simple to copy the relevant parts of the Ayam configuration for e.g.
+  bug reports
+o added view window keyboard shortcuts to cycle through the view types
+  (<PageUp>/<PageDown>)
+o added secondary view window keyboard shortcuts for important functions as
+  e.g. "zoom to object" (mainly for internal views in single window GUI mode)
+o reorganized edit, create, and tools menus
+
+Modelling:
+o added object type "Swing" (for rotational sweeps/swung surfaces)
+o added object type "Select" to select one object from a list of provided
+  objects
+o added object type "ExtrNP" (similar to "ExtrNC", but extracts patches)
+o added object type "OffsetNC" to create offset curves
+o added NCInfo balloon (that displays more info on generated curves, similar
+  to NPInfo)
+o added tolerance parameter and checking for "remKnNC" (knot removal) tool
+  and scripting interface command
+o made side cap creation of Revolve objects more robust wrt. the cross
+  section curve direction
+o added "undo rewind" command
+o resolving of instances and automatic instances are now selection aware
+
+Import/Export:
+o import NurbsSwungSurface elements as Swing objects from X3D files
+o import of NurbsSurface texture coordinates from X3D files
+o added "TopLevelLayers" X3D export option
+o added "WriteParametrics" X3D export option (to control saving Revolve,
+  Extrude, Sweep, and Swing objects as NurbsSweptSurface/NurbsSwungSurface
+  nodes or as plain NURBS)
+o X3D export may now be cancelled
+o DXF export may now be cancelled
+
+Renderer Support:
+o reworked shader parsing (core and ayslx plugin) for incompatible changes
+  in Aqsis 1.2
+
+Scripts/Scripting Interface:
+o added script "intfd.tcl" to switch all dialogs (file/color) to internal
+  Tk dialogs
+o added script "showwin.tcl" to de-iconify/show all application windows
+o added script "tonpatch.tcl" that, similar to "topoly.tcl", converts all
+  objects in the scene to plain NURBS patches
+o added helper procedure "toolbox_add" for adding text based buttons to
+  the toolbox window
+
+Platform Support:
+Win32:
+o added true support for custom objects to the VC2005 build (custom objects
+  could not use the RIB export facility, due to missing export symbols from
+  the static Aqsis libraries in earlier versions)
+Apple Mac OS X:
+o added official X11 based build
+o fixed image buttons for the X11 based build
+o all dialog windows are now proper floating windows
+
+Compilation/Installation:
+o it is no longer possible to wrap the IDR, AyCSG, RRIB, ONIO, or
+  MetaObj plugins into the Ayam executable
+
+
+[21. Sep 2007] Ayam 1.13:
+=========================
+Bug Fixes:
+  - crash after deleting of objects (SF 1637735)
+  - crash after applying ScriptAttr property (SF 1637748)
+  - crash using STESS drawing mode for curves (SF 1641883)
+  - conversion of NPatch objects misses transformations (SF 1646153)
+  - crash after copying/cutting objects using clipboard (SF 1646155)
+  - insert scene fails with Tcl error on Mac OS X (SF 1648924)
+  - script objects with saved data arrays fail to load params (SF 1650836)
+  - no redraw in modelling view for LazyNotify (SF 1650838)
+  - crtspiralgui example script fails to load parameters (SF 1651366)
+  - wrong start cap of Sweeps with bevels (SF 1652653)
+  - wrong caps of extrusions with transformed parameter curves (SF 1652655)
+  - reversed ModelMode menu (Global/Local) on Aqua (SF 1656876)
+  - ONIO: import of texture coordinates for polymesh objects (SF 1658182)
+  - provide/convert of transformed objects with caps (SF 1658185)
+  - provide/convert of non-simple quadrics (SF 1661508)
+  - newly created level objects may get wrong type (SF 1661732)
+  - provided NURBS patches of non-simple spheres (SF 1665915)
+  - closing preferences with Ok does not redraw (SF 1665917)
+  - extrude ignoring bevel parameter revert (SF 1673532)
+  - tesselation GUI crashing when instance objects are selected (SF 1676787)
+  - object picking fails in draw level only views (SF 1680998)
+  - object picking reconsider dialog selection is off-by-one (SF 1681000)
+  - Tcl error when clicking into the (empty) property list for
+    multiple selected objects (SF 1682820)
+  - Tcl error for "Help on property" if no properties are present (SF 1682822)
+  - STESS tesselation after certain NURBS curve modelling tools (SF 1690799)
+  - first view does not appear in the tree view (SF 1695151)
+  - crash when elevating non-clamped NURBS patches (SF 1701803)
+  - incorrectly drawn lights with light shaders (SF 1764817)
+  - "Defaults!" button in shader property GUIs when a shader parsing
+    plugin is in use (SF1779508)
+  - single point editing of multiple selected objects (SF 1790657)
+
+GUI:
+o fixed select background color when changed via X resources (backported
+  appropriate BWidgets bug-fix)
+o fixed local views redrawing upon scene saving
+o added tag type "RP" to block access to certain properties of an object
+  via the property GUI
+o ExtrNC objects may no longer, erroneously, be associated with materials
+o improved handling of AutoFocus in various dialogs
+o added last used tool facility to Tools main menu
+o added keyboard shortcuts to set point coordinates in the direct point
+  editing dialog (using <Return> or <Enter>)
+
+Modelling:
+o added "Revert" parameter to ExtrNC object
+o ExtrNC objects now draw a direction arrow (like NCurve objects)
+o ExtrNC objects may now extract the complete surface boundary
+o the standard ConcatNC knot type is now "Custom"
+o Cap objects can now also create caps from non-planar curves (by splitting
+  the curve into four pieces and building a Gordon surface)
+o in direct connection with the above, Gordon surfaces now support rational
+  curves for the special case of a Coons patch configuration (four curves)
+o improved speed of object picking in shaded views
+o added Split PolyMesh modelling tool
+o added clamping of NURBS patches (new scripting interface commands "clampNPU"
+  and "clampNPV" and new main menu entries "Tools/NURBPatch/Clamp")
+o added "rescaleKnNP" command to rescale the knot vectors of NURBS patches
+  and main menu entries "Tools/NURBPatch/Rescale Knots to Range" as well as
+  "Tools/NURBPatch/Rescale Knots to Mindist"
+o added "insknNPU"/"insknNPV" commands and tools (new main menu entries
+  "Tools/NURBPatch/Insert Knot U" and "Tools/NURBPatch/Insert Knot V")
+  to insert knots into NURBS patch knot vectors
+o added "splitNPU"/"splitNPV" commands and tools (new main menu entries
+  "Tools/NURBPatch/Split U" and "Tools/NURBPatch/Split V") to split
+  NURBS patches at defined parametric values
+o added "extrNP" command and tool (new main menu entry
+  "Tools/NURBPatch/Extract Patch") to extract a sub-patch from a NURBS patch
+o improved knot type handling in remove knot tool
+o added "trimNC" command and tool (new main menu entry "Tools/NURBPatch/Trim")
+o sweep cross sections may now be scaled independently in x- and y-dimension
+  by using the y- and z-dimensions of the scaling curve
+o sweep and birail objects now support 0 as number of desired sections and
+  derive the sections from the trajectory or first rail curve respectively
+o birail objects now support 1 and 2 sections properly
+
+Drawing/Shading:
+o added antialiasing drawing option for lines
+o added hidden/wizard preference options for line width:
+  "LineWidth" and "SelLineWidth" (set via ayamrc file)
+o improved drawing of selected curves in "Shade&Draw" views
+o improved shading quality of NURBS surfaces in STESS mode
+o revived STESS drawing of trimmed NURBS surfaces
+
+Import/Export:
+o added DXF import/export plugin dxfio
+o added X3D import/export plugin x3dio
+o Mops import is now a plugin
+o Wavefront OBJ import/export is now a plugin
+o files may now be imported using the normal "File/Open" and "File/Insert"
+  menu entries (Ayam will load the right plugin automatically and open the
+  corresponding import options dialog, pre-seeded with the right filename)
+o likewise, scenes may be exported using "File/Save as" and choosing a
+  filename with an extension
+o improved scalefactor option usage in rrib plugin
+o added option to write binary 3DMF files
+o added ReadCurves/WriteCurves/WriteSelected/ScaleFactor/RescaleKnots
+  options to 3DMF import/export
+o added proper trim curve support to 3DMF export/import
+o all import options that scale NURBS patch knots now also scale the
+  trim curves properly
+o added ReadSTrim import option to mfio, onio, objio, and rrib
+
+Scripts/Scripting Interface:
+o added example script "toPoly" that allows to easily convert the whole
+  scene to PolyMesh objects
+o added example script "zap" that shows how to create buttons in the
+  Ayam toolbox
+o improved error detection and reporting of "withOb" command
+o renamed getPnt option -u to -p and added support to get surface points
+o added special keyboard shortcut <Shift-Enter> to the console that
+  executes the current command, updates the GUI, and redraws all views
+
+Documentation/Example Files:
+o added small example scene files for some tool objects in "scn/objects"
+
+Platform Support:
+Apple Mac OS X (Aqua):
+o fixed keyboard shortcuts to quickly switch property GUIs (numeric keypad)
+  for Tcl/Tk 8.4.15
+
+
+[1. Jan 2007] Ayam 1.12:
+========================
+Bug Fixes:
+  - extra help menu entry Helpblock (SF 1549831)
+  - RenderGUI feature can not find cat.exe on Win32 (SF 1549833)
+  - File/Save Selected As only writes one object (SF 1553274)
+  - NURBS curves show wrong type after creation (SF 1556881)
+  - NURBS curves knot type not changeable (SF 1556882)
+  - Apply of Transformations property notification error (SF 1560022)
+  - Revolve in B-Spline mode from certain curves fails (SF 1565889)
+  - insert/delete point actions do not redraw and notify (SF 1566337)
+  - refine tool does not work (SF 1568723)
+  - calling revert tool from main menu error (SF 1568725)
+  - getting list based property values with getProperty fails (SF 1572216)
+  - using refineNC with parameters may lead to crash (SF 1572217)
+  - set gridsize ok button not working properly on Aqua (SF 1573133)
+  - setting list based property values with setProperty fails (SF 1575072)
+  - wrong error messages of setProperty (SF 1590901)
+  - skins of rational curves not interpolating their bounds (SF 1592471)
+  - creating tool objects and level objects moving wrong objects (SF 1594359)
+  - Wavefront OBJ export ignores Bevel objects (SF 1597251)
+  - automatic instancing ignores Bevel objects (SF 1597994)
+  - Wavefront OBJ export of Level objects leading to multiple end statements
+    (SF 1597995)
+  - Rhino 3DM export ignores Bevel objects (SF 1598573)
+  - Apple 3DMF  export ignores Bevel objects (SF 1598574)
+  - default documentation URL offered in preferences on Aqua (SF 1599917)
+  - refineNC with new knot vector not setting correct knot type (SF 1599950)
+  - changing background image does not set scene change state (SF 1607354)
+  - conversion of clone objects in mirror mode (SF 1620358)
+  - swapping of mouse buttons on Aqua (SF 1623735)
+
+GUI:
+o added "set arbitrary grid size" entry to view window grid menu
+o when a grid size is set for the first time, the grid will now automatically
+  be drawn and also activated immediately
+o added NURBS curve open/close/make periodic manipulation tools to main menu
+  (previously only available through the property GUI)
+o added help on object to object tree and object listbox context menu
+o added help on property feature (new property listbox context menu entry:
+  "Help on Property" and new main menu entry "Help/Help on Property")
+o added explaining balloon info to NPInfo property elements
+o fixed various tools not setting the scene changed state: split to curves,
+  build from curves, merge PolyMesh, create TrimRect, conversion
+
+Modelling:
+o shift closed B-Spline tool now accepts negative parameters
+o added remove knot from NURBS curve tool
+o added coarsen tool for NURBS curves
+o create trimrect now creates curves with multiple points
+o added object type "NCircle"
+o Level objects now provide all child objects of requested type to a
+  potential parent object
+
+Renderer Support:
+o added render to file feature: new view menu entry "View/Render To File",
+  new "RIB-Export" preference settings: "FRender", "FRenderUI", and "FRenderPT"
+
+Import/Export:
+o added support for convertable custom objects to Wavefront OBJ, Rhino 3DM,
+  and Apple 3DMF export (this allows direct export of e.g. MetaObj objects)
+o added support for Script objects to Wavefront OBJ export
+o added support for NURBS curve providing trim objects to Wavefront OBJ export
+  and Rhino 3DM export
+
+Platform Support:
+Apple Mac OS X (Aqua):
+o added proper (application specific) about menu
+o switched to Tcl/Tk 8.4.14 for official binary that allows to build
+  Ayam as universal binary and with support for older Mac OS X versions
+o improved layout of single menu elements (e.g. LevelAttr property)
+Win32:
+o added complete plugin support (including dynamic loading of custom objects)
+o the official binary distribution now contains just one executable and the
+  onio (Rhino 3DM I/O), rrib (RIB import), and aycsg (CSG preview) plugins
+
+
+[10. Aug 2006] Ayam 1.11:
+=========================
+Bug Fixes:
+  - fixed not changeable preference setting "AutoFocus" (SF 1497964)
+  - fixed export of PolyMesh objects with PV tags using "Pw" (SF 1504284)
+  - fixed selection of objects in large slow drawing scenes leading to
+    de-synchronized property display (SF 1510329)
+  - fixed Rhino 3DM (OpenNURBS) import of complex scenes with multiple
+    BRep objects (SF 1514799)
+  - fixed usage of tesselation method set via preferences (SF 1519105)
+  - fixed conversion of Text objects ignoring the in_place option (SF 1522335)
+  - fixed crashing Cap object when NPatch and NCurve are used as child
+    (SF 1522337)
+  - fixed OpenNURBS export setting scene changed state (SF 1526206)
+  - fixed edit points modelling action not issuing a notification upon
+    snapping of points to the grid (SF 1528712)
+  - fixed command line parameter parsing on Win32/VC++2005E (SF 1531467)
+  - fixed bevel object changing the child object (SF 1534989)
+  - fixed curvature plots of closed BSplines (SF 1537380)
+  - fixed undo, clipboard operations, and modelling tools not doing
+    notify when preference setting CompleteNotify is set to "Always"
+    (SF 1537385, 1537107, 1537105)
+
+GUI:
+o added default values to "Set GridSize" dialog and object property
+o added keyboard shortcuts to apply property changes using <Enter> (on
+  the numeric keypad)
+o texture coordinate editor now produces less error messages when called
+  without selected object
+o the picking dialog now appears near the mouse pointer; in addition,
+  a double click on any listbox item now selects it and closes the dialog
+o added preference setting "AddExtensions" that controls whether Ayam
+  should automatically add file name extensions
+o moved "Points" sub-menu from "Special" to "Tools" menu
+o added "Reset Preferences" facility to make resetting the preferences to
+  factory defaults more easy
+o added keyboard shortcuts to the tree view and object list that extend
+  the current selection to the first and last object of the current level
+  respectively (<Shift-Home> and <Shift-End>)
+
+Modelling:
+o added converter from PolyMesh objects to SDMesh objects
+o added converter from SDMesh objects to PolyMesh objects
+o reduced number of notification operations and view redraws after
+  a modelling operation
+o the tesselation tool now adds TP tags to all types of objects
+o object conversion from tool objects (e.g. Revolve) to NPatch objects now
+  maintains eventually present TP tags
+o improved drawing of selected curves in "Shade&Draw" drawing mode
+o added snap-to-grid modelling actions for points, new view shortcuts
+  for that are <g> (2D) and <G> (3D)
+o made SDMesh scheme property element a menu (and thus changeable)
+o improved bevelling of rotated curves using the Bevel object
+
+Renderer Support:
+o added shader parsing plugin for Gelato
+o added renderer profile for Gelato to "Select Renderer" dialog
+o added shadow map generation preference options to improve Gelato support:
+  "SMFileFormat", SMFileType, and "SMChangeShaders"
+o added scan shaders option to main menu ("Special/Scan Shaders")
+o added shader parsing plugin projects to VC2005 workspace
+o made all shader parsing plugins Ayam version independent
+o added support to render just one shadow map from the selected light
+o removed support for Aqsis0.8.0 from renderer selection dialog
+
+Platform Support:
+Apple Mac OS X (Aqua):
+o added workaround for Apple GLU bug that prevents drawing&shading of
+  Box objects and NURBS patches in one scene
+o added default value to "Docs" preference setting, that points to the
+  HTML documentation in the application bundle
+o added a workaround to make the standard application exit keyboard
+  shortcut <Command-q> work
+o added hidden preference setting "PrepDiaCap" that prepends message box
+  titles to their message as the titles are not displayed on every system
+o default keyboard bindings for the Alt-Rotate view action and the stretch
+  modelling action now use the correct keysyms
+o primarily for running from an application bundle, Ayam now allows to turn
+  off the splash screen via environment variable "AYNOSPLASH"
+
+Import/Export:
+o added progress display to Wavefront OBJ import and export
+o made cancel button work properly for Wavefront OBJ import and export
+o added scale factor option to Wavefront OBJ import and export
+o added support to detect and fix degenerate faces to Wavefront OBJ import
+o improved detection of consecutive faces for Wavefront OBJ import: now
+  intermediate "usemtl"-lines do not lead to isolated faces anymore
+o added scale factor option to Rhino 3DM (OpenNURBS) import and export
+o added progress display to Rhino 3DM (OpenNURBS) import and export
+o added scale factor option to RIB import
+
+Scripts/Scripting Interface:
+o removed superfluous commands "revertNC" and "revertIC", use "revert" instead
+
+
+[13. May 2006] Ayam1.10:
+========================
+o bug fixes:
+  - fixed TP tags created by tesselation GUI (SF 1431917)
+  - fixed broken SwapUV of PatchMesh objects (SF 1436463)
+  - fixed display of SParamV parameter in tesselation GUI (SF 1468212)
+  - fixed initial point size when drawing meta object components (SF 1486208)
+  - fixed initial notification of meta objects for reading from scene
+    files without views (no OpenGL context) (SF 1487787)
+o added "BP" tag type to store bevel parameters
+o changed bevel parameter storage mechanism and property GUI of Extrude
+  and Text objects to use BP tags
+o added new bevel modes, that automatically create caps (for convex outlines
+  without holes)
+o added start/end bevels to sweep, skin, birail1, and birail2 objects
+o added Bevel object type
+o added periodic sweeps; "Closed" attribute renamed to "Type", for new type
+  "Periodic" a periodic trajectory will now be sampled in a way, that a
+  fully closed/periodic smooth sweeped surface is created
+o added support for one and two section sweeps (with consequently lower order)
+o added mechanism to close NURBS patches in either u or v parametric dimension
+o added multiple points support to NURBS patches
+o improved NURBS tools menus: "Reset Weights" now appears in correct sub menus,
+  collapse/explode points commands moved to NURBCurve and added to NURBPatch
+  sub menus respectively
+o added full interpolation control option to Birail2 object
+o ExtrNC now checks for and sets a correct curve type
+o added display of the number of created triangles to tesselation GUI
+o added standard Docs URL to the preferences dialog
+o "Set BGimage" in the view menu now also enables drawing of the BGImage
+o improved font selection for keyboard shortcut display window on MacOSX/Aqua
+o improved tesselation GUI layout of SMParamV on MacOSX/Aqua
+o fixed blocking about dialog on Tk 8.4.12 on MacOSX/Aqua
+o added help menu entries to view window menus on MacOSX/Aqua
+o fixed compilation of IDR plugin on MacOSX/Aqua
+o fixed blocking help menu entries for Tk 8.4.13 on MacOSX/Aqua
+o fixed blocking show preferences application menu entry for Tk 8.4.13
+  on MacOSX/Aqua
+o fixed display of splash screen on MacOSX/Aqua
+o fixed documentation paths in Ayam.app and Ayam.dmg compilation targets
+o added target to build an Ayam.app application bundle that contains
+  a local copy of the Tcl and Tk frameworks
+o fixed compilation of onio plugin with recent SGI-CC versions and with
+  MS VC++2005E
+o improved tifflib directory usability test in ayamConf.tcl
+o added complete notification feature; in scenes with references, this
+  makes sure all tool objects depending on references (directly or indirectly)
+  are notified about changes of the master object; this feature is controlled
+  via the new preference setting "Modeling/CompleteNotify"
+o added "centerPnts" scripting interface object and corresponding entries
+  in the "Special/Points" menu to center all points of an object
+o made "HideChildren" attribute accessible in object Attributes property GUI
+o RIB-Export now obeys the "HideChildren" attribute
+o initiate notification upon creation of tool objects
+o sort parameter objects upon creation of tool objects
+o fixed compilation of Ayam with current SGI-GLU (Mesa 6.5) and MS VC++2005E
+o added MS VC++2005E workspace for compilation on Win32
+o added workaround for broken GLU implementations (views stop to draw NURBS
+  after the tesselation facility was in use)
+
+
+[12. Feb 2006] Ayam 1.9:
+========================
+o bug fixes:
+  - fixed automatic merging of PV tags (SF 1238692)
+  - fixed root object not drawn upon "File/New" (SF 1245221)
+  - fixed warning message to disable script tags and objects while loading
+    scenes via MRU menu entries (SF 1245225)
+  - fixed provided clone objects missing transformations (SF 1247844)
+  - fixed crash when using undo after an in-place conversion (SF 1253036)
+  - fixed crash when using undo after tesselation GUI (SF 1258297)
+  - fixed tesselation GUI not updating the object tree properly (SF 1258299)
+  - fixed create trimrect tool setting wrong weight values (SF 1269176)
+  - fixed tesselation GUI not working with multiple selected objects
+    (SF 1294013)
+  - fixed tesselation GUI not removing all TP tags (SF 1294023)
+  - fixed Shift+Tab bindings when Ayam is used with Tk8.4 (SF 1324656)
+  - fixed opening of the preferences editor leading to Tcl errors in
+    rare cases (SF 1325362)
+  - fixed "repairAyam.tcl" not working on MacOSX (SF 1345611)
+  - fixed drawing of selection rectangle on MacOSX (SF 1394822)
+  - fixed flashing of editable points on MacOSX (SF 1394823)
+  - fixed RIB export of SDMesh objects using "Pw" instead of "P" (SF 1415306)
+  - fixed sweeps of regular trajectories failing in rare cases with low
+    numbers of sections (SF 1418635)
+  - fixed crash when instance objects get deleted from undo buffer (SF 1424580)
+  - fixed crash when ConcatNC has no children and option FillGaps is enabled
+    (SF 1425749)
+o improved OBJ import of files with trailing whitespace as e.g. written by
+  Blender
+o script objects now cache a compiled version of the script for faster
+  execution
+o added support for disabling "NS" (notify script) tags upon loading
+o added wizard preference option to control warnings about unknown tag types
+o added facility that allows plugins to correctly reconnect already present
+  tags of the types that are defined by the plugin upon initialization
+o added "UMM"/"VMM" tag types that may be used to trim the knot vectors of
+  NURBS curves and surfaces by specifying min/max values
+o added keyboard shortcut to close the toolbox window
+o added scripting interface command "repOb" and corresponding main menu
+  entry "Special/Clipboard/Replace" that replaces the currently selected
+  object(s) with the object clipboard content
+o added object type "RiProc" for procedural objects (supporting
+  DelayedReadArchive, RunProgram, and DynamicLoad)
+o added a mechanism to allow cascaded script objects
+o added proper error messages when no objects are selected upon creation
+  of NURBS tool objects (revolve, skin, etc.)
+o improved deleting of referenced objects
+o skin objects now work with multiple provided objects
+o clone objects in mirror mode now provide all objects (normal and mirrored)
+  and reverse the order of the mirrored objects so that a single clone
+  in mirror mode with a single NURBS curve as child can serve as parameter
+  object for a skin
+o changed the "Closed" attribute of NURBS curves to "Type", adding a
+  distinction between normal closed curves (e.g. the standard NURBS circle)
+  and periodic curves (e.g. circular B-Splines)
+o added "IsRat" (is rational) attribute to NURBS curves and patches and
+  changed all import/export modules to use this attribute to write properly
+  attributed and smaller files for non-rational curves and patches
+o improved AutoFocus on window systems that only do AutoRaise by switching
+  off AutoFocus temporarily when certain dialogs are open (so that they
+  do not get "shuffled under" by accidental mouse movements)
+o made order of NURBS curve drawing options more consistent (to the NURBS
+  patch drawing options)
+o added "RescaleKnots" option to Wavefront OBJ import, Rhino 3DM import,
+  and RIB import to allow immediate rescaling of knot vectors to safe
+  distances (e.g. for display with GLU)
+o added "TopLevelLayers" option to onio plugin that converts the top level
+  level objects to layers for Rhino export
+o renamed main menu entries "File/Replace" and "File/Load Custom" to
+  "File/Open" and "File/Load Plugin" respectively
+o added command line option "-noview" that inhibits loading of the environment
+  and opening of a first view window upon startup
+o changed default behaviour of Ayam on the very first start (no ayamrc
+  file and no environment found): Ayam will now open a first view window
+o added new NURBS curve and surface drawing and tesselation modes not
+  based on GLU called "STESS" (for simple tesselation)
+o added example/helper script "2lcons.tcl" that restricts the Ayam console
+  to display just two lines of text
+o "TP" tags now handle a second parameter to allow adjusting the quality
+  of the tesselation independently in the U and V parametric dimensions
+o the "forAll" and "forAllT" scripting interface commands now maintain the
+  selection for the object tree
+o improved memory consumption of undo system for view-less modelling
+o added "Load from file" context menu entry to script object, to allow
+  direct loading of scripts from Tcl files
+o added scripting interface commands "setProperty" and "getProperty" to ease
+  management of property values
+o added view draw option to draw object coordinate systems
+o NURBS knot vectors are now protected from accidental modification via
+  apply operations in the property GUI
+o added "addToProc" command to scripting interface
+o Rhino 3DM: added support for exporting arbitrary trimmed NURBS patches
+  (using polyline approximations for trim curves that can not be pushed
+   up from 2D to 3D by OpenNURBS)
+o Rhino 3DM: added support for exporting trim loops consisting of multiple
+  trim curves
+o improved example script for adding toolbox buttons (did not span the
+  whole toolbox on Win32)
+o added work-arounds for console cut and paste and some keyboard shortcuts
+  not working anymore on Tk8.4
+o added work-around to fix drawing/shading of NURBS curves/surfaces on
+  MacOSX/Aqua in multiple view configurations
+o added "Ayam.app" application bundle directory structure and resources
+  for running on MacOSX/Aqua; when copied to the application folder, this
+  makes Ayam a first class application on MacOSX/Aqua with icons, connected
+  document types etc.; HTML docs and plugins are also in this bundle now
+o added hidden preference setting to swap mouse buttons 2 and 3 for running
+  on MacOSX/Aqua
+o added hidden preference setting "UseInternalFD" to allow loading of plugins
+  from the Ayam.app application bundle directory structure on MacOSX/Aqua
+o added AppleScript port to Ayam so that now e.g. scene files may be dropped
+  onto the (docked) application icon on MacOSX/Aqua and "repairAyam.tcl"
+  may send itself to Ayam via AppleScript now as well
+o added fixes for miscellaneous GUI look and feel glitches on MacOSX/Aqua:
+  "blinking" tool tips, too narrow buttons, black notebook tabs, invisible
+  color buttons in property gui, misaligned check property gui elements,
+  vertical alignment of menu property gui elements, starting size of object
+  tree, window attributes of toolbox and direct point editing dialog, view
+  menus (no icon images allowed)
+o default ayamrc filename on MacOSX/Aqua changed to
+  "~/Library/Preferences/.ayamrc" and environment file to
+  "~/Library/Preferences/.ayam2view.ay"
+o improved handling of local ("file://") documentation URLs
+o added hidden preference option "CursorEnd" that controls moving the console
+  cursor to the end (ready for entering text at the prompt) when the console
+  gets the focus (e.g. by clicking anywhere into the text widget)
+o added DMG (disk image) distribution method for MacOSX/Aqua
+o Win32 AyCSG executable is now compiled with the newest GLEW to make AyCSG
+  work with OpenGL 2.x drivers
+o added support for "Loop" subdivision scheme to both RIB import and export
+o added "NumPatch" option to ExtrNC objects so that they may now select
+  a patch from a list of patches (may now extract a border curve of a bevel
+  from an Extrude object)
+o added display of scene changed state in main window titlebar
+
+
+[5. Jul 2005] Ayam 1.8.3:
+=========================
+o bug fixes:
+  - fixed moving of tagged points of multiple selected objects (SF 1220972)
+  - fixed notification of multiple modified objects upon undo/redo (SF 1223494)
+o improved import option dialogue of "rrib" plugin (added FileName)
+o improved import and export option dialogues of "onio" plugin (added FileName)
+o file, multiple file, and multiple directory property GUI elements now
+  automatically scroll to the end after a "Set" operation to show the more
+  relevant part of the changed value
+o added Wavefront OBJ import (supporting trimmed NURBS and polygonal faces
+  with texture coordinates)
+o added support for Hyperboloid and Paraboloid objects to 3DMF export
+o improved error reporting of "onio" plugin
+o added support for importing polygonal meshes to the "onio" plugin
+o added option to merge PV tags of PolyMesh objects to merge PolyMesh tool
+o Main menu entry "Special/Resolve All Instances" no longer completely resets
+  the tree widget so that it is more clear, that it really just operates in
+  the current level (and below)
+o onio import now handles texture coordinates for polymesh objects
+o onio export now handles polymesh objects (with texture coordinates)
+o Wavefront OBJ export now supports export of all quadrics as NURBS
+o added instant apply facility to all property GUI elements, holding
+  down the "Shift" button while interacting with buttons and menus and
+  pressing the "Enter" key in entries will cause an instant apply now
+o improved initial knot type of Skin objects (now NURBS instead of Bezier)
+
+
+[15. May 2005] Ayam 1.8.2:
+==========================
+o bug fixes:
+  - fixed provide callback (e.g. for Wavefront export) of transformed extrude
+    objects with caps and bevels (SF 1207251)
+  - fixed focus handling on startup with splash screen (SF 1208722)
+  - fixed endless loop for closing view windows with view objects not in
+    the root objects child level (SF 1208726)
+  - fixed erroneous (superfluous) view redraws and point flashing of direct
+    point editing action when normal point editing and flashing of points was
+    enabled before direct point editing was invoked (SF 1207921)
+o added a helper script "repairAyam.tcl" that resets the state of Ayam
+  should it be stuck in an endless recursion of Tcl errors
+o improved handling of CFLAGS and Tcl/Tk8.4 in ayamConf.tcl
+o added new plugin "onio" that imports from and exports to the Rhino 3DM
+  file format using OpenNURBS (http://www.opennurbs.com/)
+o added conversion of all quadric objects to NURBS representations
+  including support for all quadric parameters and all caps
+o added conversion of box objects to a NURBS representation
+o added radius option to the "crtNSphere" and "crtNCircle" scripting interface
+  commands and the respective tool menu entries in the main menu
+o improved bevel creation for extrusions of curves with weighted sections
+o added new tag type "NP" (for new property) that allows to add new
+  properties (and their property GUIs) to objects
+o added support for script controlled property GUIs to the script object
+  (see new script example "scripts/crtspiralgui.tcl")
+o added option to rescale knot vectors of NURBS curves to arbitrary ranges
+  and to minimum distances to the "rescaleKnNC" scripting interface command
+o added flashing of editable points to direct point edit, tag, delete, and
+  insert point actions
+o added scripting interface command "help" that (similar to the
+  "Help on Object" main menu entry) opens a web browser with the
+  documentation of a scripting interface command
+o added shortcut to scripting interface command pclip_copy: "copyProp"
+
+
+[14. Mar 2005] Ayam 1.8.1:
+==========================
+o bug fixes:
+  - fixed "setPnt/getPnt" scripting interface commands for NURBS patches
+    with differing width and height (SF 1091407)
+  - fixed Tcl errors for property listbox scrollbar on Win32 (SF 1104662)
+  - fixed views sometimes getting wrong camera values (SF 1106832)
+  - fixed tesselation gui not working with already present TP tags (SF 1110857)
+  - fixed memory leak in tesselation gui (SF 1202363)
+  - fixed OBJ export of Birail1, Birail2, and Text objects (SF 1203345)
+  - fixed 3DMF export of Birail1, Birail2, and Text objects (SF 1203343)
+  - fixed rendering of multiple CSG objects using the AyCSG plugin (SF 1205872)
+  - fixed rendering of CSG hierarchies with multiple unions using the
+    AyCSG plugin (SF 1205870)
+o added a new object type "Script", that executes small Tcl scripts to
+  create complex objects, modify objects or do other things
+o added example scripts for the new Script object type to the new "scripts"
+  sub-directory
+o added tag type "NS" that may contain small Tcl scripts to be executed
+  when the notification callback fires
+o added support for the extraction of curves at arbitrary parametric values
+  to the "ExtrNC" object type
+o improved extraction of curves from transformed patches; the transformations
+  are now copied to the curve and not applied to the control points
+o added information dialog to the preferences that informs the user when
+  a restart of Ayam is needed in order for his changes to take effect
+o views may now be rotated and zoomed while the tesselation gui is active
+o added warning message for light objects with light shader but type != custom
+o added support for NPatch providing objects to tesselation GUI
+o improved delegation of transformations using the "delegTrafo" scripting
+  interface command
+o added support for bounding box speedups to the AyCSG plugin ("CalcBBS"
+  option now works)
+
+
+[29. Oct 2004] Ayam 1.8:
+========================
+o bug fixes:
+  - fixed "loadayslo3d.tcl" loading the wrong plugin (SF 928054)
+  - fixed "Select Renderer" setting a wrong shader extension for "3Delight"
+    (SF 928055)
+  - fixed memory leak reading NURBS patches with custom knot vectors from
+    scene files (SF 959714)
+  - fixed detection of negative scale factors (SF 962427)
+  - fixed splitting of NURBS curves not setting undo operation name (SF 974216)
+  - fixed empty ayamrc when toolbox window is closed on exit (SF 977750)
+  - fixed crash with -h command line option (SF 979966)
+  - fixed zooming of view windows via numeric keypad (SF 986519)
+  - fixed swapUV/revertU/revertV NURBS patch tools not undoable (SF 994389)
+  - fixed bevels from extrusions getting wrong knot vector types (SF 994626)
+  - fixed caps and bevels of converted extrusions getting wrong transformation
+    attributes (SF 994632)
+  - fixed broken caps of skins (SF 995711)
+  - fixed broken curvature plots of rational curves (SF 997184)
+  - fixed broken shader parsing with newer Pixie versions (>1.2.9) (SF 998535)
+  - fixed create NURBS tools not setting the scene changed state (SF 1008840)
+  - fixed RIB import of archives with relative path names (SF 1009841)
+  - fixed broken matrix property GUI elements (SF 1021320)
+  - fixed session management of shared executables (SF 1029709)
+  - fixed direct point editing failing to initiate notification (SF 1033192)
+  - fixed "ZoomRectangle" destroying actions in other view windows (SF 1039858)
+  - fixed RIB-Export ignoring custom up-vectors (SF 744119)
+  - fixed slow drawing of small grids far away from the origin (SF 1047772)
+  - fixed compilation on SGI/IRIX using gcc (SF 1050515)
+o added a new object type "Text", that uses Bezier curves extracted from
+  TTF (TrueType) font description files together with the extrusion mechanism
+  to form three dimensional letters (TTF parsing provided by Frank Pagels)
+o added a CSG preview plugin (aycsg) based on OpenCSG
+o added preference options to adjust the mouse button of the ZoomR and Rotate
+  view actions
+o improved behaviour of Ayam if double clicks are used in file requesters
+  on the Win32 platform
+o added "Sections" parameter to Revolve objects that controls whether a
+  circular B-Spline should be used instead of the standard NURBS circle
+o added "Order" parameter to Revolve objects that further controls the
+  surface of revolution in B-Spline mode
+o added the following options to the Wavefront OBJ export: "Selected",
+  "TessPoMesh", and "OmitCurves"
+o improved KDE integration (wrt icons in toplevel windows)
+o improved TrimRect tool; it can now infer the parameter space dimensions
+  from selected NURBS patches
+o added Tesselation GUI that helps to determine the best matching tesselation
+  parameters in an interactive way (new menu entry "Tools/NURBPatch/Tesselate")
+o added keyboard shortcuts to display property GUIs, using keys <0> to <9>
+o added object type "Birail1" that sweeps a cross section curve along
+  two so called rail curves
+o added object type "Birail2" that sweeps a cross section curve along
+  two so called rail curves while morphing it into a second cross section
+  curve at the end of the rail curves
+o added provide mechanism capabilites to the Level object, thus it is now
+  possible to use an intermediate Level object to add tags to an Instance
+  object (that is used as parameter object of a tool object)
+o improved behaviour of single point editing actions for multiple selected
+  objects
+o fixed problems exiting Ayam on Mac OS X introducing a fast exit compile
+  time option
+o improved preferences window management
+o added "toXYNC" scripting interface command that rotates an arbitrary
+  oriented planar NURBS curve back to the XY plane
+o caps may now be created of arbitrary oriented planar curves
+o added object type "ExtrNC" that extracts a NURBS curve from a
+  NURBS patch object delivered as child object, as usual
+o added flashing of control points to the single point editing action
+  controlled via the new preferences option "Modeling/FlashPoints"
+o added NURBS curve tool "makeCompNC" that makes the selected NURBS curves
+  compatible for e.g. skinning, see also the new main menu entry
+  "Tools/NURBCurve/Make Compatible"
+o View windows are now drop targets like the view objects in the Root level,
+  this means you can now e.g. drag&drop normal objects from the tree view
+  to any view window and the view window will zoom to the dropped objects,
+  dropping lights lets you see through the light, dropping cameras copies
+  the settings from the camera to the view
+o the HTML version of the documentation now contains more correct image tags
+o improved behaviour of toolbox buttons for the special actions with held
+  down "Shift" key
+o improved single point editing wrt. scaled objects and zoomed views;
+  PickEpsilon is now interpreted in object space and may not be zero
+  anymore, preferences from older versions will be reset to 0.2
+o Gordon objects WatchCurves feature now saves the original curves in the
+  undo buffer
+o added shortcuts to select all points (<A>), invert the point selection (<I>)
+  collapse selected points (<C>) and explode the selected points (<E>) to
+  view windows
+
+
+[27. Mar 2004] Ayam 1.7:
+========================
+o bug fixes:
+  - fixed object picking in draw-level-only views (SF 817796)
+  - fixed (RIB) import of geometry after AreaLights (SF 825629)
+  - fixed degree elevation of rational curves (SF 831901)
+  - fixed drawing of handles for drawing mode "Shade&Draw" (SF 835166)
+  - fixed memory leak in skin notification callback (SF 839424)
+  - fixed update of preference editor upon "Save Environment" (SF 840184)
+  - fixed loading of shader parsing plugins into XML parsing
+    executables (SF 846743)
+  - fixed NURBS spheres and NURBS patches created by "Build from Curves"
+    tools not accepting trim curves (SF 849781)
+  - fixed automatic scrolling to property GUI elements for dynamic
+    property GUIs (SF 850477)
+  - fixed "Reset Weights" action not being undoable (SF 856762)
+  - fixed NURBS patches created by converting tool objects not accepting
+    trim curves (SF 860474)
+  - fixed pasting of properties using the property clipboard not being
+    undoable (SF 864860)
+  - fixed certain modelling states, in conjunction with changed selections,
+    not being reachable by redo (SF 866321)
+  - fixed undo system creating "null" states in the undo buffer, when
+    modelling is resumed after redo (SF 868328)
+  - fixed undo/redo crashing if objects that are in the undo buffer are
+    deleted by consecutive object clipboard operations (SF 871521)
+  - fixed various view operations (FromCamera, ToCamera, SetGridsize, SetFOV,
+    ZoomToObject, AlignToObject) not being undoable separately (SF 877171)
+  - fixed IDR plugins propagate parent action crashing for objects in the
+    root level (SF 878550)
+  - fixed conversion not initiating notification (SF 882935)
+  - fixed 3DMF export not supporting "Clone" objects (SF 888029)
+  - fixed bounding box calculation of trimmed NURBS patches and "Cap" objects
+    (SF 889831)
+  - fixed resetting the undo prompt after "File/New" and after the "UndoLevels"
+    preference setting is modified (SF 898786)
+  - fixed wrong undo prompt after the undo buffer is filled (SF 899870)
+  - fixed double/half size of view windows using the view menu (SF 903555)
+  - fixed normals of newly inserted vertices created by tesselation of
+    PolyMesh faces with holes (SF 911538)
+  - fixed not applied property changes getting lost on view enter (SF 911808)
+  - fixed scrolling of "LightAttr" property GUI (SF 915233)
+  - fixed Tcl errors when creating Level objects in closed levels (SF 920805)
+o when the keyboard focus is moved from object tree/listbox to property GUI,
+  the GUI is now scrolling to the entry with the focus immediately
+o added "curvPlot" scripting interface command that creates a curvature
+  plot in form of a NURBS curve object from a selected curve object
+o the "Set FOV" menu entry is now disabled for parallel views
+o improved keyboard handling of "Tags" property GUI
+o improved resizing of property GUI elements
+o added new tag type "PV" for primitive variables
+o RIB-Import: added support for primitive variables to all geometric primitives
+o RIB-Export: added support for primitive variables to objects of the
+  following types: NPatch, BPatch, PatchMesh, PolyMesh, and SDMesh
+o added "swapUV" scripting interface command and NURBS patch tool that swaps
+  the u and v parametric dimensions of BPatch, PaMesh, and NPatch objects
+o added "elevateNPU"/"elevateNPV" scripting interface commands that elevate
+  the order of the selected NURBS patch(es) in the parametric dimension u/v
+o reduced number of necessary redraws for subsequent "select all" operations
+o added keyboard shortcuts to extend the current selection by pressing
+  <Shift-Up> and <Shift-Down> to the object tree and listbox
+o the "Select Renderer" feature no longer loads the "ayslx" plugin if scan
+  shaders is enabled and libslxargs has been compiled into Ayam as primary
+  shader parsing library
+o improved initial directory and file type setting of "Load Custom Object"
+  file dialog
+o added support for shader parsing plugins on the Win32 platform
+o the "Select Renderer" feature is now able to automatically load shader
+  parsing plugins on the Win32 platform
+o improved mouse wheel handling for property GUI scrolling on Win32
+o added object type "Gordon" for Gordon surfaces
+o pasting a Tag property now adds the new tags to the old ones, rather
+  than completely replacing them
+o added new option to the "Clone" object that may be used to create
+  clones mirrored at the YZ-, XZ,- or XY-plane
+o the "Clone" object can now also create clones of "Instance" objects
+o cutting/copying objects to the object clipboard and deleting objects
+  no longer completely clears the undo buffer, instead, just the deleted
+  objects will be removed from the undo buffer
+o added preference option "Modeling/Snap3D" that controls whether grids
+  always influence all three coordinate values
+o added zoom to rectangle feature (zooming into a rectangular region of a
+  view marked with the mouse while holding down the "Shift" key)
+o local views now align automatically after selection changes
+o added icon based global/local mode menu to view windows, removed local
+  entry from view configure menu
+o hotkey preference settings are now sorted in the ayamrc file
+o added support for shared objects/plugins to the MacOSX specific build
+  process
+o added support for invoking a standard web browser to display the
+  help/documentation for MacOSX
+o eliminated unnecessary redraws for clicks in the free space of the tree
+  widget (to select the last object in the current level)
+o added "revertU"/"revertV" scripting interface commands and NURBS patch
+  tools that revert BPatch, PaMesh, and NPatch objects in the respective
+  parametric dimension
+o holding down the "Shift"-key now initiates a complete notify when the
+  "Force Notification" button in the toolbox is pressed
+o added a Wavefront OBJ export module, see new main menu entry:
+  "File/Export/Wavefront OBJ"
+o the RIB export main menu entry has moved to the new main submenu:
+  "File/Export"
+o the order of the Ayam Startup Sequence has changed, so that shader parsing
+  plugins loaded automatically via the "Scripts" preference setting may be
+  utilized automatically in the initial shader parsing pass
+o added hidden preference setting "IconGamma" that may be used to adapt the
+  contrast of all icons (especially the menu bar icons and especially on the
+  Mips/IRIX platform)
+o added "shiftClosedBS" scripting interface command that shifts the control
+  points of a closed B-Spline curve, see also new main menu entry:
+  "Tools/NCurve/Shift BSpline"
+o added Makefile configuration GUI ("ayamConf.tcl") for easier compilation
+  (Hynek Schlawack)
+o added support for Aqsis0.9.0 to the "Select Renderer" feature to follow
+  the incompatible changes in the Aqsis0.9.0 default rendering progress
+  output
+o improved layout of resized UI-elements on Win32
+o improved detection of finished renderings
+o to add objects to the selection using the object picking action the
+  "Control" key has to be held down (and not the "Shift" key as in older
+  versions)
+
+
+[26. Sep 2003] Ayam 1.6:
+========================
+o bug fixes:
+  - fixed crash when exporting scenes with malformed RiAttribute/RiOption
+    tags (type "c" or "p", with a component missing) (SF 753550)
+  - fixed rotate view action destroying light sources shader parameter
+    settings (SF 753552)
+  - fixed RIB import of arbitrary attributes (SF 754934)
+  - fixed tag points using drag selection selecting wrong points (SF 763820)
+  - fixed manually resizing view windows not updating the "ViewAttrib"
+    property (SF 766347)
+  - fixed picking in shaded views making grids draw in black color (SF 770221)
+  - fixed "forAll" scripting interface command not tracking index
+    (variable "i") correctly for recursive invocations (SF 774626)
+  - fixed memory leak for RIB export of "RiHider" and "RiDisplay" tags with
+    additional arguments (SF 787525)
+  - fixed memory leak for RIB export of "RiAttribute" and "RiOption" tags
+    (SF 788535)
+  - fixed broken "maintain selection" option of "uS" scripting interface
+    command (SF 794052)
+  - fixed conversion of "Cap" objects ignoring the transformation attributes
+    of the "Cap" object (SF 795293)
+  - fixed crash when clipboard operations were used directly after view
+    close (when the corresponding view object was selected) (SF 797213)
+  - fixed scene loading via command line argument changing the prompt
+    (SF 800914)
+  - fixed material drag and drop not updating the property GUI (SF 807670)
+o added preference setting "Misc/SavePrefsGeom" to control saving of the
+  geometry of the preference editor window
+o added two new renderers, Angel and Pixie, to the Select_Renderer feature
+o added support for sl2xml in favour of sdpslparse
+o added a new shader parsing plugin ("aysdr.so") for Pixie
+o added a convert callback to NURBS patches
+o added a new drawing mode "Shade&Draw" that displays e.g. shaded
+  NURBS and their drawn representation simultaneously, the keyboard
+  shortcut <Ctrl+S> still toggles between drawing and the shaded
+  representation
+o added a new icon based menu to switch the drawing mode to all view windows
+o light source objects now honour "NoExport" tags
+o added support for IntPair and FloatPair parameters to "RiAttribute" and
+  "RiOption" tags, as well as to all tags, that allow a parameter list in
+  the style of the "RiAttribute" tag; new type designating characters
+  are "j" for IntPair and "g" for FloatPair
+o added a new regexp based method of extracting the progress from the output
+  of the renderer (needed for Pixie-1.2.1 and up)
+o added backup on replace feature controlled by new preference setting
+  "BakOnReplace" and new hidden preference setting "BackupExt"
+o improved the "Special/Save Environment" feature, it now always
+  pops up a file requester, and asks to adapt the preferences
+  to use the new environment file
+o improved drawing speed of selection rectangles (now using GL_COLOR_LOGIC_OP
+  and XOR, if OpenGL 1.1 is available)
+o added support for using Aqsis libri2rib as BMRT libribout replacement
+o added a new option "IsLocal" to the light objects, that controls whether
+  all objects in the scene are lighted or just objects from the same level
+  and below
+o added keyboard shortcut to reset the tree view (<Ctrl+l>)
+o moved material name and reference counter from "RiAttributes" property
+  to new property "MaterialAttr" for Material objects
+o added a new command "Add/Edit Material!" to the "Material" property
+o added "Highlight Material" feature (Tools menu) that colours all objects
+  of the same material in red in the tree view
+o the shader selection dialog now binds to the keyboard and cycle-selects
+  shaders on key-press based on their first letter (e.g. pressing <m>
+  selects "matte" immediately)
+o added preference setting "Modeling/DefaultAction" to choose between "Pick"
+  and "None" to be invoked when the <Esc> key is pressed in a view window
+o added keyboard shortcut for object picking action (<P>)
+o added support for RiAttribute tags to light objects
+o the ConcatNC attribute property now displays order and length of the
+  resulting NURBS curve
+o added scripting interface command "rescaleKnNC" that rescales a knot vector
+  of a NURBS curve object to the range 0.0 - 1.0
+o added "Set BGImage" entry to the "Configure" menu of view windows
+o added a new, shape preserving knot vector generation algorithm to the
+  "ConcatNC" tool object, enable it by switching the new "Knot-Type" attribute
+  from "NURB" to "Custom"
+o added a new parameter to the fillet creation algorithm for the "ConcatNC"
+  object, it is named "FTLength" (Fillet Tangent Length) and controls the
+  lengths of the outer fillet segments, which are tangential to the original
+  curves
+o added new tag type "SaveMainGeom" that is automatically filled with the
+  geometries of main window and toolbox on scene saving and used to restore
+  the geometry upon reading of scenes if it is present for the root object
+o added new RiOption "StdDisplay" that may be used to inhibit writing of the
+  standard Display option to exported RIB files
+o added new option to convert mechanism that replaces the original objects
+  with the new converted object, see new main menu entry:
+  "Tools/Convert (In Place)" or press <Shift> when using the conversion from
+  the toolbox
+o the default conversion option for objects of type "Instance" now creates
+  new objects (and does not replace the instance with a normal object)
+o conversion of Revolve, Extrude, Sweep, and Skin objects now always
+  creates a Level object, if the original object has caps or bevels
+o the "remove tags"-menu in the tags property now also displays tag type
+  names (and not just tag numbers)
+o added keyboard bindings for the object hierarchy tree: <Left>, <Right>, <Up>,
+  <Down>, <Home>, <End> move the selection, <Space> opens/closes nodes with
+  child nodes, <Ctrl+a> selects all nodes in the current level and <Ctrl+n>
+  removes the selection
+o all keyboard bindings (except <Space>) also work for the object listbox
+o when property GUI elements have the input focus an initial press of the
+  <Esc> key is needed now before any main menu keyboard shortcuts may be used
+o rotating a view via keyboard is now undoable; if the user holds down
+  an arrow-button, only one entry is made to the undo buffer
+o multiple selected objects are now always processed in the order in which
+  they occur in the scene, not the order in which they have been selected
+o improved focus handling in main window; switching the focus from the object
+  tree/listbox to the property GUI is now much faster
+o updated shader parsing code to follow the incompatible changes in Aqsis
+  V0.7.19 libslxargs
+o updated shader parsing code of ayslo3d plugin to follow the incompatible
+  changes in 3Delight-1.0.6
+o added preferences option "MarkHidden", that controls whether hidden objects
+  should be preceded by an exclamation mark in the tree view
+o wrapped executables now no longer need to run BWidgets from external files
+  (on Win32 they had to be present in the same place as ayam.exe; on Unix,
+   they were unpacked from the ayam executable on each startup to /tmp)
+o improved the focus handling of the splash screen, keyboard focus is now
+  always returned to the main window when the splash screen closes
+o improved handling of MRU list entries; the last scene loaded is now always
+  on MRU entry 1, even when it was already in the MRU list and also even if
+  an existing MRU menu entry was used to load it
+o checkbutton and menubutton property GUI elements may now also be controlled
+  via keyboard
+
+
+[10. May 2003] Ayam 1.5.1:
+==========================
+o bug fixes:
+ - fixed erroneus drawing of NURBS patches with certain OpenGL/GLU
+   implementations
+   (SF 735600)
+
+
+[05. May 2003] Ayam 1.5:
+========================
+o bug fixes:
+  - fixed RIB import creating object names with malicious characters (spaces)
+    (SF 686419)
+  - fixed RenderGUI creating zombie processes on Linux, enable bug fix
+    with -DAYENABLEWAIT in CFLAGS and set ayprefs(Wait) "waitPid" in .ayamrc
+    (SF 687408)
+  - fixed several memory leaks while reading scenes
+    (SF 691567)
+  - fixed memory leak while exporting to RIB
+    (SF 691572)
+  - fixed several memory leaks in undo mechanism
+    (SF 694941)
+  - fixed memory leak in edit master feature
+    (SF 705442)
+  - fixed several memory leaks in RIB import
+    (SF 699852)
+  - fixed undo/redo clearing the background image of view windows
+    (SF 694946)
+  - fixed RIB import of one set of trim curves for multiple patches
+    (SF 695923)
+  - fixed memory leak in NURBS curve property (that occurs, when the curve
+    is closed, has multiple points, and is opened again using the property)
+    (SF 697948)
+  - fixed memory leak in material object property
+    (SF 699855)
+  - fixed memory leak converting instances to real objects via convert
+    object and "Special/Instances/Resolve all Instances"
+    (SF 699853)
+  - fixed Tcl error messages about already existing nodes when tree updates
+    run parallel, e.g. when pasting objects into the scene in fast sequence
+    (SF 697124)
+  - fixed "Resolve all Instances" and "Automatic Instancing" not clearing the
+    undo buffer (undo after those operations may lead to broken scenes)
+    (SF 697128)
+  - fixed "Apply Trafo to all/selected Points" not being undoable
+    (SF 697942)
+  - fixed trim views drawing no bounds for trim loops
+    (SF 699849)
+  - fixed creation of RIBs with RiSpec violating RiSolid hierarchies
+    (SF 698147)
+  - fixed divide by zero Tcl error when resizing the toolbox window
+    (SF 700834)
+  - fixed broken RIB import of shader parameters of type string
+    (SF 708678)
+  - fixed undo/redo destroying tags
+    (SF 708961)
+  - fixed NURBS curve tools not being undoable when called via main menu
+    (Tools/NURBCurve), and not via tool box button
+    (SF 711212)
+  - fixed "Clear Material!" not being undoable
+    (SF 715103)
+  - fixed changing the material of an object using the property GUI leading
+    to wrong reference counters
+    (SF 715106)
+  - fixed DnD crash for multiple objects containing root
+    (SF 715773)
+  - fixed undo de-registering materials with changing names
+    (SF 715110)
+  - fixed trim views getting wrong window names after reading from scene files
+    (SF 720122)
+  - fixed show/hide not being undoable
+    (SF 721631)
+  - fixed optimize PolyMesh not being undoable
+    (SF 721632)
+  - fixed result of last view action (without selection) not being redoable
+    (SF 724085)
+  - fixed "Special/Tags/Add RiAttribute" and "Add RiOption" not being undoable
+    (SF 724947)
+  - fixed "Hide" attribute of "Root" object getting lost during save/replace
+    (SF 725094)
+  - fixed conversion of MetaObjects to PolyMeshes ignoring the transformation
+    attributes of the MetaObject
+    (SF 717579)
+o added support for inline declarations of e.g. shader parameters to the
+  RIB import plugin
+o added an example scene for subdivision meshes
+o added an adaptive calculation mode to the "MetaBalls" custom object
+  (Frank Pagels)
+o improved object tree update process; it now checks for scene changes that
+  may occur while the widget is updating, and schedules an extra update
+  operation if this happens
+o the "ConcatNC" object can now also create a fillet for a single parameter
+  curve to close it
+o the BWidgets package is now requested with exact version (1.2.1) so that
+  newer (inkompatible) installed versions of BWidgets can cause no harm
+o added a compile time option "-DAYWITHAQUA" to distinguish between
+  MacOSX-Aqua and MacOSX-X11
+o added Tcl scripting interface command "wrib" that lets you export RIBs
+  from a selected "Camera" object (and does not need a view window)
+  Thus, you may now create, model, or modify scenes without any view windows
+  and still can get your RIBs for rendering.
+o added a new sub menu to the "Special" main menu: "RIB-Export", it allows
+  you to export a RIB from a selected "Camera" object, and to create shadow
+  maps
+o added RIB export from selected objects feature (menu
+  "Special/RIB-Export/Selected Objects")
+o added tag type "NoExport" that prevents objects from being exported to RIBs
+o shaded views now also draw grids
+o material drop and the drop actions for views and cameras are now undoable
+o added a NURBS to polygon tesselation facility based on the GLU tesselator
+o added "SMethod" and "SParam" preference settings (section "Misc") to
+  control the polygon tesselation
+o improved drawing speed of NURBS curves and surfaces that are outside
+  the viewing volume
+o improved look of check buttons on Win32 if used exclusively in a GUI
+o added a hidden preference setting "Prompt" that may be used to adapt the
+  prompt in the Ayam console
+o added support for NURBS curve providing objects (e.g. "ICurve" and
+  "Instance") to be used as trim curves
+o added a keyboard shortcut for the "Edit Master"-Feature (<Ctrl+M>)
+o the console prompt now displays the name of the operations that can be
+  undone and redone respectively
+
+
+[07. Feb 2003] Ayam 1.4:
+========================
+o bug fixes:
+  - fixed remembering of the state of the object selection listbox/tree
+    when the context menu or a double click on the label is used to
+    switch between both representations or the toolbox window is closed
+    using the window decoration close button
+  - fixed broken RIB-export of Clone objects
+  - fixed broken RIB-export of RiAttribute/RiOption color/point tags
+  - fixed merging of PolyMesh objects with different number of
+    vertices and control points
+  - fixed Materials level created by RIB-import losing the child
+    objects when the imported scene is saved and then read again
+  - fixed broken delete operation of Clone objects
+  - fixed edit_material not scrolling the tree widget properly when the
+    material object is in the root level of the scene
+  - fixed "align view" setting a wrong up-vector for views of type "Top"
+  - fixed object picking by dragging the mouse in conjunction with
+    "draw level only" rendering the view useless
+  - fixed "move view" action not working properly in local aligned views
+    of type "Top"
+  - fixed object listbox context menu generating an empty Tcl error message
+  - fixed official Linux executable not be able to execute other NVidia-OpenGL
+    using programs (by patching the Tcl-source to not use vfork() but fork())
+  - fixed problems building the documentation on Debian 3.0 (Woody)
+  - fixed object picking when the root object is hidden
+  - fixed omitting shaders with array arguments from the lists of
+    available shaders
+  - fixed rotate about modelling action not rotating around a grid point
+    in views of type "Side", when the view is additionally moved sideways
+  - fixed view objects not reading "BGImage" and "DrawBG" parameters from
+    scenes written by Ayam 1.3
+  - fixed RIB-import not resetting the object name when done importing,
+    leading to wrongly named objects for the next invocation of RIB-import
+  - fixed creation of NURBS curves with desired length 2 or 3 creating
+    a wrong NURBS curve specification (too high order, wrong knot vector)
+  - fixed broken creation of shadow maps from point light sources that make
+    use of their "From"-values
+  - fixed preference setting TclPrecision being ignored
+  - fixed RIB export of scenes using instances and shadow maps
+o reduced number of redraws when selecting hidden or material objects
+o added a RiDisplay tag type, that allows to add more output files
+  (e.g. containing depth buffer information) to the scene
+o added a RiHider tag type, that allows to select and parameterize
+  a different hider algorithm
+o added import of RiDisplay and RiHider statements to the RIB-import plugin
+o added french translations for the preferences balloon help texts
+  (Michel Armand)
+o added PolyMesh optimization tool, that reduces the number of control
+  points (Frank Pagels)
+o added global keyboard shortcuts to easily switch display-mode,
+  sampling-tolerance, and lazy-notification via function keys
+o the Mops import options have been moved from the preferences to
+  a small option requester
+o the direct point editing dialogue is now always transient
+o rotate about modelling action: the point to rotate about is now
+  snapped to grid coordinates immediately
+o the Sweep is now much faster for highly curved trajectories
+  (e.g. the speedup factor for the "sgi cube" is about 4.5)
+o added a close option to the Sweep object, that closes the resulting
+  swept surface, even though the trajectory curve is not and arranges
+  for the first and last section to be parallel
+o the Sweep now interprets a third child curve as scaling function
+o the Clone object can now also place the created clones along a curve
+  and rotate them accordingly (similar to the section curves of a Sweep)
+o multiple point selection via mouse drag has been improved greatly,
+  it is now much faster and selects also points that are hidden behind
+  other points
+o added edit master feature (main menu "Edit/Master") that finds and
+  selects the master object of an instance object (similar to the edit
+  material feature)
+o "align view" now aligns to the object space of the selected object
+  (and not just to the object space of the current parent object);
+  in addition, grids are now drawn and handled correctly for aligned views
+o the configure menu of view windows has been rearranged to make it more
+  clear, that aligned local views not only draw a grid aligned to local
+  object space, but that editing takes also place in that space
+o a new shortcut <Ctrl+l> has been added to the view menu entry
+  "Configure/Edit Local"
+o the handles of editable points of objects are now only drawn, when
+  a modelling action is in effect, that could modify editable points
+o added support for "RiSides" to the RiAttribute property of material
+  objects; RIB-import now also handles RiSides
+o the RenderGUI windows look a little bit nicer now on the Win32 platform
+o added an internal kill command for the Win32 platform ("w32kill") that
+  may be used by the RenderGUIs to stop the rendering (set hidden preference
+  option "Kill" to "w32kill" to accomplish this)
+o added object type "SDMesh"; RIB-import now also handles
+  subdivision meshes
+o edited points are now immediately snapped to grid coordinates
+o direct point editing dialogue now stays open all the time
+o added a Local/Global menu to the direct point editing dialogue
+o the splash screen now grabs the focus to avoid problems with stray mouse
+  events delivered to other windows when the splash screen is closed
+  manually by the user
+o added some example scenes to demonstrate new features of ConcatNC, Clone,
+  and Sweep objects
+o added invert point selection feature (see new main menu entry:
+  "Special/Points/Invert Selection")
+o the Win32 executable is now statically linked with the GLU library from
+  the free OpenGL sample implementation (OSS) from SGI; the compiled library
+  (superglu) kindly provided by the Coin3D project (http://www.coin3d.org/)
+o added support for user defined clipping planes; RIB-import now also
+  handles RiClipping
+o views of type "Trim" now draw the bounds of the parametric space as
+  a rectangle again
+o added a new preference setting "AutoFocus" that arranges for all views and
+  the main window to take over the focus automatically when the mouse pointer
+  enters it (without the need to adapt any window manager configuration and
+  also working fine on Win32)
+o added support for the mouse wheel to the Win32 version
+o RIB-export now writes different frame numbers for shadow maps and the
+  image so that you may re-render e.g. just the image more easily even
+  when the "ShadowMaps" preference setting is "Automatic"
+
+
+[15. Oct 2002] Ayam 1.3:
+========================
+o bug fixes:
+  - fixed memory leaks in the shadow map RIB export module
+  - fixed ICurves crash for length 2
+  - fixed insert and delete point action errors for drag mouse events
+  - fixed errors with transformed MetaBall components (e.g. of type custom)
+  - fixed broken scene change detection (that occured when the undo
+    system was switched off using an "UndoLevels" preference setting of -1)
+  - fixed wrong reference counter setting of material objects created
+    by the RIB import plugin
+  - fixed converted caps of Extrude objects losing their trimcurves
+    when saved and then read again
+  - fixed automatic cap generation for various tool objects
+  - fixed picking of objects in instanced levels
+  - fixed problems with shader/plugin search path names with spaces
+  - fixed some dialogues not returning the focus to the main or the view
+    window when closed with the Ok/Cancel-button
+  - fixed property listbox context menu generating an empty Tcl error
+    message on the Win32 platform
+  - fixed setting of current filename for scenes loaded via command
+    line argument
+  - fixed broken detection of recursive instances for copy-and-paste and
+    drag-and-drop operations with instance objects
+  - fixed broken "zoom to object" action for instances with transformed
+    master objects
+  - fixed automatic instancing for cap objects
+  - fixed broken notification of several tool objects without open view
+    window (e.g. after loading a scene with no view windows)
+  - fixed drawing of misplaced markers for the "rotate_about" and "find_u"
+    modelling actions (when used with view actions such as "move_view")
+  - fixed dropping of light or camera objects onto view objects updating
+    the wrong view window sometimes
+o added a permanent preview feature; a constantly open RIB stream
+  to a (fast) RenderMan renderer like rgl immediately displays all
+  changes in the scene without the need to repeatedly hit "Ctrl-r" and
+  close the preview window again (due to the complex handling, this is
+  a compile time feature, and not available in the distributed Ayam binaries)
+o added manual control for the creation of ShadowMaps; for that,
+  the preference setting "RIB-Export/ShadowMaps" is now a menu
+  for the values "Never", "Automatic", and "Manual"; in "Manual" mode
+  ShadowMaps may be rendered explicitly using the new view menu
+  entry "View/Create ShadowMaps"; afterwards it is possible to render
+  images without recreating the ShadowMaps all the time (e.g. for camera
+  or material changes) even directly from a view window
+o the "TclPrecision" preference setting has been moved to the "Misc"
+  preferences section
+o added balloon help for all preference settings
+o added a "Locale" preference setting and a locale system, that allows to
+  display language specific balloon help texts (german translations of
+  various balloon help texts provided initially)
+o the coordinate system (the root object) now also draws axis names (x, y, z)
+o scene loading now blocks all mouse events from view windows to avoid
+  problems with user input while loading scenes which lead to wrongly
+  drawn views
+o added a texture coordinates editor (main menu "Special/Tags/Edit TexCoords")
+o added a "Remove Tag!" menu to the standard Tag property GUI
+o added "Show All" and "Hide All" menu entries to the main menu
+o replaced "setNC"/"getNC"/"setNP"/"getNP" scripting interface commands
+  with the new "setPnt"/"getPnt" commands
+o added a new object type PolyMesh (polygonal mesh)
+o the RIB import plugin now also imports "Polygons", "GeneralPolygons",
+  "PointsPolygons", and "PointsGeneralPolygons"
+o added a new tool for the PolyMesh object; "mergePo", that merges a bunch
+  of PolyMesh objects (e.g. created by importing a poorly structured RIB)
+  into a single PolyMesh object
+o improved the object picking for shaded views
+o improved the MFIO (3DMF) Import Plugin: it now outputs more detailed
+  error messages, supports import of the following additional primitives:
+  PolyLine, Triangle, General Polygon, Polygon, and TriGrid; and
+  supports now output of all NURBCurve/NURBPatch providing objects.
+o added shader parsing plugins: "ayslb" for Air, "ayslx" for Aqsis,
+  "ayso" for RDC, "ayslo" for PRMan, and "ayslo3d" for 3Delight
+o added a new object type "ConcatNC" that concatenates multiple NURBS
+  curves or NURBS curve providing objects to a single NURBS curve
+o added a new object type "Clone" that creates n instances of its child
+  object and transforms each instance by a specified transformation
+o Ayam now remembers the state of the toolbox (open/closed) and the
+  object selection widget (listbox or treeview) in the ayamrc file
+o added a "RenderMode" preference setting that allows to switch between
+  two different methods of forcing a renderer to render to the screen (via
+  RiDisplay, necessary for e.g. PRMan and RDC; or via command line argument)
+o added a select renderer feature (main menu "Special/Select Renderer")
+  that allows to switch between different renderers more easily; currently
+  supported are BMRT2.5, BMRT2.6, Aqsis, Air, 3Delight, RDC, and PRMan
+o reorganized the "Main/Special" menu by introduction of cascaded sub-menus
+o changed calculation of bevels for the Extrude object; the bevels are
+  now more evenly sized; this may, however, lead to problems with caps,
+  because the bevels may overlap themselves in corners of the extrusion;
+  thus, if cap generation fails, reduce the radius of the bevels
+o all RenderGUI windows now automatically try to raise themself, should
+  they be obscured, e.g. by the renderer window (but just one time)
+
+
+[09. Jul 2002] Ayam 1.2:
+========================
+o bug fixes:
+  - fixed color select buttons in preferences not updating on "load defaults"
+  - fixed missing RiSolidBegin/End for spheres with thetamax != 360
+  - fixed RiAttribute tags not exporting when attached to material objects
+  - fixed broken integer RiOption and RiAttribute declarations
+  - fixed broken Camera property GUI of the Camera object
+  - fixed broken "-h" command line option
+  - fixed memory leaks in the Skin notification callback, while reading
+    scenes, while clearing scenes, and while opening/closing view windows
+  - fixed error connecting instances while loading certain scenes
+  - fixed grid menu button not updating when switching a view to perspective
+  - fixed writing of preferences and deleting of temporary files when the
+    main window is closed to quit Ayam
+  - fixed rotate about modelling action not redrawing all views
+  - fixed direct point editing action crashing when the selection is
+    changed or some points are selected (tagged), while the coordinate
+    requester is open.
+  - fixed incorrect side caps for revolve objects from certain open
+    parameter curves (e.g. with B-Spline knot vectors)
+  - fixed edit material feature selecting wrong objects under certain
+    circumstances
+  - fixed the TreeWidget generating sporadic error messages about
+    a missing "_state" variable (using a backport of the bugfix for
+    BWidgets bug #4324)
+  - fixed Tcl error generated by the "Add" button of the preference
+    setting "Main/Shaders", "Main/Scripts", and "Main/Plugins" (on
+    Win32 and on Unix for path names with spaces).
+o improved RIB export of quadric primitives with negative thetamax
+o the mouse cursor now changes when the "alt rotate" action is in effect
+o the modifier key for the "alt rotate" action is now configurable using
+  "ayviewshortcuts(RotMod)" and "ayviewshortcuts(RotModKey)" respectively
+o added a RIB import plugin
+o added a new object type "PatchMesh"
+o direct point editing now works for multiple selected objects
+o resizing of the toolbox now works better for opaque resize
+o shrink wrapping of the toolbox may now be turned off completely using
+  "Preferences/Misc/ToolBoxShrink"
+o added a checkbutton to the rendering GUI that controls ringing the
+  bell when the rendering finishes
+o added an object picking facility, you can now click in view windows
+  to select objects (Bertrand Coconnier)
+o the default action for view windows is now "Pick" (and not "None")
+o added a reference card (a brief listing of all keyboard shortcuts)
+  to the documentation
+o improved shadow map creation: the RIB exporter now writes an
+  additional file "<scene>.obj.rib", that contains the geometric
+  primitives of the scene; furthermore, it is now possible to create
+  shadow maps from custom lights (as long as the light shader contains
+  arguments named "from", "to", or "coneangle")
+o added shadow bias options to standard RiOption tag database
+o the preference setting "RIB-Export/RIBFile" now allows a new special
+  value "Scenefile" that works like "Scene" but strips the leading path
+  from the scene file name (required by new shadow map RIB creation scheme)
+o added a new tag type "TC" that holds texture coordinates
+o the tag property GUI now displays just a certain number of characters
+  from a tag value (this is adjustable via the new hidden preference
+  setting "MaxTagLen")
+o the edit tag dialogue is now resizable
+o added some default RiOptions and RiAttributes to the default database
+o improved the RiOptions and RiAttributes GUIs: they are now resizable
+  and load the first value from the list of default values immediately
+o added support for libslxargs; libslxargs may be used as replacement
+  for libslcargs on platforms like MacOS X
+o added drawing of a background image to view windows
+o added two new component types to the MetaBalls custom object:
+  cube and custom
+o prepared some plugins to be combined statically into the binary
+o added a show shortcuts feature to the main help menu
+o improved the installation procedure
+o the "UndoLevels" preference setting allows the undo system to be
+  switched off completely using the special value "-1" now
+
+
+[17. Jan 2002] Ayam 1.1:
+========================
+o bug fixes:
+  - fixed custom lights always exporting as AreaLight to RIB
+  - fixed tags not loading from scene files to root object
+  - fixed handling of Shift-Tab for old (<8.3) Tk versions
+  - fixed view-undo problems (e.g. not setting window titles correctly)
+  - added missing declarations for some BMRT specific attributes/options
+  - fixed focus handling for set_gridsize and set_fov dialogues
+  - fixed unnecessary saving of undo states
+  - fixed broken sweep (does not twist wildly for complex paths anymore)
+  - fixed unnecessary notification for various modelling actions in
+    conjunction with grids
+  - fixed undo/redo not calling notification callbacks
+  - fixed weight edit crashing when applied to objects without editable points
+  - fixed menu entry "View/Close" creating Tcl errors on Win32
+  - fixed reset weights action crashing
+  - fixed "Set new shader!" dialogue creating a Tcl error when closed
+    with window close button
+  - fixed console menu not working on Win32
+  - fixed forAllT scripting interface command
+  - fixed rotation of view windows with Alt key held down
+  - fixed new views blocking when created "under" the mouse pointer
+  - fixed windows not saving their size to the preferences if TwmCompat
+    is not enabled
+  - fixed actions going to wrong views sometimes, when slowly redrawing
+    (shading) views are present
+  - fixed broken shaders and includes search paths
+  - fixed deleting of temporary RIBs created with "View/Quick Render"
+  - fixed undo not deleting selected points from objects properly
+  - fixed wrong holes in caps of cap and extrude objects
+  - fixed current level after loading of scenes
+o added auto-scrolling to property with focus (<Tab> scrolls the property GUI)
+o added "Scene changed!" warning requester to various scene destroying
+  operations, like "File/New"
+o added MetaBalls custom object
+o light objects are now drawn in a yellow color, when not selected
+o "File/New" now reloads the working environment scene and clears the
+  current filename
+o added grid selection icon and menu to view window menu bar
+o "File/Save(As)" now adds filenames to the most recently used list too
+o added "Special/Toggle Toolbox" menu entry to open/close the toolbox window
+o added some example scripts to the documentation
+o the current fov is now displayed in the set fov dialogue initially
+o added a context menu to the property listbox and the object listbox
+o improved checkbutton property gui element on Win32
+o the toolbox looks much nicer now on Win32
+o added preferences setting "Misc/ToolBoxTrans" that may be used to make
+  the tool box window transient
+o the tool box window may now be changed in size, with the row/column
+  layout of the buttons adapting to these changes
+o added "CreateMP" option to NURBS curves that inhibits creation of
+  multiple points
+o added "Help/Help on object" that directly displays the documentation
+  of the selected type of object
+o the preferences dialogue now comes up more smoothly
+o added "Edit/Material" feature that finds the material object of a geometric
+  object and selects it for editing (or creates and connects a new material)
+o added "Special/Save Environment" feature that saves the current root
+  object and views to the environment file (preference setting "EnvFile")
+o added shaders not found in the BMRT distribution to "scn/shaders" to
+  enable easier rendering of the example scenes
+o RIB-Export: no archives are created for instances of objects that
+  would not be exported anyway
+o added a little label to the rendering GUI that displays the rendering time
+o Due to a flaw in the design of the file format, Ayam 1.0b4 and below
+  will not read Ayam 1.1 files. On the other hand, Ayam 1.1 reads files
+  from 1.0b4 and below just fine.
+
+
+[02. Oct 2001] Ayam 1.0 beta4:
+==============================
+o bug fixes:
+  - Skin does not crash in interpolation mode, if two identical curves
+    are present.
+  - Weight edit does not crash anymore, if no objects are selected.
+  - Tree Drag-and-Drop could crash Ayam when root object was dragged
+    to certain targets.
+  - Reading a scene via MostRecentlyUsed list sets internal scene
+    filename correctly now.
+  - Improved picking of points with arrows (e.g. last point of a NURBS curve).
+  - Shading with material color (preference setting "UseMatColor") is now
+    working for all objects.
+  - Finally? fixed orientation detection routine for 2D curves, thus
+    improving automatic cap generation for various object types.
+  - Views do not get wrong settings while loading scenes or fast switching
+    of view windows on slower machines anymore.
+  - "forAll", "forAllT", and consequently "Edit/Paste Property" now work
+    correctly for nested object hierarchies.
+  - ...
+o 3DMF import/export plugin revived.
+o Preferences dialog looks much nicer now (uses a notebook for
+  category selection, "Shaders" GUI-element uses the tooltip
+  mechanism to display all paths of the entry at once now).
+o Direct rendering of views creates a small GUI consisting of
+  a progressbar and a cancel button (to stop the rendering!) now.
+  Use "Prefs/RIB-Export/RenderUI" to enable and "Prefs/RIB-Export/RenderPT"
+  to configure.
+  This is disabled on Win32, since Tcl is not able to execute a kill
+  program on this platform.
+o Some User-Interface-Elements (of property GUIs) allow default
+  values now.
+o Added object type "Cap", that creates a cap from planar
+  NURBS curves.
+o Added automatic loading of custom objects when reading Ayam
+  scene files.
+o Implemented automatic cap generation for the Sweep object.
+o Implemented automatic cap generation for the Skin object.
+o Improved "Direct-Point-Edit" mode, you may select different points
+  now, while the coordinate requester is open. Additionally, it is
+  checking now, whether notification and redraws are really necessary.
+o Added keyboard shortcuts to Most-Recently-Used file menu entries.
+o SDK reworked.
+o Plugins moved to "plugins" directory.
+
+
+[26. Jul 2001] Ayam 1.0 beta3:
+==============================
+o a whole lot of bug fixes
+o Mops Import much improved
+  - imports now ICurves and Materials
+  - GLU display mode and sampling rate settings may
+    be reset to global settings while importing
+o added "Automatic Instancing"
+o added RIB Export preference setting "ExcludeHidden"
+o tree widget blocks the GUI now on long update operations
+o internal Tcl/Tk errors are now redirected to the console
+o added some example scenes
+o added Setup.txt, Changes.txt
+
+
+[12. Jun 2001] Ayam 1.0 beta2:
+==============================
+o some bug fixes including a fix for a serious memory leak in the
+  notification callbacks of the extrude/revolve tool objects
+
+
+[31. May 2001] First Public Release (Ayam 1.0 beta1)
+====================================================

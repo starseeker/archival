@@ -1,0 +1,14 @@
+Hynek Schlawack (hynek@hys.in-berlin.de):
+ Ayam Makefile configuration GUI (ayamConf.tcl)
+Michel Armand (michel@linuxgraphic.org):
+ french translation of preferences balloon help
+Stephen Echavia:
+ Ayam icon for the Win32 platform
+Bertrand Coconnier:
+ object picking code
+Frank (copper) Pagels:
+ MetaBalls custom object, PolyMesh optimization, TTF parsing
+Hermann Birkholz:
+ initial tree widget, shadow maps, automatic instancing, and IDR implementation
+Randolf Schultz (randolf.schultz@gmail.com):
+ the rest

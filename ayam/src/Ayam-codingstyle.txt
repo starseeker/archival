@@ -1,0 +1,78 @@
+[Ayam-codingstyle.txt, 15. Jun 2013]
+This file contains some guidelines about how C code in the Ayam project
+should be formatted and commented.
+
+The Ayam team does welcome patches (especially, if they fix bad bugs or
+add essential functionality) but will reject any code that fails to
+comply with the following guidelines:
+
+o line length must not exceed 79 characters,
+o indentation: Emacs-C-mode-style (2 chars) this is also
+  easy to achieve with "indent" without any parameters (GNU style),
+  exceptions (not mandatory):
+  - local variables and last return in a function indent one character
+  - glBegin()-glEnd(), glPushMatrix()-glPopMatrix(), and RiBegin()-RiEnd()
+    pairs (and other pair statements/function calls) indent one character
+  see example below...,
+o indentation should be carried out by <space> characters only
+  (no <TAB>, as this is interpreted very differently between editors),
+o all {} are on their _own_ line (resembles the look of Pascal code a bit),
+o Ayam symbols and typenames are all preceded by "ay_",
+o all preprocessor definitions/macros are preceded by "AY_" and are
+  in ALL CAPS,
+o function naming convention: ay_<modulename>_getblurb<type>
+  mandatory types: "cb": Ayam callback, "tcb": Togl callback,
+                   "tcmd": Tcl command,
+o all functions end with "} /* <function_name> */",
+o long if/while/for/switch-statements end with "} /* if */", "} /* while */",
+o no use of C++ comments,
+o functions and arguments are documented for Doxygen in \-style (not @)
+o no trailing white space at the end of a line,
+o no DOS line endings (not CRLF but just LF),
+o no ISO-C (C99) extensions,
+o try to follow the GNU coding standards:
+  http://www.gnu.org/prep/standards_toc.html
+  if they do not contradict the rules stated in this document.
+
+Example:
+
+-snip-
+/** ay_ayam_init:
+ *  initialize the application by creating the root object, filling
+ *  callback tables and initializing vital global variables (ay_interp,
+ *  ay_root)
+ *
+ *  \param[in] interp the Tcl interpreter
+ *
+ *  \returns AY_OK on success, error code on failure
+ */
+int
+ay_ayam_init(Tcl_Interp *interp)
+{
+ ay_status = AY_OK;
+
+  ay_interp = interp;
+
+  /* initialize tables */
+  Tcl_InitHashTable(&ay_otypesht, TCL_STRING_KEYS);
+
+  if(ay_table_init(ay_typenamest))
+    {
+      return AY_ERROR;
+    }
+  /* fill tables (init object types) */
+
+  /* create root object */
+
+ return ay_status;
+} /* ay_ayam_init */
+-snap-
+
+Note: Those rules are not established to annoy you, but to keep the
+code consistent and readable (especially for me).
+
+Randolf,
+-- 
+http://www.ayam3d.org/    Reconstruct the World!
+
+

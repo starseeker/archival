@@ -1,0 +1,776 @@
+INSTALL [5. May 2012]
+
+Compilation Instructions for Ayam
+---------------------------------
+
+There are two major ways to compile Ayam: "shared" and "wrapped standalone".
+The binaries you get with the binary distribution of Ayam are "wrapped
+standalone". This means Tcl/Tk and the main Tcl-scripts of Ayam are all
+statically combined in the executable. This means no hassle with Tcl/Tk
+versions. You do not need an installed Tcl/Tk at all to run Ayam!
+However, the creation of "wrapped standalone" executables of Ayam is a
+bit tricky. Therefore, if you really want to or have to compile Ayam:
+_Please compile a "shared" version of Ayam!_
+
+Note: To compile Ayam on Win32 using Visual Studio 2005 Express,
+use the provided workspace Ayam-*-VC2005.zip instead of the normal
+source distribution.
+
+Contents:
+1. Compiling a Shared Version of Ayam
+2. Compiling a Wrapped Standalone Version of Ayam
+3. Additional Targets (Compiling Plugins/Fill MacOSX Application Bundle)
+4. Compile Time Configuration Options
+
+1. Compiling a Shared Version of Ayam
+-------------------------------------
+
+1.1 Step 1 - Requirements
+-------------------------
+
+The following requirements _must_ be met to compile a shared
+version of Ayam:
+
+- ANSI-C-compiler
+- Tcl/Tk sources ( at least V8.2, at most V8.4.19 )
+  http://tcl.sourceforge.net/
+  Note that a complete installation _and_ the sources of Tcl/Tk are
+  required.
+  This is because Ayam uses Togl, a Tk-widget that needs internal
+  Tk-headers to be compiled. It is _not sufficient_ to just have
+  an installed Tcl/Tk on your system, so please
+  _get the source distribution_ of Tcl/Tk and get the right
+  version, as Togl is known to crash if Tcl/Tk versions mismatch!
+  See also Note 1 below.
+- OpenGL ( gl.h, glu.h, libGL.so, libGLU.so )
+  Version of GL is uncritical ( 1.1 should do, see also Note 2 ),
+  Version of GLU should be atleast 1.2 ( due to the use of the GLU
+  tesselation facility in the PolyMesh and SubdivisionMesh objects ),
+  ( Mesa may be used as replacement for a real OpenGL. Since
+    version 3.5, Mesa uses the GLU from the free OpenGL sample
+    implementation from SGI and is therefore able to display
+    trimmed NURBS. Either install this version of Mesa, or the GLU
+    from the SGI sample implementation. )
+  http://www.mesa3d.org/
+- BMRT ( ri.h, slc.h, libribout.a, libslcargs.a )
+  http://www.exluna.com/
+  Note that BMRT's libribout.a and libslcargs.a come as binary only,
+  they might not be available on your platform!
+  If BMRT is not available on your platform, you can still
+  compile Ayam with the Affine Toolkit with reduced functionality,
+  read: no parsing of slc-compiled shaders.
+  You can also use libslxargs from Aqsis ( http://www.aqsis.com/ )
+  as libslcargs replacement and libri2rib from Aqsis as libribout
+  replacement.
+- Togl ( togl.h, togl.c )
+  For most systems a working Togl is already included in the Ayam
+  source distribution, see subdir togl. No download necessary!
+- TIFF ( tiffio.h, libtiff.so )
+  http://www.libtiff.org/
+- The Affine Toolkit
+  http://www.affine.com/
+  Source code of Affines Simple RIB writer is distributed with Ayam
+  ( see subdir "affine/" ).
+  No download necessary, unless you want to compile the RRIB (RIB import)
+  plugin!
+- BWidgets
+  http://tcllib.sourceforge.net/
+  Ayam has just been tested with BWidgetsV1.2.1 so far.
+  BWidgetsV1.2.1 are distributed with Ayam ( see subdir "tcl/BWidget-1.2.1/" ).
+  No download necessary!
+
+Tip:
+If you unpack Tcl/Tk and BMRT as sister directories to the Ayam
+directory, editing of the Makefile will be easier.
+
+Note 1:
+On most systems, there should be an installed Tcl/Tk 8.4.x nowadays.
+If this is the case
+( check it by typing "wish" in a shell, then type "puts $tcl_patchLevel" )
+you then just have to download the sources of the installed
+version ( see output of the puts command! ), unpack them,
+and run configure in the unpacked source trees.
+No compiling of this Tcl/Tk is necessary but you need the configured
+sources in order to compile Ayam!
+
+Note 2:
+If OpenGL 1.1 is not available to you, you can still compile Ayam, if your
+OpenGL is supporting the polygon offset extension (e.g. on IRIX 6.2).
+
+
+1.2 Step 2 - Compiling
+----------------------
+
+You have all required software and installed/compiled it successfully?
+
+Since Ayam1.7, a Tcl script is provided, that helps to create a basic
+Makefile. Just run it by typing:
+>wish ayamConf.tcl
+and select your RIB-writer, shader-parser, and operating system.
+Now you can make additional adjustments, e.g. determine where the
+Tcl/Tk sources are, and where the TIFF library, BMRT, or Aqsis are
+installed.
+Then press the "Create Makefile!" button.
+
+If you do not use ayamConf.tcl you will need to execute the following
+two steps:
+- copy Makefile.shared to Makefile:
+>cp Makefile.shared Makefile
+
+- edit the Makefile, until it tells you to stop, all necessary
+  information should be in the Makefile ( yes, this _is_ a lot of work ):
+>emacs Makefile
+
+- if you are done editing the Makefile manually or by using ayamConf.tcl
+  just enter:
+>make
+
+If you got errors while compiling, maybe the Ayam FAQ helps, see:
+http://www.ayam3d.org/faq.html
+
+Now ayamsh should be compiled and ready for a test run.
+- try it:
+>./ayamsh tcl/ayam.tcl
+
+
+1.3 Step 3 - Installation
+-------------------------
+
+If all went fine, you can now install Ayam, switch to root and enter:
+>make install
+
+By default, Ayam will install into /usr/local/ayam.
+It will create some sub-directories there, namely:
+/usr/local/ayam/bin for the executable, plugins, and scripts,
+/usr/local/ayam/doc for the documentation, and
+/usr/local/ayam/scn for the example scenes.
+
+You may want to add "/usr/local/ayam/bin" to your PATH environment variable.
+Be sure to also add "." or "/usr/local/ayam/plugins" to your LD_LIBRARY_PATH
+environment variable, otherwise Ayam might not be able to load the plugins.
+
+The installation procedure will also install the current Makefile,
+that may be used to uninstall Ayam again, e.g. using:
+>make -f /usr/local/ayam/bin/Makefile uninstall
+
+The installation procedure also creates a shell script named "ayam",
+that calls "ayamsh" the right way, so that after installation you can
+start Ayam by typing:
+>ayam
+
+To check what installing/uninstalling will do to your system use
+>make -n install
+or
+>make -n -f /usr/local/ayam/bin/Makefile uninstall
+first.
+
+Ayam also integrates with Unix desktop environments.
+The next steps need the xdg-utils from the Portland project to be installed.
+
+To install a system wide applications menu entry, enter:
+>make sysmenu
+
+The next commands should not be run as root!
+
+To add a desktop launcher to the current users desktop, enter:
+>make desktop
+
+If Ayam was installed to a user specific directory (e.g. on systems
+without root access), the following two targets add a user application
+menu entry and file type:
+>make menu
+>make filetype
+
+Some desktop environments require a restart to let these changes take effect!
+
+
+
+2. Compiling a Wrapped Standalone Version of Ayam
+-------------------------------------------------
+
+2.1 Step 1 - Requirements
+-------------------------
+
+The following requirements _must_ be met to compile a wrapped standalone
+version of Ayam:
+
+- ANSI-C-compiler
+- Tcl/Tk sources ( V8.2.x (see also Note 1) )
+  http://tcl.sourceforge.net/
+  Note that you do not need to _install_ Tcl/Tk to compile and use
+  the wrapped standalone version of Ayam. But compiling this Tcl/Tk
+  is still necessary. Compile static versions of Tcl/TK using:
+  >cd tcl8.2.x/unix
+  >./configure --disable-shared; make
+  >cd tk8.2.x/unix
+  >./configure --disable-shared; make
+  Also note that Wrap0.3 currently only works with Tcl/Tk 8.2.x, not
+  8.3.x, and not 8.4.x (see also Note 1)!
+- A zip utility that understands the -A option ( zip2.2 does ).
+- Wrap0.3
+  http://purl.oclc.org/net/nijtmans/wrap.html
+  Please compile a static "libz":
+  >make z
+  and a wrapped "wish" using wrap:
+  >make
+  and do not "make clean" afterwards. Note that Makefile.wrapped
+  is tuned to be used with Wrap0.3. If you use newer versions you
+  will likely have to adapt the ayam: and ayamwrap: targets.
+  If compile errors occur, note that in fact you only need the following
+  files from Wrap0.3 to successfully compile a wrapped Ayam:
+  wrapChan.o, wrapInit.o, wrapRsrc.o, compat/tclLoadNone.o, tkAppInit.o
+  You might be able to build them manually using e.g. "make tkAppInit.o"...
+- OpenGL ( gl.h, glu.h, libGL.so, libGLU.so )
+  Version of GL is uncritical ( 1.1 should do, see also Note 2 ),
+  Version of GLU should be atleast 1.2 ( due to the use of the GLU
+  tesselation facility in the PolyMesh and SubdivisionMesh objects ),
+  ( Mesa may be used as replacement for a real OpenGL. Since
+    version 3.5, Mesa uses the GLU from the free OpenGL sample
+    implementation from SGI and is therefore able to display
+    trimmed NURBS. Either install this version of Mesa, or the GLU
+    from the SGI sample implementation. )
+  http://www.mesa3d.org/
+- BMRT ( ri.h, slc.h, libribout.a, libslcargs.a )
+  http://www.exluna.com/
+  Note that BMRT's libribout.a and libslcargs.a come as binary only,
+  they might not be available on your platform!
+  If BMRT is not available on your platform, you can still
+  compile Ayam with the Affine Toolkit with reduced functionality,
+  read: no parsing of slc-compiled shaders.
+  You can also use libslxargs from Aqsis ( http://www.aqsis.com/ )
+  as libslcargs replacement and libri2rib from Aqsis as libribout
+  replacement.
+- Togl ( togl.h, togl.c )
+  For most systems a working Togl is already included in the Ayam
+  source distribution, see subdir togl. No download necessary!
+- TIFF ( tiffio.h, libtiff.so )
+  http://www.libtiff.org/
+- The Affine Toolkit
+  http://www.affine.com/
+  Source code of Affines Simple RIB writer is distributed with Ayam
+  ( see subdir "affine/" ).
+  No download necessary, unless you want to compile the RRIB (RIB import)
+  plugin!
+- BWidgets
+  http://tcllib.sourceforge.net/
+  Ayam has just been tested with BWidgetsV1.2.1 so far.
+  BWidgetsV1.2.1 are distributed with Ayam ( see subdir "tcl/BWidget-1.2.1/" ).
+  No download necessary!
+
+
+Tip:
+If you unpack Tcl/Tk, Wrap, and BMRT as sister directories
+to the Ayam directory, editing of the Makefile will be easier.
+
+Note 1:
+The official Ayam 1.13 Linux executable proves that with some surgery, also
+newer Tcl/Tk versions work with Wrap0.3 (atleast the Tcl scripts in the
+wrap0.3/lib directory need to be replaced with the new versions from the
+Tcl/Tk distribution).
+
+Note 2:
+If OpenGL 1.1 is not available to you, you can still compile Ayam, if your
+OpenGL is supporting the polygon offset extension (e.g. on IRIX 6.2).
+
+
+2.2 Step 2 - Compiling
+----------------------
+
+You have all required software and installed/compiled it successfully?
+
+- copy Makefile.wrapped to Makefile:
+>cp Makefile.wrapped Makefile
+
+- edit the Makefile, until it tells you to stop, all necessary
+  information should be in the Makefile ( yes, this _is_ a lot of work ):
+>emacs Makefile
+
+- issue a
+>make
+
+If you got errors while compiling, maybe the Ayam FAQ helps, see:
+http://www.ayam3d.org/faq.html
+
+Now Ayam should be compiled and ready for a test run.
+- try it:
+>./ayam
+
+
+2.3 Step 3 - Installation
+-------------------------
+
+If all went fine, you can now install Ayam, switch to root and enter:
+> make install
+
+By default, Ayam will install into /usr/local/ayam.
+It will create some sub-directories there, namely:
+/usr/local/ayam/bin for the executable, plugins, and scripts,
+/usr/local/ayam/doc for the documentation, and
+/usr/local/ayam/scn for the example scenes.
+
+You may want to add "/usr/local/ayam/bin" to your PATH environment variable.
+Use ayam.sh to start the application or be sure to also add "." or
+"/usr/local/ayam/bin/plugins" to your LD_LIBRARY_PATH
+environment variable, otherwise Ayam might not be able to load the plugins.
+
+The installation procedure will also install the current Makefile,
+that may be used to uninstall Ayam again, e.g. using:
+> make -f /usr/local/ayam/bin/Makefile uninstall
+
+To check what installing/uninstalling will do to your system use
+> make -n install
+or
+> make -n -f /usr/local/ayam/bin/Makefile uninstall
+first.
+
+Ayam also integrates with Unix desktop environments.
+The next steps need the xdg-utils from the Portland project to be installed.
+
+To install a system wide applications menu entry, enter:
+root> make sysmenu
+
+The next commands should not be run as root!
+
+If Ayam was installed to a user specific directory (e.g. on systems
+without root access) use the menu target instead of sysmenu:
+user> make menu
+
+To add a desktop launcher to the current users desktop, enter:
+user> make desktop
+
+To create a file type on the current users desktop:
+user> make filetype
+
+Some desktop environments require a restart to let these changes take effect!
+
+
+
+3. Additional Targets (Compiling Plugins)
+-----------------------------------------
+
+Independent from the build type of Ayam, the Makefiles contain
+additional targets to build plugins and manage the installation.
+
+Before compiling any plugins, the Makefile must be set up properly
+for the compilation of Ayam.
+
+If you get errors while compiling plugins, maybe the Ayam FAQ helps, see:
+http://www.ayam3d.org/faq.html
+
+
+3.1 MF3D Import/Export Plugin
+-----------------------------
+
+To compile the MF3D Import/Export plugin two steps are required:
+>make mf3d
+( to compile the MF3D code from Apple (Duet) )
+and
+>make mfio.so
+( to compile the plugin )
+
+Load the plugin via menu entry "File/Load Plugin".
+Use it via menu entry "File/Import/Apple 3DMF" and "File/Export/Apple 3DMF"
+respectively.
+
+
+3.2 RIB Import Plugin (RRIB)
+----------------------------
+
+Additional prerequisites for the RIB import plugin:
+You need the full Affine distribution
+( download it from http://www.affine.com/ )!
+
+Compile libribrdr.a, libribhash.a and libribnop.a.
+This is done using 
+>cd affine
+
+>make setup<your platform>
+( use "sun" as platform on Linux )
+
+If you are using Affine0008 you need to tune Affine to _not_
+use libz by editing "config.mak":
+o remove "-lz" from the variable ZLIB
+o remove "-DRIB_ZLIB" from COPTS
+
+If you are using Affine0008 and gcc you, additionally, need to change
+"readrib/declare.c":
+o change all occurences of the variable "inline" to "myinline"
+( gcc does not like variables named "inline" without -ansi, but fails
+to compile other parts of Affine if -ansi is enabled )
+
+now compile Affine:
+>make World
+Ignore errors, unless you do not get "lib/librdr.a" or "lib/libribhash.a".
+In case you do not have "lib/libribnop.a" now, build it:
+>cd ributil
+>make ../lib/libribnop.a
+
+go back to Ayam:
+>cd ayam/src
+Point your Ayam Makefile to the Affine libraries,
+see the variable RRIBLIBS.
+Watch out for possible version clashes of header files
+( ayam/src/affine/include vs. affine/include ).
+The version of the Affine headers currently distributed with Ayam
+is 0008. If needed, just copy the headers from the Affine distribution
+to the Ayam distribution.
+
+Now compile the plugin:
+>make rrib.so
+
+Load it via menu entry "File/Load Plugin".
+Use it via menu entry "File/Import/RenderMan RIB"
+
+
+3.3 Importance Driven Rendering Plugin (IDR)
+--------------------------------------------
+
+There are no additional prerequisites to compile IDR, just type:
+>make idr.so
+
+Load it via menu entry "File/Load Plugin".
+Use it via menu entry "Custom/Open IDR".
+
+
+3.4 Shader Parsing Plugins
+--------------------------
+
+Ayam supports the following shader parsing plugins:
+"ayslb" for Air, "ayslc" for BMRT, "ayso" for RDC, "ayslo" for PRMan,
+"ayslx" for Aqsis, "ayslo3d" for 3Delight, and "aysdr" for Pixie.
+Additional prerequisites:
+The respective renderer has to be installed to compile a shader parsing
+plugin. To compile "aysdr", the Pixie renderer source tree has to be
+available, configured, and compiled.
+
+In order to compile a shader parsing plugin, adapt the following variables
+in the Makefile:
+for Aqsis: AQSISDIR, AYSLXINCDIR, AYSLXLIBS,
+for BMRT: BMRTDIR, AYSLCINCDIR, AYSLCLIBS,
+for RenderDotC: RDCDIR, AYSOINCDIR, AYSOLIBS,
+for PRMan: PRMANDIR, AYSLOINCDIR, AYSLOLIBS,
+for 3Delight: 3DLDIR, AYSLO3DINCDIR, AYSLO3DLIBS,
+for Pixie: SDRDIR, AYSDRINCDIR, PIXIESRC, AYSDRLIBS
+for Gelato: GELDIR, AYGSOINCDIR, AYGSOLIBS
+
+then type:
+>make ayslb.so
+>make ayslc.so
+>make ayslo.so
+>make ayslo3d.so
+>make ayso.so
+>make ayslx.so
+>make aysdr.so
+>make aygso.so
+
+After loading of one of these plugins (e.g. using the main menu entry
+"File/Load Plugin") the internal shader scanning code of Ayam will
+be disabled, and Ayam will from that moment on just scan shaders of the
+renderer that the plugin supports.
+
+
+3.5 AyCSG (CSG Preview) Plugin
+------------------------------
+
+Additional prerequisites to compile the AyCSG plugin are:
+OpenCSG ( get it from http://www.opencsg.org/ )
+GLEW ( GLEW is included in OpenCSG, otherwise get it from
+ http://glew.sourceforge.net/ )
+RenderTexture (RenderTexture is included in OpenCSG, otherwise get it from
+ http://www.markmark.net/misc/rendertexture.html )
+
+Your OpenGL subsystem has to support PBuffers or the frame buffer object
+extension.
+ ( Check with "glxinfo". If you have no GLX PBuffers you can compile Ayam
+   with Mesa without hardware acceleration to get PBuffers support. )
+
+Download and compile all prerequisites. Compile the example application
+of OpenCSG and try it to check whether your OpenGL subsystem is compatible.
+
+In order to compile the plugin, adapt the following variables
+in the Ayam Makefile:
+OPENCSGDIR, GLEWDIR
+
+then type:
+>make aycsg.so
+
+Load the plugin via menu entry "File/Load Plugin".
+Use the plugin via the new icon in the view menu bar.
+See also the AyCSG preferences in the main menu "Custom/AyCSG Preferences".
+
+
+3.6 onio (OpenNURBS IO) Plugin for Rhino 3DM
+--------------------------------------------
+
+Additional prerequisites to compile the onio plugin are:
+OpenNURBS ( get it from http://www.opennurbs.com/ ).
+Build opennurbs.a and opennurbs_extensions.o like this:
+>make
+>make opennurbs_extensions.o
+
+In order to compile the plugin, adapt the following variable
+in the Ayam Makefile:
+OPENNURBSDIR
+
+then type:
+>make onio.so
+
+Load it via menu entry "File/Load Plugin".
+Use it via menu entry "File/Import/Rhino 3DM" and "File/Export/Rhino 3DM",
+respectively.
+
+
+3.7 DXFIO (AutoCad DXF IO) Plugin
+---------------------------------
+
+Additional prerequisites to compile the dxfio plugin are:
+Dime ( get it from http://www.sim.no/ ).
+
+In order to compile the plugin, adapt the following variable
+in the Ayam Makefile:
+DIMEDIR
+
+then type:
+>make dxfio.so
+
+Load it via menu entry "File/Load Plugin".
+Use it via menu entry "File/Import/AutoCad DXF" and "File/Export/AutoCad DXF",
+respectively.
+
+
+3.8 OBJIO (Wavefront OBJ IO) Plugin
+-----------------------------------
+
+There are no additional prerequisites to compile the objio plugin.
+Just type:
+>make objio.so
+
+to compile the plugin.
+
+Load it via menu entry "File/Load Plugin".
+Use it via menu entry "File/Import/Wavefront OBJ" and
+"File/Export/Wavefront OBJ", respectively.
+
+
+3.9 MOPSI (Mops Import) Plugin
+------------------------------
+
+There are no additional prerequisites to compile the mopsi plugin.
+Just type:
+>make mopsi.so
+
+to compile the plugin.
+
+Load it via menu entry "File/Load Plugin".
+Use it via menu entry "File/Import/Mops".
+
+
+3.10 X3DIO (Web3D X3D IO) Plugin
+--------------------------------
+
+Additional prerequisites to compile the x3dio plugin are:
+Expat and SCEW.
+
+In order to compile the plugin, adapt the following variables
+in the Ayam Makefile:
+EXPATDIR, SCEWDIR
+
+then type:
+>make x3dio.so
+
+Load it via menu entry "File/Load Plugin".
+Use it via menu entry "File/Import/Web3D X3D" and "File/Export/Web3D X3D",
+respectively.
+
+
+3.11 SDNPatch (Subdivision NURBS) Plugin
+----------------------------------------
+
+Additional prerequisites to compile the sdnpatch plugin are:
+libsnurbs, libply (already contained in libsnurbs distribution) and,
+depending on your compiler, boost.
+
+In order to compile the plugin, adapt the following variables
+in the Ayam Makefile:
+SNURBSDIR, SDNPATCHINC
+
+then type:
+>make sdnpatch.so
+
+Load it via menu entry "File/Load Plugin".
+Use it via menu entry "Create/Custom/SDNPatch" and "Custom/SDNPatch".
+
+
+3.12 jsinterp (JavaScript Scripting) Plugin
+-------------------------------------------
+
+Additional prerequisites to compile the jsinterp plugin are:
+Mozilla SpiderMonkey V1.7 ( get it from http://www.mozilla.org/ )
+
+In order to compile the plugin, adapt the following variables
+in the Ayam Makefile:
+JSDIR, JSINC, JSLIB
+
+then type:
+>make jsinterp.so
+
+Load it via menu entry "File/Load Plugin".
+Use it via the "jsEval" command or a Script object where the first line is
+a JavaScript comment:
+/* Ayam, use: JavaScript */
+
+
+3.13 luainterp (Lua Scripting) Plugin
+-------------------------------------------
+
+Additional prerequisites to compile the jsinterp plugin are:
+Lua V5.2.0 ( get it from http://www.lua.org/ )
+
+In order to compile the plugin, adapt the following variables
+in the Ayam Makefile:
+LUADIR, LUAINC, LUALIB
+
+then type:
+>make luainterp.so
+
+Load it via menu entry "File/Load Plugin".
+Use it via the "luaEval" command or a Script object where the first line is
+a Lua comment:
+-- Ayam, use: Lua
+
+
+3.14 Superformula Curve Plugin
+------------------------------
+
+In order to compile the plugin, type:
+>make sfcurve.so
+
+Load it via menu entry "File/Load Plugin".
+
+
+3.15 Installing/Uninstalling Ayam
+---------------------------------
+
+Use
+>make install
+to install Ayam into the system.
+
+By default, Ayam will install into /usr/local/ayam.
+It will create some sub-directories there, namely:
+/usr/local/ayam/bin for the executable,
+/usr/local/ayam/lib for the plugins and accompanying Tcl files, and
+/usr/local/ayam/doc for the documentation.
+
+You may want to add "/usr/local/ayam/bin" to your PATH environment variable.
+Be sure to also add "." or "/usr/local/ayam/lib" to your LD_LIBRARY_PATH
+environment variable, otherwise Ayam might not be able to load the plugins.
+
+The installation procedure will also install the current Makefile,
+that may be used to uninstall Ayam again, e.g. using:
+>make -f /usr/local/ayam/lib/Makefile uninstall
+
+To check what installing/uninstalling will do to your system use
+>make -n install
+or
+>make -n -f /usr/local/ayam/lib/Makefile uninstall
+first.
+
+Use
+>make clean
+to remove all objects; this step is necessary if you switch build types
+( shared <-> wrapped )!
+
+>make mostlyclean
+to make clean but not remove the objects that never change,
+like Apples mf3d code and Affines sribw code.
+
+
+3.16 Creating an application bundle on MacOSX
+---------------------------------------------
+
+Since Ayam 1.9, the Ayam source distribution contains a skeleton
+directory structure for an application bundle in the "bin" directory
+and the Makefile for the shared version of Ayam contains a new target
+named "Ayam.app" to fill this skeleton appropriately.
+
+After compilation of Ayam and plugins just type:
+>make Ayam.app
+
+to fill the application bundle with the necessary files. After that
+you can start Ayam using a double click on the application bundle in
+the finder.
+You can also then "install" Ayam easily by dragging the filled
+application bundle to your "Programs" folder in the finder.
+
+Since Ayam 1.10, there is a second target "Ayam.appfw" to build an
+application bundle, that, additionally, contains the Tcl/Tk frameworks.
+The application bundles built with the Ayam.appfw target will only use
+the Tcl/Tk frameworks from the bundle, regardless what is installed in
+the system.
+To use this target download and compile your own Tcl/Tk frameworks, then
+copy them _manually_ to the application bundle skeleton like this:
+
+>cp -R build/tcl/Tcl.framework ayam/bin/Ayam.app/Contents
+>cp -R build/tk/Tk.framework ayam/bin/Ayam.app/Contents
+
+maybe you need to do:
+
+>chmod u+w ayam/bin/Ayam.app/Contents/Tcl.framework/Versions/Current/Tcl
+>chmod u+w ayam/bin/Ayam.app/Contents/Tk.framework/Versions/Current/Tk
+
+now; then you can
+
+>cd ayam/src
+>make Ayam.appfw
+
+to mate the frameworks and the Ayam executable in the application bundle.
+
+Note that the application bundle targets only work properly for the Aqua
+version of Ayam and that the Aqua version of Ayam will not respond to any
+MacOSX AppleScript application events unless started from the application
+bundle.
+
+
+
+4. Compile Time Configuration Options
+-------------------------------------
+
+All compile time configuration options are controlled via preprocessor
+symbols that have to be defined at compile time. The value of the
+respective definition is irrelevant. Or, in other words, if the value
+of a definition is 0, the corresponding option is _not_ turned off!
+All that counts is the presence of the definition. You can add a
+definition easily using the -D command line option of your C/C++ compiler.
+You do this by adding elements like "-DAYWITHAQUA" to the CFLAGS variable
+in the Makefile.
+
+Here is a complete list of all compile time configuration options
+supported by Ayam:
+
+Platform support:
+AYWITHAQUA - set if you compile for Mac OS X Aqua (also enables work-arounds
+ for bugs in Apple OpenGL)
+AYIRIXBUG - enable workaround for SGI GLU bug
+SOLARIS_BUG - enable workaround for Solaris Xmu bug in Togl
+AYENABLEWAIT - enable bugfix to avoid zombie processes upon rendering (Linux)
+AYENABLEFEXIT - enable fast exit procedure (Mac OS X)
+AYNOUNISTDH - set if your system has no unistd.h header file, if you set
+ this option the rotation of views with cursor keys held down will quickly
+ fill up the undo buffer
+AYNOTEMPNAM - set if your system has no tempnam() function, if you set
+ this option the TmpDir preference setting will be ignored for the creation
+ of temporary RIB files (i.e. for rendering from a view) and the RIB files
+ will end up in a place determined by your system
+AYGLUATTRIBBUG - enable workaround for a GLU bug (no NURBS display
+ after NURBS tesselation was in use)
+
+Additional features:
+AYENABLEPPREV - enable permanent preview feature
+AYNOSAFEINTERP - let scripts of Script objects and NS tags run in the main
+ interpreter
+
+
+End of Compilation Instructions,
+-- 
+http://www.ayam3d.org/    Reconstruct the World!
+

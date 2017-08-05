@@ -1,0 +1,80 @@
+Tcl/Tk 8.4.20 Release Announcement
+June 1, 2013
+
+The Tcl Core Team is pleased to announce the 8.4.20 releases of the Tcl
+dynamic language and the Tk toolkit.  This is the twentieth and *FINAL*
+patch release of Tcl/Tk 8.4.  With this release, support for Tcl/Tk 8.4
+comes to an end.  The current release sequence for Tcl and Tk is 8.6.*.
+All Tcl/Tk users are encouraged to migrate to that release sequence for
+future work.
+
+A note on Mac OS X systems:  Tk 8.4.20 continues to be implemented on
+the Carbon system, as were earlier 8.4.* releases.  This means Tk 8.4.20
+is not suitable for any current Mac OS X system.  It's a final patch
+release of obsolete software that is useful only on equally obsolete
+Mac OS X systems.  Those who need Tk suitable for current Mac OS X systems
+are already using at least Tk 8.5.
+
+More details can be found below.  We would like to express our gratitude
+to all those who submit bug reports and patches.  This information is
+invaluable in enabling us to identify and eliminate problems in the core.
+
+Where to get the new releases:
+------------------------------
+
+Tcl/Tk 8.4.20 sources are freely available as open source from the
+Tcl Developer Xchange web site at:
+
+        http://www.tcl.tk/software/tcltk/8.4.html
+
+This web page also contains additional information about the releases,
+including new features and notes about installing and compiling the
+releases.  Sources are always available from the Tcl SourceForge
+project's file distribution area:
+
+	http://sourceforge.net/projects/tcl/files/
+
+Binaries for most major platforms will be available from:
+
+        http://www.activestate.com/Tcl
+
+For additional information:
+---------------------------
+
+Please visit the Tcl Developer Xchange web site:
+
+        http://www.tcl.tk/
+
+This site contains a variety of information about Tcl/Tk in general, the
+core Tcl and Tk distributions, Tcl development tools, and much more.
+
+Summary of Changes since Tcl/Tk 8.4.19:
+--------------------------------------
+
+It has been five years since the releases of Tcl and Tk 8.4.19.  The
+following list of changes is limited to only the most remarkable changes.
+The changes file is more complete, but also more limited than usual.
+
+   * Restored Tk compat with post xproto-7.0.13 X11 headers from X.org.
+
+   * New color names: aqua crimson fuchsia indigo lime olive silver teal
+
+   * Update to Unicode 6.2 support
+
+   * [source] of utf-8 files recognizes the Byte Order Mark.
+
+   * [lappend] does not fire read traces.
+
+   * Fewer lies told by [file (read|writ|execut)able] commands.
+
+   * New package releases: dde 1.3.3, http 2.5.7, msgcat 1.3.5,
+	registry 1.2.2, tcltest 2.2.11, and platform 1.0.12.
+
+   * Much reduced thread locking on tcl_precision.
+
+   * Long nonfunctional sources for Mac 9 systems removed.
+
+--
+Tcl Core Team and Maintainers
+Don Porter, Tcl Core Release Manager
+

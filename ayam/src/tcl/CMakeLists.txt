@@ -1,0 +1,175 @@
+set(TCL_FILES
+	about.tcl
+	action.tcl
+	acurve.tcl
+	ai.tcl
+	ayam.tcl
+	balloon.tcl
+	bevel.tcl
+	birail1.tcl
+	birail2.tcl
+	box.tcl
+	bpatch.tcl
+	browser.tcl
+	bwlangrc.tcl
+	camera.tcl
+	cap.tcl
+	clone.tcl
+	concatnc.tcl
+	concatnp.tcl
+	cone.tcl
+	console.tcl
+	control.tcl
+	cylinder.tcl
+	disk.tcl
+	extrnc.tcl
+	extrnp.tcl
+	extrude.tcl
+	gordon.tcl
+	hyperb.tcl
+	icons.tcl
+	icurve.tcl
+	instance.tcl
+	io.tcl
+	ipatch.tcl
+	level.tcl
+	light.tcl
+	material.tcl
+	mirror.tcl
+	mmenu.tcl
+	ms.tcl
+	ncircle.tcl
+	ncurve.tcl
+	npatch.tcl
+	objbar.tcl
+	objsel.tcl
+	offnc.tcl
+	offnp.tcl
+	olb.tcl
+	pamesh.tcl
+	pane.tcl
+	parab.tcl
+	pclip.tcl
+	plb.tcl
+	pomesh.tcl
+	prefs.tcl
+	prog.tcl
+	prop.tcl
+	render.tcl
+	revolve.tcl
+	riattr.tcl
+	riinc.tcl
+	riopt.tcl
+	riproc.tcl
+	root.tcl
+	run.tcl
+	safe.tcl
+	script.tcl
+	sdmesh.tcl
+	select.tcl
+	shader.tcl
+	shortcut.tcl
+	skin.tcl
+	sphere.tcl
+	splash.tcl
+	sweep.tcl
+	swing.tcl
+	tc.tcl
+	text.tcl
+	tgui.tcl
+	tmp.tcl
+	toolbox.tcl
+	torus.tcl
+	tree.tcl
+	trim.tcl
+	uie.tcl
+	view.tcl
+	vmenu.tcl
+	widget.tcl
+	win.tcl
+	zap.tcl
+	)
+
+install(FILES ${TCL_FILES} DESTINATION ${BIN_DIR}/tcl)
+
+set(bwidget_files
+BWidget-1.2.1/passwddlg.tcl
+BWidget-1.2.1/font.tcl
+BWidget-1.2.1/color.tcl
+BWidget-1.2.1/spinbox.tcl
+BWidget-1.2.1/utils.tcl
+BWidget-1.2.1/dynhelp.tcl
+BWidget-1.2.1/labelentry.tcl
+BWidget-1.2.1/pkgIndex.tcl
+BWidget-1.2.1/bitmap.tcl
+BWidget-1.2.1/xpm2image.tcl
+BWidget-1.2.1/LGPL.txt
+BWidget-1.2.1/listbox.tcl
+BWidget-1.2.1/widget.tcl
+BWidget-1.2.1/entry.tcl
+BWidget-1.2.1/scrollframe.tcl
+BWidget-1.2.1/buttonbox.tcl
+BWidget-1.2.1/labelframe.tcl
+BWidget-1.2.1/panedw.tcl
+BWidget-1.2.1/scrollview.tcl
+BWidget-1.2.1/arrow.tcl
+BWidget-1.2.1/label.tcl
+BWidget-1.2.1/LICENSE.txt
+BWidget-1.2.1/dialog.tcl
+BWidget-1.2.1/pagesmgr.tcl
+BWidget-1.2.1/titleframe.tcl
+BWidget-1.2.1/dropsite.tcl
+BWidget-1.2.1/progressbar.tcl
+BWidget-1.2.1/CHANGES.txt
+BWidget-1.2.1/messagedlg.tcl
+BWidget-1.2.1/mainframe.tcl
+BWidget-1.2.1/separator.tcl
+BWidget-1.2.1/README.txt
+BWidget-1.2.1/init.tcl
+BWidget-1.2.1/button.tcl
+BWidget-1.2.1/dragsite.tcl
+BWidget-1.2.1/lang/en.rc
+BWidget-1.2.1/lang/de.rc
+BWidget-1.2.1/lang/fr.rc
+BWidget-1.2.1/lang/es.rc
+BWidget-1.2.1/tree.tcl
+BWidget-1.2.1/scrollw.tcl
+BWidget-1.2.1/combobox.tcl
+BWidget-1.2.1/progressdlg.tcl
+BWidget-1.2.1/notebook.tcl
+)
+
+install(FILES ${bwidget_files} DESTINATION ${BIN_DIR}/tcl/BWidget-1.2.1)
+
+set(bwidget_image_files
+BWidget-1.2.1/images/italic.gif
+BWidget-1.2.1/images/hourglass.gif
+BWidget-1.2.1/images/opmove.xbm
+BWidget-1.2.1/images/save.gif
+BWidget-1.2.1/images/openfold.gif
+BWidget-1.2.1/images/overstrike.gif
+BWidget-1.2.1/images/dragfile.gif
+BWidget-1.2.1/images/palette.gif
+BWidget-1.2.1/images/paste.gif
+BWidget-1.2.1/images/minus.xbm
+BWidget-1.2.1/images/dragicon.gif
+BWidget-1.2.1/images/underline.gif
+BWidget-1.2.1/images/copy.gif
+BWidget-1.2.1/images/bold.gif
+BWidget-1.2.1/images/folder.gif
+BWidget-1.2.1/images/open.gif
+BWidget-1.2.1/images/info.gif
+BWidget-1.2.1/images/opcopy.xbm
+BWidget-1.2.1/images/error.gif
+BWidget-1.2.1/images/warning.gif
+BWidget-1.2.1/images/oplink.xbm
+BWidget-1.2.1/images/passwd.gif
+BWidget-1.2.1/images/file.gif
+BWidget-1.2.1/images/undo.gif
+BWidget-1.2.1/images/new.gif
+BWidget-1.2.1/images/plus.xbm
+BWidget-1.2.1/images/cut.gif
+BWidget-1.2.1/images/print.gif
+BWidget-1.2.1/images/question.gif
+)
+install(FILES ${bwidget_image_files} DESTINATION ${BIN_DIR}/tcl/BWidget-1.2.1)

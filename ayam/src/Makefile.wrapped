@@ -1,0 +1,835 @@
+# Emacs, this is -*- Mode: makefile -*-
+#
+# Makefile.wrapped [17. Oct 2014]
+# Makefile for Ayam (wrapped version)
+#
+# See the file ayam/src/INSTALL for prerequisites and instructions.
+# You can also use "wish ayamConf.tcl" to create a Makefile.
+
+# Choose an installation prefix.
+PREFIX = /usr/local/ayam
+#PREFIX = /opt/ayam
+#PREFIX = /home/user/ayam
+
+# Where shall the executable be installed?
+BINDIR = $(PREFIX)/bin
+
+# Where shall the plugins and custom objects be installed?
+LIBDIR = $(PREFIX)/bin/plugins
+
+# Where shall the documentation be installed?
+DOCDIR = $(PREFIX)/doc
+
+# Where shall the example scenes be installed?
+SCNDIR = $(PREFIX)/scn
+
+INSTALL = ./ninstall
+#INSTALL = install
+MKDIR = mkdir -p
+
+# the compiler
+#CC = cc
+#CC = gcc
+
+# the C++ compiler (just in use for the AyCSG, onio, and aygso plugin)
+#CXX = CC
+#CXX = g++-3.0
+
+# the linker
+# Starting with BMRT2.5, libribout and libslcargs are in C++,
+# which forces us to use "CC" or "g++" to link the right libraries
+# automatically
+#LD = $(CXX)
+# IRIX:
+#LD = CC
+# Linux:
+#LD = g++
+# MacOSX
+#LD = cc
+
+# flags for the compiler
+# o add -DAYUSEAFFINE if you use the Affine Toolkit as libribout replacement
+#   _else_
+#   add -DAYUSEBMRTRIBOUT if you link with libribout from BMRT
+#   _else_
+#   add -DAYUSEAQSISRIB if you link with libri2rib from Aqsis
+# o add -DAYUSESLCARGS if you use libslcargs from BMRT
+#   _or_
+#   add -DAYUSESLXARGS if you use libslxargs from Aqsis
+# o add -DAYNORIDEFORM if your RIB writer has no support for RiDeformation
+# o add -DAYNOTEMPNAM if your system has no tempnam();
+#   (unlikely, but tempnam() is not ANSI)
+#   Note that the preference setting TmpDir will always be ignored then!
+# o always use -DAYWRAPPED to create a wrapped binary
+# o add -DAYENABLEPPREV to enable the permanent preview feature
+# o add -DAYENABLEWAIT to enable the waitPid command (Unix/Linux only)
+# o add -DAYENABLEFEXIT to enable the fast exit procedure (MacOSX)
+# o add -DAYNOUNISTDH if your system has no "unistd.h" (no "times()" system
+#   call); if you add this option, the detection of held down keys will be
+#   switched off and rotating views via keyboard will fill up the undo buffer
+# o add -DAYOLDSLX if you compile with an Aqsis libslxargs prior to 0.7.19
+# o add -DUSE_NON_CONST if you compile with Tcl/Tk 8.4.x
+# o add -DAYGLUATTRIBBUG if you compile with a GLU library that confuses
+#   the OpenGL attribute state when tesselating NURBS (no NURBS display
+#   after tesselation was in use)
+# o add -DAYNOSAFEINTERP if you want scripts in Script objects and NS tags
+#   to be run in the main interpreter (not recommended for security reasons)
+
+CFLAGS = -O -DAYWRAPPED -DAYUSEAFFINE
+# IRIX (-DAYIRIXBUG is needed by ncurve.c to work around a bug in libGLU):
+#CFLAGS = -O -fullwarn -woff 1048 -DAYWRAPPED -DAYIRIXBUG -DAYUSESLCARGS -DAYUSEBMRTRIBOUT
+# Linux:
+#CFLAGS = -O2 -Wall -DAYWRAPPED -DAYUSESLCARGS -DAYUSEBMRTRIBOUT -DAYENABLEWAIT
+# Solaris (-DSOLARIS_BUG is needed by togl.c to work around a bug in libXmu):
+#CFLAGS = -O -DSOLARIS_BUG -DAYWRAPPED -DAYUSESLCARGS -DAYUSEBMRTRIBOUT
+# MacOSX (X11):
+#CFLAGS = -O -DAYWRAPPED -DAYUSEAFFINE -DAYENABLEFEXIT
+
+# ld flag to switch to static linking
+# IRIX:
+LDSWSTATIC = -static
+# Linux:
+#LDSWSTATIC = -Wl,-Bstatic
+# MacOSX:
+#LDSWSTATIC =
+
+# ld flag to switch to dynamic linking
+# IRIX:
+LDSWDYNAMIC = -dynamic
+# Linux:
+#LDSWDYNAMIC = -Wl,-Bdynamic
+# MacOSX:
+#LDSWDYNAMIC =
+
+# extra ld flags needed to compile ayam
+# (gcc needs -rdynamic to allow shared objects access to global symbols)
+# (gcc needs -nodefaultlibs to allow libstdc++ be compiled statically)
+# IRIX:
+EXLDFLAGS =
+# Linux:
+#EXLDFLAGS = -rdynamic -nodefaultlibs
+# MacOSX:
+#EXLDFLAGS = -flat_namespace -undefined suppress
+
+# Togl
+# Path to "togl.h":
+TOGLINC = -Itogl
+
+# "togl.o":
+TOGLOBJECT = togl/togl.o
+
+# OpenGL
+# OpenGL includes
+GLINC = -I/usr/X11R6/include/
+# link options for linking with OpenGL libraries
+GLLIBS = -lGLU -lGL
+
+# TIFF
+TIFFINC = -I/usr/include/
+# link options for linking with TIFF library
+TIFFLIB = -ltiff
+
+# Tcl/Tk
+# Tcl directory
+TCLDIR = ../../tcl8.4.19
+#TCLDIR = ../../tcl8.2
+
+# Tcl includes
+TCLINC = -I$(TCLDIR)/generic
+
+# Tcl library
+# link options for linking with Tcl library
+TCLLIB = -L$(TCLDIR)/unix -ltcl8.4
+#TCLLIB = -L$(TCLDIR)/unix -ltcl8.2
+#TCLLIB = -ltcl
+
+# Tk sources directory
+# Note: You really need the Tk sources in order to compile Ayam!
+TKDIR = ../../tk8.4.19
+#TKDIR = ../../tk8.2
+
+# Tk includes
+TKINC = -I$(TKDIR)/generic -I$(TKDIR)/unix
+
+# Tk library
+# link options for linking with Tk library
+TKLIB = -L$(TKDIR)/unix -ltk8.4
+#TKLIB = -L$(TKDIR)/unix -ltk8.2
+#TCLLIB = -ltk
+
+
+# X11 library
+# link options for linking with X11
+X11LIBS = -L/usr/X11R6/lib -lXmu -lXext -lX11
+#X11LIBS = -L/usr/X11R6/lib -lXmu -lXext -lX11
+
+
+# Affine Toolkit
+# where is ributil.h?
+AFFINEINC = -I./affine/include
+# if you do not use Affine as BMRT libribout replacement:
+#AFFINEOBJS =
+# if you use affine as BMRT libribout replacement
+# (add -DAYUSEAFFINE to CFLAGS above!):
+AFFINEOBJS = ./affine/src/write.o ./affine/src/constant.o
+
+
+# Aqsis
+AQSISDIR = /usr/local/aqsis
+AQSISINC = -I$(AQSISDIR)/include
+AQSISLIBDIR = $(AQSISDIR)/lib
+# if you do not use Aqsis libslxargs as libslcargs replacement:
+AQSISOBJS =
+# if you use Aqsis libslxargs (add -DAYUSESLXARGS to CFLAGS above!):
+#AQSISOBJS = $(AQSISLIBDIR)/rcdummy.o $(AQSISLIBDIR)/libshadervm.so $(AQSISLIBDIR)/libshaderexecenv.so $(AQSISLIBDIR)/libslxargs.so $(AQSISLIBDIR)/libaqsistypes.so -L /usr/local/lib -llog4cpp
+
+# if you do not use Aqsis libri2rib as BMRT libribout replacement:
+AQSISRI2RIB =
+# if you use Aqsis libri2rib (add -DAYUSEAQSISRIB to CFLAGS above!):
+#AQSISRI2RIB = $(AQSISLIBDIR)/libri2rib.so -L /usr/local/lib -llog4cpp
+
+
+# BMRT
+# If you use the libribout from BMRT2.x (x >= 5), do _not_ link with
+# libslcargs (leave SLCARGSLIB empty), as its functionality is already
+# present in libribout (in any case, keep -DAYUSESLCARGS set in CFLAGS above)!
+BMRTDIR = ../../BMRT2.6
+BMRTINC = -I$(BMRTDIR)/include
+BMRTLIBDIR = $(BMRTDIR)/lib
+# if you use BMRT libribout and not Affine:
+#RIBOUTLIB = -L$(BMRTLIBDIR) -lribout
+# if you use Affine or Aqsis libri2rib as BMRT libribout replacement:
+RIBOUTLIB =
+# if you do not use libslcargs from BMRT:
+SLCARGSLIB =
+# if you use Affine as BMRT libribout replacement and libslcargs from BMRT:
+#SLCARGSLIB =  -L$(BMRTLIBDIR) -lslcargs
+
+
+# Wrap
+# where is the wrap distribution?
+WRAPDIR = ../../wrap0.3
+WRAPOBJS = $(WRAPDIR)/wrapChan.o $(WRAPDIR)/wrapInit.o $(WRAPDIR)/wrapRsrc.o $(WRAPDIR)/compat/tclLoadNone.o $(WRAPDIR)/tkAppInit.o
+
+# zlib
+# link options for linking with zlib
+ZLIB = -L$(WRAPDIR) -lz
+
+# libstdc++
+# To make the Linux exe more portable between different Linux
+# distributions, we link libstdc++ statically. Note that for
+# this to work g++ also needs -nodefaultlibs in EXLDFLAGS above.
+# Linux
+# using gcc, to link stdc++ statically, use:
+STDCPPLIB = -L/usr/lib -lstdc++ -lgcc
+# IRIX
+# using cc (IRIX, Solaris, MacOSX) use
+#STDCPPLIB =
+
+# BWidgets
+# where are the BWidgets?
+BWIDGETS = tcl/BWidget-1.2.1
+
+# UPX
+# do you have upx (universal packer for executables) installed?
+# yes:
+#UPX = upx
+# no:
+UPX = touch
+
+# strip
+# do you want to strip the executable?
+# yes:
+STRIP = strip
+# MacOSX (X11):
+# no:
+#STRIP = touch
+
+# Dynamic Loading
+# Library for dynamic loading (contains dlopen()) and library for
+# threads support, if third party libs (e.g. Mesa) require it
+# IRIX, Solaris, (MacOSX: get libdl from Fink!):
+#DL = -ldl
+# Linux:
+DL = -ldl -lpthread
+# NetBSD:
+#DL =
+
+# linker flags to produce shared modules:
+# Linux, Solaris, IRIX:
+SHLFLAGS = -shared
+# MacOSX (X11):
+#SHLFLAGS = -bundle -flat_namespace -undefined suppress
+
+# RRIB Plugin Required Libraries
+# where is the complete Affine distribution?
+AFFINEDIR = ../../affine0008
+RRIBLIBS = -L$(AFFINEDIR)/lib -lribrdr -lribhash -lribnop -lm
+
+AYAMOBJS = aycore/bbc.o\
+	aycore/clear.o\
+	aycore/clevel.o\
+	aycore/clipb.o\
+	aycore/comp.o\
+	aycore/convert.o\
+	aycore/draw.o\
+	aycore/error.o\
+	aycore/geom.o\
+	aycore/instt.o\
+	aycore/interpol.o\
+	aycore/notify.o\
+	aycore/ns.o\
+	aycore/oact.o\
+	aycore/object.o\
+	aycore/otype.o\
+	aycore/matt.o\
+	aycore/pact.o\
+	aycore/pomesht.o\
+	aycore/prop.o\
+	aycore/provide.o\
+	aycore/prefs.o\
+	aycore/pv.o\
+	aycore/quat.o\
+	aycore/read.o\
+	aycore/riattr.o\
+	aycore/riopt.o\
+	aycore/sdmesht.o\
+	aycore/sel.o\
+	aycore/selp.o\
+	aycore/shade.o\
+	aycore/shader.o\
+	aycore/table.o\
+	aycore/tags.o\
+	aycore/tc.o\
+	aycore/tcmd.o\
+	aycore/tgui.o\
+	aycore/toglcb.o\
+	aycore/tmp.o\
+	aycore/trafo.o\
+	aycore/undo.o\
+	aycore/vact.o\
+	aycore/viewt.o\
+	aycore/wrib.o\
+	aycore/write.o\
+	nurbs/act.o\
+	nurbs/bevelt.o\
+	nurbs/capt.o\
+	nurbs/ict.o\
+	nurbs/ipt.o\
+	nurbs/knots.o\
+	nurbs/nb.o\
+	nurbs/nct.o\
+	nurbs/npt.o\
+	nurbs/pmt.o\
+	nurbs/stess.o\
+	nurbs/tess.o\
+	objects/acurve.o\
+	objects/bevel.o\
+	objects/birail1.o\
+	objects/birail2.o\
+	objects/box.o\
+	objects/bpatch.o\
+	objects/camera.o\
+	objects/cap.o\
+	objects/clone.o\
+	objects/cone.o\
+	objects/concatnc.o\
+	objects/concatnp.o\
+	objects/cylinder.o\
+	objects/disk.o\
+	objects/extrnc.o\
+	objects/extrnp.o\
+	objects/extrude.o\
+	objects/gordon.o\
+	objects/hyperb.o\
+	objects/icurve.o\
+	objects/instance.o\
+	objects/ipatch.o\
+	objects/level.o\
+	objects/light.o\
+	objects/material.o\
+	objects/ncircle.o\
+	objects/ncurve.o\
+	objects/npatch.o\
+	objects/offnc.o\
+	objects/offnp.o\
+	objects/pamesh.o\
+	objects/pomesh.o\
+	objects/parab.o\
+	objects/revolve.o\
+	objects/riinc.o\
+	objects/riproc.o\
+	objects/root.o\
+	objects/script.o\
+	objects/sdmesh.o\
+	objects/select.o\
+	objects/sphere.o\
+	objects/skin.o\
+	objects/sweep.o\
+	objects/swing.o\
+	objects/text.o\
+	objects/torus.o\
+	objects/trim.o\
+	objects/view.o\
+	contrib/ai.o\
+	contrib/sm.o\
+	contrib/tree.o\
+	contrib/tti.o\
+	contrib/objsel.o\
+	ayam.o
+
+MF3DOBJS = MF3D/mf3d.o\
+ MF3D/mfbinrd.o\
+ MF3D/mffile.o\
+ MF3D/mfgroups.o\
+ MF3D/mflabels.o\
+ MF3D/mfmemory.o\
+ MF3D/mfobject.o\
+ MF3D/mfobjtyp.o\
+ MF3D/mfprimtv.o\
+ MF3D/mfrslntn.o\
+ MF3D/mfstdchk.o\
+ MF3D/mftextrd.o\
+ MF3D/mftextut.o\
+ MF3D/mftextwr.o
+
+CSPHEREOBJS = plugins/csphere.o
+
+SFCURVEOBJS = plugins/sfcurve.o
+
+IDROBJS = plugins/idr.o
+
+METAOBJS = contrib/meta/metaobj.o \
+	contrib/meta/metautils.o \
+	contrib/meta/move.o \
+	contrib/meta/marching.o \
+	contrib/meta/adaptive.o
+
+RRIBOBJS = plugins/rrib.o
+
+# additional objects:
+ADDOBJS =
+# additional libs:
+# add -L and -l directives for additional libraries needed
+ADDLIB =
+
+
+# Ayslx Plugin (Aqsis)
+AYSLXINCDIR = $(AQSISDIR)/include
+AYSLXLIBS = $(AQSISDIR)/lib/rcdummy.o $(AQSISDIR)/lib/libshadervm.so $(AQSISDIR)/lib/libshaderexecenv.so $(AQSISDIR)/lib/libslxargs.so $(AQSISDIR)/lib/libaqsistypes.so -L/usr/local/lib -llog4cpp
+
+# Ayslc Plugin (BMRT)
+AYSLCINCDIR = $(BMRTDIR)/include
+AYSLCLIBS = -L$(BMRTDIR)/lib -lslcargs
+
+# Ayso Plugin (RenderDotC, RDC)
+RDCDIR = /usr/local/rdc
+AYSOINCDIR = $(RDCDIR)/include
+AYSOLIBS = -L$(RDCDIR)/lib -lsoargs
+
+# Ayslo Plugin (PRman)
+PRMANDIR = /usr/local/prman
+AYSLOINCDIR = $(PRMANDIR)/include
+AYSLOLIBS = -L$(PRMANDIR)/lib -lsloargs -ltarget -lzip
+
+# Ayslo3d Plugin (3Delight)
+# (add AYOLDSLO3D to CFLAGS above, if you compile with a 3Delight
+#  older than 1.0.6)
+3DLDIR = /usr/local/3delight
+#3DLDIR = /usr/local/3delight-0.9.6/Linux-i686-libstdc++-3
+AYSLO3DINCDIR = $(3DLDIR)/include
+AYSLO3DLIBS = -L$(3DLDIR)/lib -l3delight
+
+# Aysdr Plugin (Pixie)
+SDRDIR = /usr/local
+AYSDRINCDIR = $(SDRDIR)/include
+PIXIESRC = /home/user/Pixie/src
+AYSDRLIBS = $(PIXIESRC)/common/os.o $(PIXIESRC)/common/memoryman.o -L$(SDRDIR)/lib -lsdr
+
+# Aygso Plugin (Gelato)
+GELDIR = /usr/local/gelato
+AYGSOINCDIR = $(GELDIR)/include
+AYGSOLIBS = -L$(GELDIR)/lib -lgsoargs -lgelato
+
+# Aycsg Plugin
+# OpenCSG
+OPENCSGDIR = ../../OpenCSG-1.3.1
+OPENCSGOBJS = $(OPENCSGDIR)/src/area.o $(OPENCSGDIR)/src/batch.o\
+	$(OPENCSGDIR)/src/context.o\
+	$(OPENCSGDIR)/src/settings.o\
+	$(OPENCSGDIR)/src/frameBufferObject.o\
+	$(OPENCSGDIR)/src/frameBufferObjectExt.o\
+	$(OPENCSGDIR)/src/offscreenBuffer.o\
+	$(OPENCSGDIR)/src/pBufferTexture.o\
+	$(OPENCSGDIR)/src/openglHelper.o\
+	$(OPENCSGDIR)/src/occlusionQuery.o\
+	$(OPENCSGDIR)/src/renderGoldfeather.o\
+	$(OPENCSGDIR)/src/channelManager.o\
+	$(OPENCSGDIR)/src/primitive.o\
+	$(OPENCSGDIR)/src/renderSCS.o\
+	$(OPENCSGDIR)/src/opencsgRender.o\
+	$(OPENCSGDIR)/src/primitiveHelper.o\
+	$(OPENCSGDIR)/src/scissorMemo.o\
+	$(OPENCSGDIR)/src/stencilManager.o\
+	$(OPENCSGDIR)/RenderTexture/RenderTexture.o
+
+GLEWDIR = ../../OpenCSG-1.3.1/glew
+GLEWLIB = -L$(GLEWDIR)/lib -lGLEW
+OPENCSGINC = -I$(OPENCSGDIR) -I$(OPENCSGDIR)/include -I$(GLEWDIR)/include
+
+AYCSGOBJS = plugins/aycsg.o\
+	plugins/ayCSGPrimitive.o
+AYCSGLIBS = $(OPENCSGOBJS) $(GLEWLIB)
+
+# onio Plugin
+OPENNURBSDIR = ../../opennurbs
+
+ONIOCFLAGS =
+# IRIX:
+#ONIOCFLAGS = -D_WCHAR_T_DEFINED -DON_COMPILER_IRIX -D_GNU_SOURCE
+
+ONIOINCDIR = $(OPENNURBSDIR)
+ONIOLIBS = $(OPENNURBSDIR)/opennurbs_extensions.o -L$(OPENNURBSDIR) -lopenNURBS -lzlib
+
+# dxfio Plugin
+DIMEDIR = ../../dime
+DXFIOINCDIR = $(DIMEDIR)/include
+DXFIOLIBS = -L$(DIMEDIR)/src/.libs -ldime
+
+# x3dio Plugin
+EXPATDIR = ../../../sdk/expat-2.0.0
+SCEWDIR = ../../../sdk/scew-0.4.0
+X3DIOINC = -I $(EXPATDIR)/lib -I $(SCEWDIR)/scew
+X3DIOLIBS = -L$(SCEWDIR)/scew -lscew -L$(EXPATDIR)/.libs -lexpat
+
+# SDNPatch Plugin
+SNURBSDIR = ../../../sdk/subdnurbs-0.1/src
+SDNPATCHINC = -I $(SNURBSDIR)/libsnurbs/ -I $(SNURBSDIR)/libply -DPLY_BOOST_CSTDINT
+SDNPATCHLIB = -L $(SNURBSDIR)/libsnurbs/ -lsnurbs
+
+# Subdiv Plugin
+SUBDIVDIR = plugins/subdivide
+SUBDIVINC = -I $(SUBDIVDIR)/include -I $(SUBDIVDIR)/template
+SUBDIVLIB = -L $(SUBDIVDIR)/src/ -lsub
+SUBDIVMK = Makefile.gcc
+#SUBDIVMK = Makefile.CC
+
+# JSInterp Plugin
+JSDIR = ../../../sdk/js/src
+JSINC = -I $(JSDIR) -I $(JSDIR)/Linux_All_DBG.OBJ -DXP_UNIX
+JSLIB = -L $(JSDIR)/Linux_All_DBG.OBJ -ljs
+
+# LuaInterp Plugin
+LUADIR = ../../../sdk/lua-5.2.0/src
+LUAINC = -I $(LUADIR)
+LUALIB = -L $(LUADIR) -llua
+
+# PrintPS Plugin
+GL2PSDIR = ../../../sdk/gl2ps-1.3.8-source
+GL2PSINC = -I $(GL2PSDIR)
+GL2PSLIB = $(GL2PSDIR)/gl2ps.o
+
+AYINC = -I. -IMF3D -Icontrib $(TOGLINC) $(TCLINC) $(TKINC) $(BMRTINC) $(GLINC) $(AFFINEINC) $(AQSISINC) $(TIFFINC)
+
+#############################################
+# nothing needs to be changed below this line
+#############################################
+
+.c.o:
+	$(CC) -c $(CFLAGS) $*.c -o $@ $(AYINC)
+
+.cpp.o:
+	$(CXX) -c $(CFLAGS) $*.cpp -o $@ -I$(OPENCSGINC) $(AYINC) -Iplugins
+
+all: wrappedayam
+
+plugins: csphere.so sfcurve.so mfio.so metaobj.so mopsi.so
+
+wrapMain.o: wrapMain.c
+	$(CC) -c $(CFLAGS) wrapMain.c -I$(WRAPDIR) -I$(WRAPDIR)/libz $(TCLINC) $(TKINC)
+
+ayam:  $(AYAMOBJS) $(TOGLOBJECT) $(AFFINEOBJS) $(ADDOBJS) wrapMain.o
+	$(LD) $(ADDOBJS) $(AYAMOBJS) $(TOGLOBJECT) $(WRAPOBJS) wrapMain.o $(EXLDFLAGS) -o ayam $(ADDLIB) $(TKLIB) $(TCLLIB) $(LDSWDYNAMIC) $(GLLIBS) $(X11LIBS) $(RIBOUTLIB) $(AQSISRI2RIB) $(SLCARGSLIB) $(AFFINEOBJS) $(AQSISOBJS) $(TIFFLIB) $(ZLIB) $(LDSWSTATIC) $(STDCPPLIB) $(LDSWDYNAMIC) -lm $(DL)
+	$(STRIP) ayam
+	$(UPX) ayam
+	cat $(WRAPDIR)/null.zip >>ayam
+
+ayamwrap: ayam
+	rm -f lib
+	ln -s $(WRAPDIR)/lib lib
+	zip -A -j -u -9 ayam $(WRAPDIR)/tclInit.tcl
+	-cp contrib/tk/tkfbox.tcl lib/tk8.4
+	zip -A -r -u -9 ayam lib/wrap0.3 lib/tcl8.4 lib/tk8.4
+	rm -f lib
+	rm -f BWidgets
+	ln -s $(BWIDGETS) BWidgets
+	zip -A -r -u -9 ayam BWidgets/*.tcl
+	rm -f BWidgets
+	cp tcl/ayam.tcl ayam.tcl
+	cp ../lib/ayam-splash.gif.uue ./ayam-splash.gif
+	zip -A -u -9 ayam ayam.tcl ayam-splash.gif tcl/*.tcl
+	rm ayam.tcl
+	rm ayam-splash.gif
+	rm -f lib
+
+wrappedayam: ayam ayamwrap
+
+rewraprm:
+	rm -f ayam
+
+rewrap: rewraprm ayamwrap
+
+aycsg.so: $(AYCSGOBJS) $(OPENCSGOBJS)
+	$(LD) $(SHLFLAGS) $(AYCSGOBJS) -o plugins/aycsg.so $(AYCSGLIBS)
+
+csphere.so: $(CSPHEREOBJS)
+	$(CC) $(SHLFLAGS) $(CSPHEREOBJS) -o plugins/csphere.so
+
+sfcurve.so: $(SFCURVEOBJS)
+	$(CC) $(SHLFLAGS) $(SFCURVEOBJS) -o plugins/sfcurve.so
+
+idr.so: $(IDROBJS)
+	$(CC) $(SHLFLAGS) $(IDROBJS) -o plugins/idr.so $(TIFFLIB)
+
+mf3d:
+	cd MF3D; make -f Makefile.mf3d
+
+mfio.so: plugins/mfio.o mf3d
+	$(CC) $(SHLFLAGS) $(MF3DOBJS) plugins/mfio.o -o plugins/mfio.so
+
+metaobj.so: $(METAOBJS)
+	$(CC) $(SHLFLAGS) $(METAOBJS) -o contrib/meta/metaobj.so
+
+mopsi.so: plugins/mopsi.o
+	$(CC) $(SHLFLAGS) plugins/mopsi.o -o plugins/mopsi.so
+
+objio.so: plugins/objio.o
+	$(CC) $(SHLFLAGS) plugins/objio.o -o plugins/objio.so
+
+rrib.so: $(RRIBOBJS)
+	$(CC) $(SHLFLAGS) $(RRIBOBJS) -o plugins/rrib.so $(RRIBLIBS)
+
+ayslx.so: plugins/ayerror.o
+	$(CC) -c $(CFLAGS) plugins/ayslx.c -o plugins/ayslx.o -Iplugins $(TCLINC) -I$(AYSLXINCDIR)
+	$(CC) $(SHLFLAGS) plugins/ayerror.o plugins/ayslx.o -o plugins/ayslx.so $(AYSLXLIBS)
+
+ayso.so: plugins/ayerror.o
+	$(CC) -c $(CFLAGS) plugins/ayso.c -o plugins/ayso.o -Iplugins $(TCLINC) -I$(AYSOINCDIR)
+	$(CC) $(SHLFLAGS) plugins/ayerror.o plugins/ayso.o -o plugins/ayso.so $(AYSOLIBS)
+
+ayslo.so: plugins/ayerror.o
+	$(CC) -c $(CFLAGS) plugins/ayslo.c -o plugins/ayslo.o -Iplugins $(TCLINC) -I$(AYSLOINCDIR)
+	$(CC) $(SHLFLAGS) plugins/ayerror.o plugins/ayslo.o -o plugins/ayslo.so $(AYSLOLIBS)
+
+ayslo3d.so: plugins/ayerror.o
+	$(CC) -c $(CFLAGS) plugins/ayslo3d.c -o plugins/ayslo3d.o -Iplugins $(TCLINC) -I$(AYSLO3DINCDIR)
+	$(CC) $(SHLFLAGS) plugins/ayerror.o plugins/ayslo3d.o -o plugins/ayslo3d.so $(AYSLO3DLIBS)
+
+ayslb.so: plugins/ayerror.o
+	$(CC) -c $(CFLAGS) plugins/ayslb.c -o plugins/ayslb.o -Iplugins $(TCLINC)
+	$(CC) $(SHLFLAGS) plugins/ayerror.o plugins/ayslb.o -o plugins/ayslb.so
+
+ayslc.so: plugins/ayerror.o
+	$(CC) -c $(CFLAGS) plugins/ayslc.c -o plugins/ayslc.o -Iplugins $(TCLINC) -I$(AYSLCINCDIR)
+	$(CC) $(SHLFLAGS) plugins/ayerror.o plugins/ayslc.o $(AYSLCLIBS) -o plugins/ayslc.so
+
+aysdr.so: plugins/ayerror.o
+	$(CC) -c $(CFLAGS) plugins/aysdr.c -o plugins/aysdr.o -Iplugins $(TCLINC) -I$(AYSDRINCDIR)
+	$(CC) $(SHLFLAGS) plugins/ayerror.o plugins/aysdr.o -o plugins/aysdr.so $(LDSWSTATIC) $(AYSDRLIBS) $(LDSWDYNAMIC)
+
+aygso.so: plugins/ayerror.o
+	$(CXX) -c $(CFLAGS) plugins/aygso.cpp -o plugins/aygso.o -Iplugins $(TCLINC) -I$(AYGSOINCDIR)
+	$(CXX) $(SHLFLAGS) plugins/ayerror.o plugins/aygso.o -o plugins/aygso.so $(AYGSOLIBS)
+
+onio.so:
+	$(CXX) -c $(CFLAGS) $(ONIOCFLAGS) plugins/onio.cpp -o plugins/onio.o $(AYINC) -I$(ONIOINCDIR)
+	$(CXX) $(SHLFLAGS) plugins/onio.o -o plugins/onio.so -Wl,-Bstatic $(ONIOLIBS) -Wl,-Bdynamic
+
+dxfio.so:
+	$(CXX) -c $(CFLAGS) plugins/dxfio.cpp -o plugins/dxfio.o $(AYINC) -I$(DXFIOINCDIR)
+	$(CXX) $(SHLFLAGS) plugins/dxfio.o -o plugins/dxfio.so $(DXFIOLIBS)
+
+x3dio.so:
+	$(CC) -c $(CFLAGS) plugins/x3dio.c -o plugins/x3dio.o $(AYINC) $(X3DIOINC)
+	$(CC) $(SHLFLAGS) plugins/x3dio.o -o plugins/x3dio.so $(X3DIOLIBS)
+
+sdnpatch.so:
+	$(CXX) -c $(CFLAGS) plugins/sdnpatch.cpp -o plugins/sdnpatch.o $(AYINC) $(SDNPATCHINC)
+	$(CXX) $(SHLFLAGS) plugins/sdnpatch.o -o plugins/sdnpatch.so $(SDNPATCHLIB)
+
+libsub:
+	cd plugins/subdivide/src;make -f $(SUBDIVMK)
+
+subdiv.so: libsub
+	$(CXX) -c $(CFLAGS) plugins/subdiv.cpp -o plugins/subdiv.o $(AYINC) $(SUBDIVINC)
+	$(CXX) $(SHLFLAGS) plugins/subdiv.o -o plugins/subdiv.so $(SUBDIVLIB)
+
+jsinterp.so:
+	$(CC) -c $(CFLAGS) plugins/jsinterp.c -o plugins/jsinterp.o $(AYINC) $(JSINC)
+	$(CC) $(SHLFLAGS) plugins/jsinterp.o -o plugins/jsinterp.so $(JSLIB)
+
+luainterp.so:
+	$(CC) -c $(CFLAGS) plugins/luainterp.c -o plugins/luainterp.o $(AYINC) $(LUAINC)
+	$(CC) $(SHLFLAGS) plugins/luainterp.o -o plugins/luainterp.so $(LUALIB)
+
+printps.so:
+	$(CC) -c $(CFLAGS) plugins/printps.c -o plugins/printps.o $(AYINC) $(GL2PSINC)
+	$(CC) $(SHLFLAGS) plugins/printps.o -o plugins/printps.so  $(GL2PSLIB)
+
+plugins/ayerror.o:
+	$(CC) -c $(CFLAGS) plugins/ayerror.c -o plugins/ayerror.o $(TCLINC)
+
+mostlyclean:
+	-rm -f core
+	-rm -f *.o
+	-rm -f *.so
+	-rm -f $(AYAMOBJS)
+	-rm -f $(TOGLOBJECT)
+	-rm -f plugins/*.o
+	-rm -f plugins/*.so
+	-rm -f contrib/meta/*.o
+	-rm -f contrib/meta/*.so
+	-rm -f ayamsh ayam
+
+clean: mostlyclean
+	-rm -f $(AFFINEOBJS)
+	cd MF3D; make -f Makefile.mf3d clean
+
+DOCFILES = ../Setup.txt ../Changes.txt ../License.txt ../doc/refcard.tcl\
+../doc/refcard.pdf ../doc/ayam.pdf
+
+install:
+	$(MKDIR) $(BINDIR)
+	$(INSTALL) ayam $(BINDIR)
+	$(INSTALL) ../bin/ayam.sh $(BINDIR)
+	$(INSTALL) ../bin/ayam-desktop.desktop $(BINDIR)
+	$(INSTALL) ../bin/ayam-filetype.xml $(BINDIR)
+	$(INSTALL) ../lib/ayam_icon_32.png $(BINDIR)
+	$(MKDIR) $(BINDIR)/scripts
+	$(INSTALL) scripts/*.tcl $(BINDIR)/scripts
+	$(INSTALL) scripts/*.js $(BINDIR)/scripts
+	$(INSTALL) scripts/readme.txt $(BINDIR)/scripts
+	$(MKDIR) $(LIBDIR)
+	-$(INSTALL) contrib/meta/metaobj.so $(LIBDIR)
+	-$(INSTALL) contrib/meta/metaobj.tcl $(LIBDIR)
+	-$(INSTALL) contrib/meta/metacomp.tcl $(LIBDIR)
+	-$(INSTALL) plugins/mfio.so $(LIBDIR)
+	-$(INSTALL) plugins/mfio.tcl $(LIBDIR)
+	-$(INSTALL) plugins/loadmfio.tcl $(LIBDIR)
+	-$(INSTALL) plugins/mopsi.so $(LIBDIR)
+	-$(INSTALL) plugins/mopsi.tcl $(LIBDIR)
+	-$(INSTALL) plugins/loadmopsi.tcl $(LIBDIR)
+	-$(INSTALL) plugins/objio.so $(LIBDIR)
+	-$(INSTALL) plugins/objio.tcl $(LIBDIR)
+	-$(INSTALL) plugins/loadobjio.tcl $(LIBDIR)
+	-$(INSTALL) plugins/idr.so $(LIBDIR)
+	-$(INSTALL) plugins/idr.tcl $(LIBDIR)
+	-$(INSTALL) plugins/loadidr.tcl $(LIBDIR)
+	-$(INSTALL) plugins/rrib.so $(LIBDIR)
+	-$(INSTALL) plugins/rrib.tcl $(LIBDIR)
+	-$(INSTALL) plugins/loadrrib.tcl $(LIBDIR)
+	-$(INSTALL) plugins/loadayslb.tcl $(LIBDIR)
+	-$(INSTALL) plugins/ayslb.so $(LIBDIR)
+	-$(INSTALL) plugins/loadayslo.tcl $(LIBDIR)
+	-$(INSTALL) plugins/ayslo.so $(LIBDIR)
+	-$(INSTALL) plugins/loadayslo3d.tcl $(LIBDIR)
+	-$(INSTALL) plugins/ayslo3d.so $(LIBDIR)
+	-$(INSTALL) plugins/loadayslx.tcl $(LIBDIR)
+	-$(INSTALL) plugins/ayslx.so $(LIBDIR)
+	-$(INSTALL) plugins/loadayso.tcl $(LIBDIR)
+	-$(INSTALL) plugins/ayso.so $(LIBDIR)
+	-$(INSTALL) plugins/loadaysdr.tcl $(LIBDIR)
+	-$(INSTALL) plugins/aysdr.so $(LIBDIR)
+	-$(INSTALL) plugins/aysdr.tcl $(LIBDIR)
+	-$(INSTALL) plugins/loadaygso.tcl $(LIBDIR)
+	-$(INSTALL) plugins/aygso.so $(LIBDIR)
+	-$(INSTALL) plugins/loadaycsg.tcl $(LIBDIR)
+	-$(INSTALL) plugins/aycsg.so $(LIBDIR)
+	-$(INSTALL) plugins/aycsg.tcl $(LIBDIR)
+	-$(INSTALL) plugins/onio.so $(LIBDIR)
+	-$(INSTALL) plugins/onio.tcl $(LIBDIR)
+	-$(INSTALL) plugins/loadonio.tcl $(LIBDIR)
+	-$(INSTALL) plugins/dxfio.so $(LIBDIR)
+	-$(INSTALL) plugins/dxfio.tcl $(LIBDIR)
+	-$(INSTALL) plugins/loaddxfio.tcl $(LIBDIR)
+	-$(INSTALL) plugins/x3dio.so $(LIBDIR)
+	-$(INSTALL) plugins/x3dio.tcl $(LIBDIR)
+	-$(INSTALL) plugins/loadx3dio.tcl $(LIBDIR)
+	-$(INSTALL) plugins/sdnpatch.so $(LIBDIR)
+	-$(INSTALL) plugins/sdnpatch.tcl $(LIBDIR)
+	-$(INSTALL) plugins/loadsdnpatch.tcl $(LIBDIR)
+	-$(INSTALL) plugins/libsnurbs.so $(LIBDIR)
+	-$(INSTALL) plugins/subdiv.so $(LIBDIR)
+	-$(INSTALL) plugins/jsinterp.so $(LIBDIR)
+	-$(INSTALL) plugins/loadjsinterp.tcl $(LIBDIR)
+	-$(INSTALL) plugins/luainterp.so $(LIBDIR)
+	-$(INSTALL) plugins/loadluainterp.tcl $(LIBDIR)
+	-$(INSTALL) plugins/sfcurve.so $(LIBDIR)
+	-$(INSTALL) plugins/loadsfcurve.tcl $(LIBDIR)
+	-$(INSTALL) plugins/printps.so $(LIBDIR)
+	-$(INSTALL) Makefile $(BINDIR)
+	$(MKDIR) $(DOCDIR)
+	$(INSTALL) $(DOCFILES) $(DOCDIR)
+	$(MKDIR) $(DOCDIR)/html
+	$(MKDIR) $(DOCDIR)/html/pics
+	$(INSTALL) ../doc/html/*.html $(DOCDIR)/html
+	$(INSTALL) ../doc/html/pics/* $(DOCDIR)/html/pics
+	-$(MKDIR) $(SCNDIR)
+	-$(INSTALL) ../scn/*.ay $(SCNDIR)
+	-$(INSTALL) ../scn/*.xhtml $(SCNDIR)
+	-$(MKDIR) $(SCNDIR)/objects
+	-$(INSTALL) ../scn/objects/*.ay $(SCNDIR)/objects
+	-$(INSTALL) ../scn/objects/*.ttf $(SCNDIR)/objects
+	-$(MKDIR) $(SCNDIR)/scripts
+	-$(INSTALL) ../scn/scripts/*.ay $(SCNDIR)/scripts
+	-$(MKDIR) $(SCNDIR)/shaders
+	-$(INSTALL) ../scn/shaders/*.sl ../scn/shaders/Makefile ../scn/shaders/README.txt $(SCNDIR)/shaders
+	@echo "Installation of Ayam completed."
+	@echo "Add $(BINDIR) to your PATH."
+	@echo "Add $(LIBDIR) to your LD_LIBRARY_PATH (or use ayam.sh)."
+	@echo "Use 'make -f $(BINDIR)/Makefile uninstall' to uninstall."
+
+uninstall:
+	-rm -f $(BINDIR)/ayam
+	-rm -f $(BINDIR)/ayam.sh
+	-rm -f $(BINDIR)/ayam-desktop.desktop
+	-rm -f $(BINDIR)/ayam_icon_32.png
+	-rm -rf $(LIBDIR)
+	-rm -rf $(DOCDIR)
+	-rm -rf $(SCNDIR)
+	-xdg-desktop-icon uninstall ayam.desktop
+	-xdg-mime uninstall $(BINDIR)/ayam-filetype.xml
+	-rm -f  $(BINDIR)/ayam-filetype.xml
+	-rm -f /usr/share/applications/ayam.desktop
+	-rm -f ~/.local/share/ayam.desktop
+	-rm -f $(BINDIR)/Makefile
+	@echo "Uninstallation of Ayam completed."
+
+# add Gnome/KDE/... user desktop shortcut
+desktop:
+	-sed -e "s:/usr/local/ayam:$(PREFIX):g" $(BINDIR)/ayam-desktop.desktop > $(BINDIR)/ayam.desktop
+	-chmod 755 $(BINDIR)/ayam.desktop
+	-xdg-desktop-icon install --novendor $(BINDIR)/ayam.desktop
+
+# add Gnome/KDE/... user menu shortcut
+menu:
+	-sed -e "s:/usr/local/ayam:$(PREFIX):g" $(BINDIR)/ayam-desktop.desktop > ~/.local/share/applications/ayam.desktop
+	-chmod 755 ~/.local/share/applications/ayam.desktop
+
+# add Gnome/KDE/... systemwide menu shortcut
+sysmenu:
+	-sed -e "s:/usr/local/ayam:$(PREFIX):g" $(BINDIR)/ayam-desktop.desktop > /usr/share/applications/ayam.desktop
+	-chmod 755 /usr/share/applications/ayam.desktop
+
+# add Gnome/KDE/... file type
+filetype:
+	-xdg-mime install $(BINDIR)/ayam-filetype.xml
+	-xdg-mime default ayam.desktop application/ayam
+	-xdg-icon-resource install --novendor --context mimetypes --size 32 $(BINDIR)/ayam_icon_32.png application-ayam
+
+.SUFFIXES: .so .o .cpp
+
+.PHONY: mf3d
+
+.o.so:
+	$(CC) $(SHLFLAGS) -o $@ $*.o
