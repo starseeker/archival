@@ -1,0 +1,19 @@
+Closest Point Transform
+
+This code implements an algorithm for computing the closest point transform to
+a triangle mesh surface on a regular 3-D grid. The closest point transform
+finds the Euclidean distance to the triangle mesh. In addition, it can compute
+the closest point on the surface, the closest triangle face in the mesh and the
+gradient of the distance. The distance, etc., are computed to within a
+specified distance of the surface. The closest point, closest face, distance
+and gradient of the distance to the mesh surface are calculated by solving the
+Eikonal equation $ |\nabla u|^2 = 1 $ with the method of characteristics. The
+method of characteristics is implemented efficiently with the aid of
+computational geometry and polyhedron scan conversion. The computed distance is
+accurate to within machine precision. The computational complexity of the
+algorithm is linear in both the number of grid points for which the distance is
+computed and the size of the mesh. Thus for many problems, it has the optimal
+computational complexity.
+
+Sources from https://bitbucket.org/seanmauch/stlib/src/
+
