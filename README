@@ -1,3 +1,15 @@
+The C Containers library project. This project proposes a standard for
+containers and a sample implementations of them.
+
+This is the CCL project source code associated with http://www.cs.virginia.edu/~lcc-win32/
+
+It has been confirmed with the author via email communication that the
+non-commercial only restrictions on http://www.cs.virginia.edu/~lcc-win32/ do
+not apply to the CCL project.
+
+See the PDF document ccl.pdf in this repository for full documentation.
+
+
 BUILDING the software
 ---------------------
 1: Documentation is in the file ccl.pdf.
