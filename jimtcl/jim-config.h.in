@@ -1,0 +1,7 @@
+/* Public autoconf settings */
+#ifndef _JIM_CONFIG_H
+#define _JIM_CONFIG_H
+#cmakedefine HAVE_LONG_LONG 1
+#cmakedefine JIM_VERSION @JIM_VERSION@
+#cmakedefine JIM_UTF8 1
+#endif
