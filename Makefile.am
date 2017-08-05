@@ -1,7 +1,6 @@
 ACLOCAL_AMFLAGS=-I m4
 EXTRA_DIST = reconf
 
-
 #used to install the headers with the subfolder (without nobase_ the folder won't be copied one be one - including the subfolders)
 #automake does not remove the ../ out of the path, so the files are copied to /usr/local/include/../libcgeneric -> /usr/local/libcgeneric
 #the problem above is the reason why we have to put it here (and not inside lib/ or include)

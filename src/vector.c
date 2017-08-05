@@ -212,7 +212,7 @@ return_at_Vector(Vector * vec, uint32_t loc)
 {
   register uint32_t offset = (loc * O(vec));
   CHECK_VARN(vec, NULL);
-  if(loc > S(vec)) {
+  if(loc >= S(vec)) {
 	  return NULL;
   }
   if(H(vec) < T(vec)) {
@@ -223,7 +223,7 @@ return_at_Vector(Vector * vec, uint32_t loc)
 		   * is before the end of the array */
 		  return (void *)(D(vec) + offset);
   } else {
-	  /* wrap around exists and position is 
+	  /* wrap around exists and position is
 	   * at beginning of array */
 	  ptrdiff_t spaces = ((char *)vec->end - D(vec));
 	  return (void *)((char *)vec->mem + (offset - spaces));
