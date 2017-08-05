@@ -1,0 +1,5 @@
+Need to study this:
+
+http://loremar.frihost.org/2011/11/understanding-startup-sequence-with-ogre3d/
+
+and other resources to figure out if the need for plugins.cfg and resources.cfg can be avoided - ideally, all that will simply be handled by the application without needing to find those files on the file system.
