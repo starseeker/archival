@@ -1,0 +1,121 @@
+Volfill 
+Version 1.0
+=======
+
+Kurt Berglund
+kberg@cs.stanford.edu
+Summer 2002
+
+Introduction
+============
+Volfill is a program for filling holes in volumetric data sets.  The 
+program was written to read in and output .vri files, but there is nothing 
+preventing this program from working with other file formats.
+
+The volfill program fills in holes using a technique called volumetric 
+diffusion. The program was designed to be run on large data sets (such as 
+the David), and because of this, uses run length encoding to store the 
+volumetric data. In order to speed up processing, two criteria are used to 
+decide on whether data should be blended. One measures distance from an 
+active edge (d2) and the other measures the distance from a newly created 
+edge (d1). Each voxel stores its corresponding d1 and d2 value. D2 is set 
+to zero when a voxel has an opposite signed neighbor as well as an empty 
+neighbor. D1 is set to zero when a voxel has an opposite signed neighbor 
+and is newly created data. For other voxels, their d1 and d2 values are 
+the minimum value of all of their neighbors plus one. 
+
+Compilation
+===========
+To compile the program simply type make in the same directory as the 
+source code and makefile.  The makefile and program were written for 
+Linux.
+
+Running the Program
+===================
+The usage for volfill is 
+
+volfill input.vri output.vri ... 'optional parameters'
+Where optional parameters are 
+
+-g for graphical display 
+-n 'iterations' to specify the number of iterations to blur 
+-d1 'd1 distance' to specify the d1 distance 
+-d2 'd2 distance' to specify the d2 distance 
+-p to propgate d2 distances to max before blurring 
+
+Graphical Mode Use
+==================
+Volfill also comes with a graphical display that can be used to visualize 
+a slice of the voxel grid. It is activated with the -g command line option. 
+OpenGL and glut is required to use the graphical mode. If you would like to 
+compile the program without these libraries, simply comment out the glut 
+function calls in main.cc and in fb.cc. 
+
+When in the graphical mode, the following keys are used to perform actions 
+	'b' to blur the voxel grid one time 
+	'l' to perform n blurs (where n is a command line parameter, or default) 
+	'w' to output the grid to a file 
+	'a' to move up one slice in the grid 
+	's' to move down one slice in the grid 
+	'm' to output n ppm files 
+	'1' visualization of the voxel data values 
+	'2' visualization of the d1 values 
+	'3' visualization of the d2 values 
+	'4' visualization of all values 
+
+Note on vri
+===========
+The Stanford web site recommends the following for getting data into vri form:
+
+The easiest way to create a VRI file is to run a triangle mesh, represented as
+a PLY file, through VRIP. Unfortunately, VRIP only accepts range-grid PLY
+files, a special kind of PLY file that encodes a range image as a rectangular
+array of points. If your triangle mesh is a range image, but in some other
+format, it is easy to write a program that will convert it to a range-grid PLY
+file. From there, VRIP will convert it into a VRI file. However, if your data
+is a general triangle mesh (arbitrarily connected 3D vertices), then you cannot
+use VRIP. Currently, we do not have a tool to convert a general PLY file to a
+VRI file. However, Brett Allen, a student of Brian Curless at the University of
+Washington, has developed such a tool, called ply2vri. Another possibility is
+to look at Sean Mauch's closest point transform algorithm. It can also be used
+to convert a general triangle mesh to a volumetric representation, although not
+using our formats.
+
+The license on ply2vri is not (currently - July3, 2014) liberal enough to
+be considered usable, but the combination of VRIP with Sean Mauch's code
+might be possible:
+
+https://bitbucket.org/seanmauch/stlib/src (cpt subdirectory, if I'm not mistaken)
+https://graphics.stanford.edu/software/vrip/
+
+Copyright
+============
+* Copyright (c) 1995-2014, Stanford University
+* All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*     * Redistributions of source code must retain the above copyright
+*       notice, this list of conditions and the following disclaimer.
+*     * Redistributions in binary form must reproduce the above copyright
+*       notice, this list of conditions and the following disclaimer in the
+*       documentation and/or other materials provided with the distribution.
+*     * Neither the name of Stanford University nor the
+*       names of its contributors may be used to endorse or promote products
+*       derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY STANFORD UNIVERSITY ''AS IS'' AND ANY
+* EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL STANFORD UNIVERSITY BE LIABLE FOR ANY
+* DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.#
+
+This licence superceeds older licenses for this software, per
+https://graphics.stanford.edu/software/volfill/
+
+See http://graphics.stanford.edu/software/bsd-license.html for details
