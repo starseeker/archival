@@ -1,0 +1,54 @@
+option cc_generic_services = true;
+option java_generic_services = true;
+option py_generic_services = true;
+
+package FileTransfer;
+import "checkbook.proto";
+
+message SliceRequest {
+  required Slice slice = 1;
+  required bytes content = 2;
+};
+
+message SliceResponse {
+  required bool succeed = 1;
+  optional bool finished = 2;
+};
+
+message CheckBookResponse {
+  required bool succeed = 1;
+};
+
+message RegisterRequest {
+  required string src_filename = 1;
+  required string local_filename = 2;
+  required string local_mac_address = 3;
+  optional string peer_name = 4;
+};
+
+message DownloadCompleteRequest {
+  required string src_filename = 1;
+  required string local_filename = 2;
+};
+
+message DownloadCompleteResponse {
+  required bool succeed = 1;
+};
+
+message RegisterResponse {
+  required bool succeed = 1;
+  optional string checkbook_filename = 2;
+};
+
+service FileDownloadService {
+  rpc RegisterDownload(RegisterRequest) returns (RegisterResponse);
+};
+
+service FileDownloadNotifyService {
+  rpc DownloadComplete(DownloadCompleteRequest) returns (DownloadCompleteResponse);
+};
+
+service FileTransferService {
+  rpc ReceiveCheckBook(CheckBook) returns (CheckBookResponse);
+  rpc ReceiveSlice(SliceRequest) returns (SliceResponse);
+};

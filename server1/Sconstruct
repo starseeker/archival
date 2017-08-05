@@ -1,0 +1,114 @@
+env = DefaultEnvironment()
+env['third_party'] = env.Dir('../third_party').abspath
+env['objroot'] = env.Dir('build').abspath
+env['srcroot'] = env.Dir('.').abspath
+
+def ProtocolBufferEmitter(target, source, env):
+  output = str(source[0])
+  output = output.replace(env.Dir('$srcroot').abspath,
+                          env.Dir('$objroot').abspath)
+  output = output[0:output.rfind('.proto')]
+  target = [
+    output + '.pb.cc',
+    output + '.pb.h',
+  ]
+  return target, source
+
+def LinuxProtocolBufferGenerator(source, target, env, for_signature):
+  commands = [
+    'mkdir -p $objroot/proto',
+    '$third_party/protobuf/bin/protoc'
+    ' --proto_path $srcroot'
+    ' --cpp_out $objroot ${SOURCES.abspath}']
+  return commands
+
+linux_proto_builder = Builder(generator = LinuxProtocolBufferGenerator,
+                        emitter = ProtocolBufferEmitter,
+                        single_source = 1,
+                        suffix = '.pb.cc')
+env['BUILDERS']['ProtocolBuffer'] = linux_proto_builder
+
+cpp_path = [
+  '$objroot',
+  '$srcroot',
+  '$third_party/boost/include/boost-1_39',
+  '$third_party/gflags/include',
+  '$third_party/glog/include',
+  '$third_party/protobuf/include/',
+  '$third_party/protobuf/include/google',
+  '$third_party/gtest/include',
+]
+
+lib_path = [
+  '$third_party/boost/lib',
+  '$third_party/gflags/lib',
+  '$third_party/glog/lib',
+  '$third_party/protobuf/lib',
+  '$third_party/gtest/lib',
+  '$third_party/gpref/lib',
+  '$objroot/base',
+]
+
+import os
+import glob
+import re
+p = re.compile('.*/lib(boost.*mt).a')
+boost_files = glob.glob(env['third_party'] + '/boost/lib/libboost*mt.a')
+boost_libs = map(lambda x: p.match(x).group(1), boost_files)
+
+other_libs = [
+'base',
+'glog',
+'gflags',
+'protobuf',
+]
+
+static_libs = other_libs + list(set(boost_libs))
+
+dynamic_libs = ['ssl', 'pthread', 'tcmalloc']
+#dynamic_libs = ['ssl', 'pthread']
+#dynamic_libs = ['pthread']
+
+link_flags = ' -Wl,-Bdynamic'
+for i in dynamic_libs:
+  link_flags += ' -l' + i
+link_flags += ' -Wl,-Bstatic'
+link_flags += ' -g'
+
+env = DefaultEnvironment()
+env['LINKCOM'] = "$LINK -o $TARGET $SOURCES $LINKFLAGS $_LIBDIRFLAGS $_LIBFLAGS -Wl,-Bdynamic"
+env.Append(CPPFLAGS='-march=i486 ')
+env.Append(CPPFLAGS='-g')
+#env.Append(CPPFLAGS='-O2')
+env.Append(CPPFLAGS=' -static')
+env.Append(LINKFLAGS=link_flags)
+env.Append(CPPPATH=cpp_path)
+env.Append(LIBPATH=lib_path)
+env.Append(LIBS=static_libs)
+
+Export('env')
+
+def ProtoLib(env, name) :
+  proto_env = env.Copy()
+  proto_info = proto_env.ProtocolBuffer(name + '.proto')
+  proto_env.StaticLibrary(
+   target = name +'_pb',
+   source = [
+    proto_info[0].abspath,
+    proto_info[1].abspath]
+  )
+
+def Test(test_env, name):
+  local_env = test_env.Copy()
+  local_env.Append(LIBS = ['gtest'])
+  local_env.Program(name + "_test.cpp")
+
+import __builtin__
+__builtin__.Test = Test
+__builtin__.ProtoLib = ProtoLib
+
+subdir=['base', 'services', 'server', 'proto', 'thread', 'crypto',
+'net']
+for x in subdir:
+  target_dir='%s/%s' % (env['objroot'], x)
+  SConscript('%s/SConscript' % x, build_dir=target_dir, duplicate=0)

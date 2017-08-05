@@ -1,0 +1,40 @@
+option cc_generic_services = true;
+option java_generic_services = true;
+option py_generic_services = true;
+
+package Hello;
+message LexiconCast {
+  required string v1 = 1;
+  required int32 v2 = 2;
+}
+
+message EchoRequest {
+  required string question = 1;
+  optional string client_threadid = 2;
+}
+
+message EchoResponse {
+  required int32 echoed = 1;
+  required string text = 2;
+  optional bool close = 3 [default = false];
+}
+
+message EchoRequest2 {
+  required string question = 1;
+  optional string client_threadid = 2;
+}
+
+message EchoResponse2 {
+  required int32 echoed = 1;
+  required string text = 2;
+  required bool close = 3 [default = false];
+}
+
+service EchoService {
+  rpc Echo(EchoRequest) returns (EchoResponse);
+}
+
+service EchoService2 {
+  rpc Echo1(EchoRequest) returns (EchoResponse);
+  rpc Echo2(EchoRequest2) returns (EchoResponse2);
+}
