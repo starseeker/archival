@@ -1,0 +1,153 @@
+.TH "/Users/matthieuriolo/Downloads/libgenc/branches/riolo/trunk/include/heap.h" 3 "Wed Jan 11 2012" ""c generic library"" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+/Users/matthieuriolo/Downloads/libgenc/branches/riolo/trunk/include/heap.h \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'gen/gen_macros.h'\fP
+.br
+\fC#include 'gen/data_types.h'\fP
+.br
+\fC#include 'gen/control_macros.h'\fP
+.br
+\fC#include 'gen/function_signatures.h'\fP
+.br
+
+.SS "Defines"
+
+.in +1c
+.ti -1c
+.RI "#define \fBHEAP_DEFINED\fP"
+.br
+.ti -1c
+.RI "#define \fBHEAP_ITER_DEFINED\fP"
+.br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef struct \fB_array_struct\fP \fBHeap\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "struct \fB_array_iter\fP \fBITER\fP (\fBHeap\fP)"
+.br
+.ti -1c
+.RI "void * \fBtop_Heap\fP (\fBHeap\fP *\fBobj\fP)"
+.br
+.RI "\fIreturns the first value to be removed from the delete function \fP"
+.ti -1c
+.RI "int8_t \fBpop_Heap\fP (\fBHeap\fP *\fBobj\fP)"
+.br
+.RI "\fIRemoves the top value of the heap. \fP"
+.ti -1c
+.RI "int8_t \fBmerge_Heap\fP (\fBHeap\fP *\fBobj\fP, \fBHeap\fP *src)"
+.br
+.ti -1c
+.RI "int8_t \fBresize_Heap\fP (\fBHeap\fP *\fBobj\fP, size_t size)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "void * \fBdata\fP"
+.br
+.ti -1c
+.RI "void size_t \fBdatasize\fP"
+.br
+.ti -1c
+.RI "void size_t int \fBflag\fP"
+.br
+.in -1c
+.SH "Define Documentation"
+.PP 
+.SS "#define HEAP_DEFINED"
+.PP
+Definition at line 21 of file heap.h.
+.SS "#define HEAP_ITER_DEFINED"
+.PP
+Definition at line 25 of file heap.h.
+.SH "Typedef Documentation"
+.PP 
+.SS "typedef struct \fB_array_struct\fP \fBHeap\fP"
+.PP
+Definition at line 22 of file heap.h.
+.SH "Function Documentation"
+.PP 
+.SS "struct \fB_array_iter\fP ITER (\fBHeap\fP)\fC [read]\fP"
+.SS "int8_t merge_Heap (\fBHeap\fP * obj, \fBHeap\fP * src)"\fBParameters:\fP
+.RS 4
+\fIobj\fP the destination heap 
+.br
+\fIsrc\fP the source heap 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+0 on success, non-zero on error 
+.RE
+.PP
+
+.PP
+Definition at line 173 of file heap.c.
+.SS "int8_t pop_Heap (\fBHeap\fP * obj)"
+.PP
+Removes the top value of the heap. \fBParameters:\fP
+.RS 4
+\fIobj\fP the heap object to remove the max/min value from  on success, non-zero on error Based on the comparison function, pop_Heap removes either the max or the min value from the tree. 
+.RE
+.PP
+
+.PP
+Definition at line 129 of file heap.c.
+.SS "int8_t resize_Heap (\fBHeap\fP * obj, size_t size)"\fBParameters:\fP
+.RS 4
+\fIobj\fP the object to resize 
+.br
+\fIsize\fP the size to resize to 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+0 on success, non-zero on error 
+.RE
+.PP
+
+.PP
+Definition at line 160 of file heap.c.
+.SS "void* top_Heap (\fBHeap\fP * obj)"
+.PP
+returns the first value to be removed from the delete function \fBParameters:\fP
+.RS 4
+\fIobj\fP the heap object to get the max/min value from 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+Pointer to first value or NULL on error/empty Front is used to get either the max or the min value based on the comparision function. It returns the value stored at the first node and is also the value to be removed from the heap on the proceeding delete call 
+.RE
+.PP
+
+.PP
+Definition at line 121 of file heap.c.
+.SH "Variable Documentation"
+.PP 
+.SS "void* \fBdata\fP"
+.PP
+Definition at line 41 of file heap.h.
+.SS "void size_t \fBdatasize\fP"
+.PP
+Definition at line 41 of file heap.h.
+.SS "void size_t int \fBflag\fP"
+.PP
+Definition at line 41 of file heap.h.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 'c generic library' from the source code.
